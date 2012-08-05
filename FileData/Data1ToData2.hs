@@ -2,10 +2,6 @@
 module Data1ToData2 where
 import qualified FileData.Data1 as D1
 import qualified FileData.Data2 as D2
-import Control.Applicative ((<$>))
-
-playerSize = ((0,0,0), (2,2.5,0))
-starSize   = ((0,0,0), (1.5,1.5,0))
 
 convertFile :: FilePath -> FilePath -> IO ()
 convertFile d1Path d2Path = do
@@ -30,8 +26,8 @@ convertLevel level = D2.Level levelId entities layers
                 convertLayer $ D1.otherLayer  level]
 
 
-convertPlayer (D1.Player id initPos) = D2.Player id initPos playerSize
-convertStar (D1.Star id pos) = D2.Star id pos starSize
+convertPlayer (D1.Player id initPos) = D2.Player id initPos
+convertStar (D1.Star id pos) = D2.Star id pos
 
 convertLayer (D1.Layer id gravity platforms) =
    D2.Layer id (map convertPlatform platforms) gravity
@@ -40,7 +36,6 @@ convertPlatform (D1.Platform id size pos) =
    D2.Platform id (convertPos pos) size
    where
       convertPos (Right (D1.Moving velo path biDir)) =
-         Right $ D2.Animation velo path biDir 
+         Right $ D2.Animation (D1.length velo) path biDir 
 
       convertPos (Left pos) = Left pos
-

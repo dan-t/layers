@@ -6,6 +6,10 @@ dataVersion :: Int
 dataVersion = 1
 
 type Tuple3d = (Double,Double,Double)
+
+length :: Tuple3d -> Double
+length (x, y, z) = sqrt $ (x * x) + (y * y) + (z * z)
+
 type Box     = (Tuple3d,Tuple3d)
 
 data Moving = Moving {

@@ -1,8 +1,14 @@
 
 module GameData.Layer where
-import qualified FileData.Data2 as FD
+import qualified Entity.Entity as E
 
-data Layer entity = Layer {
-   id       :: FD.Id,
-   entities :: [entity]
+
+data Layer = Layer {
+   layerId  :: Int,
+   entities :: [E.Entity],
+   gravity  :: Double
    }
+
+
+empty :: Layer
+empty = Layer 0 [] 0
