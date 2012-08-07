@@ -38,12 +38,13 @@ toLayer (FD.Layer id fes g) = LY.Layer id es g
 
 toEntity :: FD.Entity -> E.Entity
 toEntity (FD.Player id initPos) =
-   E.PlayerEntity $ P.newPlayer id (V.fromTuple initPos)
+   E.Entity $ P.newPlayer id (V.fromTuple initPos)
 
 toEntity (FD.Platform id posOrAnim bound) =
-   E.PlatformEntity $ PF.Platform id (toPosOrAnimation posOrAnim) (B.fromTuples bound)
+   E.Entity $ PF.newPlatform id (toPosOrAnimation posOrAnim) (B.fromTuples bound)
 
-toEntity (FD.Star id pos) = E.StarEntity $ S.newStar id (V.fromTuple pos)
+toEntity (FD.Star id pos) = 
+   E.Entity $ S.newStar id (V.fromTuple pos)
 
 
 toPosOrAnimation :: FD.PositionOrAnimation -> PF.PositionOrAnimation
