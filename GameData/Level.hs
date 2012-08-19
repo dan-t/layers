@@ -1,7 +1,7 @@
 
 module GameData.Level where
 import qualified GameData.Layer as LY
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 
 data Level = Level {
    levelId     :: Int,

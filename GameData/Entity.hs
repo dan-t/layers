@@ -1,5 +1,5 @@
 
-module Entity.Entity where
+module GameData.Entity where
 import Control.Applicative ((<$>))
 import qualified Gamgine.Math.BoxTree as BT
 import qualified FileData.Data2 as FD

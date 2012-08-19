@@ -1,9 +1,9 @@
 
-module Entity.Player where
+module GameData.Player where
 import qualified FileData.Data2 as FD
 import qualified Gamgine.Math.Vect as V
 import qualified Event as EV
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 
 data Movement = ToTheLeft | ToTheRight | AtRest deriving (Show, Eq)
 

@@ -1,6 +1,6 @@
 
 module GameData.Layer where
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 
 data Layer = Layer {
    layerId  :: Int,

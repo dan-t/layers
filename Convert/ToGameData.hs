@@ -3,11 +3,11 @@ module Convert.ToGameData where
 import qualified Data.List as L
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 import qualified FileData.Data2 as FD
-import qualified Entity.Player as P
-import qualified Entity.Star as S
-import qualified Entity.Platform as PF
+import qualified GameData.Player as P
+import qualified GameData.Star as S
+import qualified GameData.Platform as PF
 import qualified GameData.Animation as A
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV

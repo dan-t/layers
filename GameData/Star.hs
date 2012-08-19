@@ -1,9 +1,9 @@
 
-module Entity.Star where
+module GameData.Star where
 import qualified Gamgine.Math.Vect as V
 import qualified FileData.Data2 as FD
 import qualified Event as EV
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 
 data Star = Star {
    starId    :: Int,

@@ -1,7 +1,7 @@
 
 module Convert.ToFileData where
 import qualified Data.List as L
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 import qualified FileData.Data2 as FD
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV

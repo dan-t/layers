@@ -1,5 +1,5 @@
 
-module Entity.Platform where
+module GameData.Platform where
 import qualified Data.List as L
 import qualified FileData.Data2 as FD
 import qualified GameData.Animation as A
@@ -7,7 +7,7 @@ import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V
 import Gamgine.Math.Vect
 import qualified Event as EV
-import qualified Entity.Entity as E
+import qualified GameData.Entity as E
 
 type PositionOrAnimation = Either Vect A.Animation
 
