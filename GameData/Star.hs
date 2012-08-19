@@ -17,7 +17,7 @@ instance E.ToFileEntity Star where
 
 instance E.EntityT Star where
    update e s = e
-   render e s = return e
+   render e s = return ()
    handleEvent e ev s = e
    getBound e = Nothing
 
