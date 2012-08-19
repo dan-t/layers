@@ -11,15 +11,18 @@ import qualified GameData.Platform as PF
 import qualified GameData.Animation as A
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
-import qualified GameData.Data as D
+import qualified GameData.Data as GD
 
 
-toGameData :: FD.Data -> D.Data
-toGameData (FD.Data _ [])         = D.Data [] LV.empty
-toGameData (FD.Data _ (flv:flvs)) = D.Data (lv : lvs) lv
-   where
-      lv  = toLevel flv
-      lvs = L.map toLevel flvs
+toGameData :: FD.Data -> GD.Data
+toGameData (FD.Data _ [])         = GD.newData
+toGameData (FD.Data _ (flv:flvs)) = GD.newData {
+  GD.allLevels   = (lv : lvs),
+  GD.activeLevel = lv
+  }
+  where
+     lv  = toLevel flv
+     lvs = L.map toLevel flvs
 
 
 toLevel :: FD.Level -> LV.Level

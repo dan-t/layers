@@ -20,6 +20,10 @@ newBackground = do
    return Background {size = (2000, 1000), textureId = tex}
 
 
+empty :: Background
+empty = Background {size = (0,0), textureId = 0}
+
+
 render :: Background -> IO ()
 render Background {size = size, textureId = texId} = do
    G.withTexture2d texId $
