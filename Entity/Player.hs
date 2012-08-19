@@ -1,5 +1,6 @@
 
 module Entity.Player where
+import qualified FileData.Data2 as FD
 import qualified Gamgine.Math.Vect as V
 import qualified Event as EV
 import qualified Entity.Entity as E
@@ -14,6 +15,10 @@ data Player = Player {
    onBottom        :: Bool,
    movement        :: Movement
    } deriving Show
+
+instance E.ToFileEntity Player where
+   toFileEntity Player {playerId = id, initialPosition = initPos} =
+      FD.Player id (V.toTuple initPos)
 
 instance E.EntityT Player where
    update e s = e

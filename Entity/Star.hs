@@ -1,6 +1,7 @@
 
 module Entity.Star where
 import qualified Gamgine.Math.Vect as V
+import qualified FileData.Data2 as FD
 import qualified Event as EV
 import qualified Entity.Entity as E
 
@@ -9,6 +10,10 @@ data Star = Star {
    position  :: V.Vect,
    collected :: Bool
    } deriving Show
+
+instance E.ToFileEntity Star where
+   toFileEntity Star {starId = id, position = pos} =
+      FD.Star id (V.toTuple pos)
 
 instance E.EntityT Star where
    update e s = e
