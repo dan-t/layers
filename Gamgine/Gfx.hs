@@ -2,12 +2,12 @@
 
 module Gamgine.Gfx where
 import Graphics.Rendering.OpenGL.Raw
-import Codec.Image.PNG
 import Data.Either
 import Foreign.Marshal.Utils
 import Foreign.Storable
 import Data.Array.Storable
 import System.IO
+import Gamgine.Image.PNG
 import Gamgine.Math.Box
 import Gamgine.Math.Vect
 import Gamgine.Math.BoxTree as BT
