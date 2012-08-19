@@ -7,21 +7,21 @@ import qualified Background as BG
 
 
 data Data = Data {
-   windowSize  :: (Int, Int),
-   frustumSize :: (Double, Double),
-   background  :: BG.Background,
-   allLevels   :: [LV.Level],
-   activeLevel :: LV.Level
+   windowSize   :: (Int, Int),
+   frustumSize  :: (Double, Double),
+   background   :: BG.Background,
+   otherLevels  :: [LV.Level],
+   currentLevel :: LV.Level
    } deriving Show
 
 
 newData :: Data
 newData = Data {
-  windowSize  = (0,0),
-  frustumSize = (0,0),
-  background  = BG.empty,
-  allLevels   = [],
-  activeLevel = LV.empty
+  windowSize   = (0,0),
+  frustumSize  = (0,0),
+  background   = BG.empty,
+  otherLevels  = [],
+  currentLevel = LV.empty
   }
 
 

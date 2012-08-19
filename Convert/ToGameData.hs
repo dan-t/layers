@@ -15,28 +15,31 @@ import qualified GameData.Data as GD
 
 
 toGameData :: FD.Data -> GD.Data
-toGameData (FD.Data _ [])         = GD.newData
-toGameData (FD.Data _ (flv:flvs)) = GD.newData {
-  GD.allLevels   = (lv : lvs),
-  GD.activeLevel = lv
-  }
-  where
-     lv  = toLevel flv
-     lvs = L.map toLevel flvs
+toGameData (FD.Data _ [])     = GD.newData
+toGameData (FD.Data _ levels) = GD.newData {
+   GD.otherLevels  = othLevels,
+   GD.currentLevel = curLevel
+   }
+   where
+      (curLevel : othLevels) = L.sort $ L.map toLevel levels
 
 
 toLevel :: FD.Level -> LV.Level
-toLevel (FD.Level id fes (fl:fls)) = LV.Level id es (l : ls) l
+toLevel (FD.Level id entities layers) = LV.Level {
+   LV.levelId        = id,
+   LV.entities       = gameEntities,
+   LV.inactiveLayers = inactLayers,
+   LV.activeLayer    = actLayer
+   }
    where
-      es = L.map toEntity fes
-      l  = toLayer fl
-      ls = L.map toLayer fls
+      gameEntities             = L.map toEntity entities
+      (actLayer : inactLayers) = L.sort $ L.map toLayer layers
 
 
 toLayer :: FD.Layer -> LY.Layer
-toLayer (FD.Layer id fes g) = LY.Layer id es g
+toLayer (FD.Layer id entities gravity) = LY.Layer id gameEntities gravity
    where
-      es = L.map toEntity fes
+      gameEntities = L.map toEntity entities
 
 
 toEntity :: FD.Entity -> E.Entity
