@@ -5,6 +5,7 @@ import qualified Gamgine.Math.Vect as V
 import qualified Event as EV
 import qualified GameData.Entity as E
 
+-- | in which direction the player is moving
 data Movement = ToTheLeft | ToTheRight | AtRest deriving (Show, Eq)
 
 data Player = Player {
