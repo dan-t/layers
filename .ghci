@@ -1,0 +1,2 @@
+:set -fglasgow-exts -cpp -pgmPcpphs  -optP--cpp
+:set -I.
