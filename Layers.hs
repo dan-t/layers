@@ -45,10 +45,10 @@ main = do
    let fileData = read file :: FD.Data
        gameData = TGD.toGameData fileData
 
-   bg       <- BG.newBackground
-   dataRef  <- newIORef $ gameData {GD.background = bg}
+   dataRef <- newIORef gameData
    initGLFW dataRef
    initGL
+   initGfx dataRef
 
    time <- GLFW.getTime
    GD.runGame (gameLoop time) dataRef
@@ -120,3 +120,9 @@ initGL :: IO ()
 initGL = do
    GL.glClearColor 0 0 0 0
 
+
+initGfx :: GD.DataRef -> IO ()
+initGfx dataRef = do
+   gameData <- readIORef dataRef
+   bg       <- BG.newBackground
+   dataRef $= gameData {GD.background = bg}
