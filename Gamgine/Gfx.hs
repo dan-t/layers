@@ -2,6 +2,7 @@
 
 module Gamgine.Gfx where
 import Graphics.Rendering.OpenGL.Raw
+import Control.Monad (forM_)
 import Data.Either
 import Foreign.Marshal.Utils
 import Foreign.Storable
@@ -130,3 +131,18 @@ makeTexture2d file wrapMode = do
 	    glTexImage2D gl_TEXTURE_2D 0 (fromIntegral format) (fromIntegral width)
 	                 (fromIntegral height) 0 (fromIntegral format) gl_UNSIGNED_BYTE array)
 	 return id
+
+
+renderTexturedQuad :: (Double,Double) -> Vect -> GLuint -> IO ()
+renderTexturedQuad size translation texture =
+   withPushedMatrix $ do
+      glTranslatef <<< translation
+      withTexture2d texture $
+         withBlend gl_SRC_ALPHA gl_ONE_MINUS_SRC_ALPHA $
+            withPrimitive gl_QUADS $ do
+               let coords   = quadTexCoords 1 1
+                   vertices = quad (0,0) size
+               glColor3f <<<* (1,1,1)
+               forM_ (zip coords vertices) (\(c,v) -> do
+                  glTexCoord2f <<* c
+                  glVertex2f <<* v)
