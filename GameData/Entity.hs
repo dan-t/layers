@@ -1,3 +1,4 @@
+{-# LANGUAGE ExistentialQuantification #-}
 
 module GameData.Entity where
 import Control.Applicative ((<$>))
