@@ -13,6 +13,7 @@ import qualified FileData.Data2 as FD
 import qualified GameData.Data as GD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
+import qualified GameData.Level as LV
 
 
 winWidth :: Int

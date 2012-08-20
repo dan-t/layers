@@ -21,7 +21,7 @@ toGameData (FD.Data _ levels) = GD.newData {
    GD.currentLevel = curLevel
    }
    where
-      (curLevel : othLevels) = L.sort $ L.map toLevel levels
+      (curLevel : othLevels) = LV.sortById $ L.map toLevel levels
 
 
 toLevel :: FD.Level -> LV.Level
@@ -33,7 +33,7 @@ toLevel (FD.Level id entities layers) = LV.Level {
    }
    where
       gameEntities             = L.map toEntity entities
-      (actLayer : inactLayers) = L.sort $ L.map toLayer layers
+      (actLayer : inactLayers) = LY.sortById $ L.map toLayer layers
 
 
 toLayer :: FD.Layer -> LY.Layer

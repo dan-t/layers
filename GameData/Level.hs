@@ -1,5 +1,6 @@
 
 module GameData.Level where
+import qualified Data.List as L
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 
@@ -12,14 +13,13 @@ data Level = Level {
    } deriving Show
 
 
-instance Eq Level where
-   l1 == l2 = 
-      levelId l1 == levelId l2
-
-
-instance Ord Level where
-   l1 <= l2 = 
-      levelId l1 <= levelId l2
+sortById :: [Level] -> [Level]
+sortById levels = L.sortBy cmpIds levels
+   where
+      cmpIds Level {levelId = id1} Level {levelId = id2}
+         | id1 < id2 = LT
+         | id1 > id2 = GT
+         | otherwise = EQ
 
 
 empty :: Level

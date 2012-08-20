@@ -1,5 +1,6 @@
 
 module GameData.Layer where
+import qualified Data.List as L
 import qualified GameData.Entity as E
 
 
@@ -10,14 +11,13 @@ data Layer = Layer {
    } deriving Show
 
 
-instance Eq Layer where
-   l1 == l2 =
-      layerId l1 == layerId l2
-
-
-instance Ord Layer where
-   l1 <= l2 =
-      layerId l1 <= layerId l2
+sortById :: [Layer] -> [Layer]
+sortById layers = L.sortBy cmpIds layers
+   where
+      cmpIds Layer {layerId = id1} Layer {layerId = id2}
+         | id1 < id2 = LT
+         | id1 > id2 = GT
+         | otherwise = EQ
 
 
 empty :: Layer
