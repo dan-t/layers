@@ -16,10 +16,10 @@ instance E.ToFileEntity Star where
       FD.Star id (V.toTuple pos)
 
 instance E.EntityT Star where
-   update e s = e
-   render e s = return ()
-   handleEvent e ev s = e
-   getBound e = Nothing
+   update _ e = e
+   render _ _ = return ()
+   handleEvent _ _ e = e
+   getBound _ = Nothing
 
 newStar :: Int -> V.Vect -> Star
 newStar id pos = Star id pos False

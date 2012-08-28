@@ -35,10 +35,10 @@ toAnimation anim = FD.Animation velo path bidir
 
 
 instance E.EntityT Platform where
-   update e s = e
-   render e s = return ()
-   handleEvent e ev s = e
-   getBound e = Nothing
+   update _ e = e
+   render _ _ = return ()
+   handleEvent _ _ e = e
+   getBound _ = Nothing
 
 newPlatform :: Int -> PositionOrAnimation -> B.Box -> Platform
 newPlatform id posOrAnim bound = Platform id posOrAnim bound

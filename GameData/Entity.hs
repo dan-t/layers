@@ -21,20 +21,20 @@ data Scope = LevelScope         -- ^ entity is part of all layers
 -- | the type class for all game entities
 class EntityT e where
    -- | init ressources of entity e.g. load textures
-   initRessources :: e -> Scope -> IO e
-   initRessources e _ = return e
+   initRessources :: e -> IO e
+   initRessources e = return e
 
    -- | update the properties of the entity e.g. it's position
-   update :: e -> Scope -> e
-   update e _ = e
+   update :: Scope -> e -> e
+   update _ e = e
 
    -- | render the current state of the entity
-   render :: e -> Scope -> IO ()
-   render e _ = return ()
+   render :: Scope -> e -> IO ()
+   render _ _ = return ()
 
    -- | handle a event send to the entity
-   handleEvent :: e -> EV.Event -> Scope -> e
-   handleEvent e _ _ = e
+   handleEvent :: Scope -> EV.Event -> e -> e
+   handleEvent _ _ e = e
 
    -- | returns the bound of the entity, used for collision detection
    getBound :: e -> Maybe Bound
@@ -49,6 +49,19 @@ class ToFileEntity e where
 -- | wrapper which can carry any e which has an instance
 --   for Show, ToFileEntity and EntityT
 data Entity = forall e. (Show e, ToFileEntity e, EntityT e) => Entity e
+
+
+instance EntityT Entity where
+   initRessources (Entity e) = Entity <$> initRessources e
+
+   update scope (Entity e) = Entity $ update scope e
+
+   render scope (Entity e) = render scope e
+
+   handleEvent scope event (Entity e) = Entity $ handleEvent scope event e
+
+   getBound (Entity e) = getBound e
+
 
 instance Show Entity where
    show (Entity e) = show e

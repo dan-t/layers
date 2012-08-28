@@ -14,6 +14,7 @@ import qualified GameData.Data as GD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
 import qualified GameData.Level as LV
+import qualified GameData.Entity as E
 
 
 winWidth :: Int
@@ -49,7 +50,7 @@ main = do
    dataRef <- newIORef gameData
    initGLFW dataRef
    initGL
-   initGfx dataRef
+   initRessources dataRef
 
    time <- GLFW.getTime
    GD.runGame (gameLoop time) dataRef
@@ -77,8 +78,9 @@ render :: Double -> GD.DataST ()
 render interpolate = do
    dataRef <- ST.get
    io $ do
-      bg <- GD.background <$> readIORef dataRef
-      BG.render bg
+      gameData <- readIORef dataRef
+      BG.render $ GD.background gameData
+      LV.render $ GD.currentLevel gameData
 
 
 initGLFW :: GD.DataRef -> IO ()
@@ -122,8 +124,10 @@ initGL = do
    GL.glClearColor 0 0 0 0
 
 
-initGfx :: GD.DataRef -> IO ()
-initGfx dataRef = do
+initRessources :: GD.DataRef -> IO ()
+initRessources dataRef = do
    gameData <- readIORef dataRef
    bg       <- BG.newBackground
-   dataRef $= gameData {GD.background = bg}
+   cl       <- LV.initRessources $ GD.currentLevel gameData
+   ols      <- mapM LV.initRessources $ GD.otherLevels gameData
+   dataRef $= gameData {GD.background = bg, GD.currentLevel = cl, GD.otherLevels = ols}

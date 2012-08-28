@@ -22,3 +22,13 @@ sortById layers = L.sortBy cmpIds layers
 
 empty :: Layer
 empty = Layer 0 [] 0
+
+
+initRessources :: Layer -> IO Layer
+initRessources layer = do
+   es' <- mapM E.initRessources $ entities layer
+   return layer {entities = es'}
+
+
+render :: E.Scope -> Layer -> IO ()
+render scope layer = mapM_ (E.render scope) $ entities layer

@@ -24,3 +24,18 @@ sortById levels = L.sortBy cmpIds levels
 
 empty :: Level
 empty = Level 0 [] [] LY.empty
+
+
+initRessources :: Level -> IO Level
+initRessources level = do
+   es' <- mapM E.initRessources $ entities level
+   il' <- mapM LY.initRessources $ inactiveLayers level
+   al' <- LY.initRessources $ activeLayer level
+   return level {entities = es', inactiveLayers = il', activeLayer = al'}
+
+
+render :: Level -> IO ()
+render level = do
+   mapM_ (E.render E.LevelScope) $ entities level
+   mapM_ (LY.render E.InactiveLayerScope) $ inactiveLayers level
+   LY.render E.ActiveLayerScope $ activeLayer level

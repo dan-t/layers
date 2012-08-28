@@ -33,17 +33,17 @@ instance E.ToFileEntity Player where
 
 
 instance E.EntityT Player where
-   initRessources p _ = do
+   initRessources p = do
       fp  <- R.getImageFilePath "Player.png"
       tex <- G.makeTexture2d fp GL.gl_REPEAT
       return p {textureId = tex}
 
-   update e s = e
+   update _ e = e
 
-   render Player {position = pos, textureId = texId} _ =
+   render _ Player {position = pos, textureId = texId} =
       G.renderTexturedQuad playerSize pos texId
 
-   handleEvent e ev s = e
+   handleEvent s ev e = e
 
    getBound p = Just $ bound p
 
