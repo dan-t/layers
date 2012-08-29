@@ -7,14 +7,16 @@ import qualified Control.Monad.State as ST
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
-import qualified Gamgine.Ressources as R
+import qualified Gamgine.Ressources as RS
 import qualified Gamgine.Gfx as G
 import qualified FileData.Data2 as FD
-import qualified GameData.Data as GD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
+import qualified GameData.Data as GD
 import qualified GameData.Level as LV
+import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
+import qualified Entity.Render as ER
 
 
 winWidth :: Int
@@ -42,7 +44,7 @@ io = ST.liftIO
 
 main :: IO ()
 main = do
-   filePath <- R.getDataFileName "Ressources/Levels2.hs"
+   filePath <- RS.getDataFileName "Ressources/Levels2.hs"
    file     <- readFile filePath
    let fileData = read file :: FD.Data
        gameData = TGD.toGameData fileData
@@ -80,7 +82,15 @@ render interpolate = do
    io $ do
       gameData <- readIORef dataRef
       BG.render $ GD.background gameData
-      LV.render $ GD.currentLevel gameData
+      let level = GD.currentLevel gameData
+          res   = GD.renderRessources gameData
+
+      -- render entites of inactive layers
+      mapM_ (\LY.Layer {LY.entities = ents} -> mapM_ (ER.render E.InactiveLayerScope res) ents) $ LV.inactiveLayers level
+      -- render entities of active layer
+      mapM_ (ER.render E.ActiveLayerScope res) $ LY.entities $ LV.activeLayer level
+      -- render entities of level scope
+      mapM_ (ER.render E.LevelScope res) $ LV.entities level
 
 
 initGLFW :: GD.DataRef -> IO ()
@@ -128,6 +138,5 @@ initRessources :: GD.DataRef -> IO ()
 initRessources dataRef = do
    gameData <- readIORef dataRef
    bg       <- BG.newBackground
-   cl       <- LV.initRessources $ GD.currentLevel gameData
-   ols      <- mapM LV.initRessources $ GD.otherLevels gameData
-   dataRef $= gameData {GD.background = bg, GD.currentLevel = cl, GD.otherLevels = ols}
+   res      <- ER.newRessources
+   dataRef $= gameData {GD.background = bg, GD.renderRessources = res}

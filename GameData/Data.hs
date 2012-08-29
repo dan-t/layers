@@ -5,15 +5,17 @@ import Data.Maybe (fromJust)
 import qualified Data.List as L
 import Control.Monad.State
 import qualified GameData.Level as LV
+import qualified Entity.Render as ER
 import qualified Background as BG
 
 
 data Data = Data {
-   windowSize   :: (Int, Int),
-   frustumSize  :: (Double, Double),
-   background   :: BG.Background,
-   otherLevels  :: [LV.Level],
-   currentLevel :: LV.Level
+   windowSize       :: (Int, Int),
+   frustumSize      :: (Double, Double),
+   background       :: BG.Background,
+   otherLevels      :: [LV.Level],
+   currentLevel     :: LV.Level,
+   renderRessources :: ER.Ressources
    } deriving Show
 
 
@@ -23,7 +25,8 @@ newData = Data {
   frustumSize  = (0,0),
   background   = BG.empty,
   otherLevels  = [],
-  currentLevel = LV.empty
+  currentLevel = LV.empty,
+  renderRessources = ER.Ressources (-1) (-1)
   }
 
 
