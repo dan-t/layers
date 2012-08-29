@@ -1,68 +1,25 @@
 
 module GameData.Player where
-import qualified Graphics.Rendering.OpenGL.Raw as GL
-import qualified FileData.Data2 as FD
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
-import qualified Gamgine.Ressources as R
-import qualified Gamgine.Gfx as G
-import qualified Event as EV
 import qualified GameData.Entity as E
 
 
--- | in which direction the player is moving
-data Movement = ToTheLeft | ToTheRight | AtRest deriving (Show, Eq)
-
-
-data Player = Player {
-   playerId        :: Int,
-   initialPosition :: V.Vect,
-   position        :: V.Vect,
-   velocity        :: V.Vect,
-   onBottom        :: Bool,
-   movement        :: Movement,
-   bound           :: E.Bound,
-   textureId       :: GL.GLuint
-   } deriving Show
-
-
-instance E.ToFileEntity Player where
-   toFileEntity Player {playerId = id, initialPosition = initPos} =
-      FD.Player id (V.toTuple initPos)
-
-
-instance E.EntityT Player where
-   initRessources p = do
-      fp  <- R.getImageFilePath "Player.png"
-      tex <- G.makeTexture2d fp GL.gl_REPEAT
-      return p {textureId = tex}
-
-   update _ e = e
-
-   render _ Player {position = pos, textureId = texId} =
-      G.renderTexturedQuad playerSize pos texId
-
-   handleEvent s ev e = e
-
-   getBound p = Just $ bound p
-
-
-newPlayer :: Int -> V.Vect -> Player
-newPlayer id initPos = Player {
-  playerId = id,
-  initialPosition = initPos,
-  position        = initPos,
-  velocity        = (V.v3 0 0 0),
-  onBottom        = False,
-  movement        = AtRest,
-  bound           = playerBound playerSize,
-  textureId       = 0
-  }
+newPlayer :: Int -> V.Vect -> E.Entity
+newPlayer id initPos = E.Player {
+   E.playerId         = id,
+   E.playerInitialPos = initPos,
+   E.playerPosition   = initPos,
+   E.playerVelocity   = V.v3 0 0 0,
+   E.playerOnBottom   = False,
+   E.playerMovement   = E.AtRest,
+   E.playerBound      = playerBound playerSize
+   }
 
 
 playerSize :: (Double, Double)
-playerSize = (2,2.5)
+playerSize = (2, 2.5)
 
 
 playerBound :: (Double, Double) -> E.Bound

@@ -1,25 +1,22 @@
 
 module GameData.Star where
 import qualified Gamgine.Math.Vect as V
-import qualified FileData.Data2 as FD
-import qualified Event as EV
+import qualified Gamgine.Math.Box as B
 import qualified GameData.Entity as E
 
-data Star = Star {
-   starId    :: Int,
-   position  :: V.Vect,
-   collected :: Bool
-   } deriving Show
 
-instance E.ToFileEntity Star where
-   toFileEntity Star {starId = id, position = pos} =
-      FD.Star id (V.toTuple pos)
+newStar :: Int -> V.Vect -> E.Entity
+newStar id pos = E.Star {
+   E.starId        = id,
+   E.starPosition  = pos,
+   E.starBound     = starBound starSize,
+   E.starCollected = False
+   }
 
-instance E.EntityT Star where
-   update _ e = e
-   render _ _ = return ()
-   handleEvent _ _ e = e
-   getBound _ = Nothing
 
-newStar :: Int -> V.Vect -> Star
-newStar id pos = Star id pos False
+starSize :: (Double, Double)
+starSize = (1.5, 1.5)
+
+
+starBound :: (Double, Double) -> B.Box
+starBound (x, y) = B.Box (V.v3 0 0 0) (V.v3 x y 0)

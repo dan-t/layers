@@ -1,10 +1,12 @@
-{-# LANGUAGE ExistentialQuantification #-}
 
 module GameData.Entity where
-import Control.Applicative ((<$>))
+import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Math.BoxTree as BT
+import qualified Gamgine.Math.Box as B
+import qualified Gamgine.Math.Vect as V
 import qualified FileData.Data2 as FD
 import qualified Event as EV
+import qualified GameData.Animation as A
 
 -- | for classification of a box inside the box tree
 data Position = Top | Bottom | Left | Right | Center | Whatever deriving (Show, Eq)
@@ -18,50 +20,28 @@ data Scope = LevelScope         -- ^ entity is part of all layers
            | InactiveLayerScope -- ^ entity is part of a currently inactive layer
            deriving (Show, Eq)
 
--- | the type class for all game entities
-class EntityT e where
-   -- | init ressources of entity e.g. load textures
-   initRessources :: e -> IO e
-   initRessources e = return e
+-- | in which direction the player is moving
+data Movement = ToTheLeft | ToTheRight | AtRest deriving (Show, Eq)
 
-   -- | update the properties of the entity e.g. it's position
-   update :: Scope -> e -> e
-   update _ e = e
+-- | the position of a platform
+type PositionOrAnimation = Either V.Vect A.Animation
 
-   -- | render the current state of the entity
-   render :: Scope -> e -> IO ()
-   render _ _ = return ()
+-- | the game entites
+data Entity = Player {playerId         :: Int,
+                      playerInitialPos :: V.Vect,
+                      playerPosition   :: V.Vect,
+                      playerVelocity   :: V.Vect,
+                      playerOnBottom   :: Bool,
+                      playerMovement   :: Movement,
+                      playerBound      :: Bound}
 
-   -- | handle a event send to the entity
-   handleEvent :: Scope -> EV.Event -> e -> e
-   handleEvent _ _ e = e
+            | Star {starId        :: Int,
+                    starPosition  :: V.Vect,
+                    starBound     :: B.Box,
+                    starCollected :: Bool}
 
-   -- | returns the bound of the entity, used for collision detection
-   getBound :: e -> Maybe Bound
-   getBound _ = Nothing
+            | Platform {platformId       :: Int,
+                        platformPosition :: PositionOrAnimation,
+                        platformBound    :: B.Box}
 
-
--- | convert a game data entity into a file data entity
-class ToFileEntity e where
-   toFileEntity :: e -> FD.Entity
-
-
--- | wrapper which can carry any e which has an instance
---   for Show, ToFileEntity and EntityT
-data Entity = forall e. (Show e, ToFileEntity e, EntityT e) => Entity e
-
-
-instance EntityT Entity where
-   initRessources (Entity e) = Entity <$> initRessources e
-
-   update scope (Entity e) = Entity $ update scope e
-
-   render scope (Entity e) = render scope e
-
-   handleEvent scope event (Entity e) = Entity $ handleEvent scope event e
-
-   getBound (Entity e) = getBound e
-
-
-instance Show Entity where
-   show (Entity e) = show e
+            deriving Show

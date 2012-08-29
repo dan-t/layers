@@ -44,21 +44,19 @@ toLayer (FD.Layer id entities gravity) = LY.Layer id gameEntities gravity
 
 toEntity :: FD.Entity -> E.Entity
 toEntity (FD.Player id initPos) =
-   E.Entity $ P.newPlayer id (V.fromTuple initPos)
+   P.newPlayer id (V.fromTuple initPos)
 
 toEntity (FD.Platform id posOrAnim bound) =
-   E.Entity $ PF.newPlatform id (toPosOrAnimation posOrAnim) (B.fromTuples bound)
+   PF.newPlatform id (toPosOrAnimation posOrAnim) (B.fromTuples bound)
+   where
+      toPosOrAnimation :: FD.PositionOrAnimation -> E.PositionOrAnimation
+      toPosOrAnimation (Left  pos)  = Left $ V.fromTuple pos
+      toPosOrAnimation (Right anim) = Right $ toAnimation anim
+
+      toAnimation :: FD.Animation -> A.Animation
+      toAnimation (FD.Animation velo fpath bidir) = A.animation velo path bidir
+         where
+            path = L.map V.fromTuple fpath
 
 toEntity (FD.Star id pos) = 
-   E.Entity $ S.newStar id (V.fromTuple pos)
-
-
-toPosOrAnimation :: FD.PositionOrAnimation -> PF.PositionOrAnimation
-toPosOrAnimation (Left  pos)  = Left $ V.fromTuple pos
-toPosOrAnimation (Right anim) = Right $ toAnimation anim
-
-
-toAnimation :: FD.Animation -> A.Animation
-toAnimation (FD.Animation velo fpath bidir) = A.animation velo path bidir
-   where
-      path = L.map V.fromTuple fpath
+   S.newStar id (V.fromTuple pos)
