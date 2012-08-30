@@ -26,6 +26,12 @@ data Movement = ToTheLeft | ToTheRight | AtRest deriving (Show, Eq)
 -- | the position of a platform
 type PositionOrAnimation = Either V.Vect A.Animation
 
+
+currentPosition :: PositionOrAnimation -> V.Vect
+currentPosition (Prelude.Left  pos)                              = pos
+currentPosition (Prelude.Right A.Animation {A.path = (pos : _)}) = pos
+
+
 -- | the game entites
 data Entity = Player {playerId         :: Int,
                       playerInitialPos :: V.Vect,
