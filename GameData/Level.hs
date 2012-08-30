@@ -6,10 +6,9 @@ import qualified GameData.Entity as E
 
 
 data Level = Level {
-   levelId        :: Int,
-   entities       :: [E.Entity],
-   inactiveLayers :: [LY.Layer],
-   activeLayer    :: LY.Layer
+   levelId  :: Int,
+   entities :: [E.Entity],
+   layers   :: [LY.Layer]
    } deriving Show
 
 
@@ -20,7 +19,3 @@ sortById levels = L.sortBy cmpIds levels
          | id1 < id2 = LT
          | id1 > id2 = GT
          | otherwise = EQ
-
-
-empty :: Level
-empty = Level 0 [] [] LY.empty

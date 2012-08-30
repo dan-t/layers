@@ -4,6 +4,7 @@ import Data.StateVar (($=))
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import qualified Control.Monad.State as ST
+import Control.Monad (forM_, mapM_)
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
@@ -12,6 +13,7 @@ import qualified Gamgine.Gfx as G
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
+import qualified AppData as AP
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
@@ -49,17 +51,17 @@ main = do
    let fileData = read file :: FD.Data
        gameData = TGD.toGameData fileData
 
-   dataRef <- newIORef gameData
-   initGLFW dataRef
+   appDataRef <- newIORef $ AP.newAppData gameData
+   initGLFW appDataRef
    initGL
-   initRessources dataRef
+   initRessources appDataRef
 
    time <- GLFW.getTime
-   GD.runGame (gameLoop time) dataRef
+   AP.runApp (gameLoop time) appDataRef
    return ()
 
 
-gameLoop :: Double -> GD.DataST ()
+gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
    (nextFrame', interpolate) <- updateLoop nextFrame
    io $ do
@@ -72,29 +74,32 @@ gameLoop nextFrame = do
    gameLoop nextFrame'
 
 
-update :: GD.DataST ()
+update :: AP.AppST ()
 update = return ()
 
 
-render :: Double -> GD.DataST ()
+render :: Double -> AP.AppST ()
 render interpolate = do
-   dataRef <- ST.get
+   appDataRef <- ST.get
    io $ do
-      gameData <- readIORef dataRef
-      BG.render $ GD.background gameData
-      let level = GD.currentLevel gameData
-          res   = GD.renderRessources gameData
+      appData <- readIORef appDataRef
+      BG.render $ AP.background appData
+      let currLevelId = AP.currentLevelId appData
+          actLayerId  = AP.activeLayerId appData
+          rstate = ER.RenderState interpolate $ AP.renderRessources appData
 
-      -- render entites of inactive layers
-      mapM_ (\LY.Layer {LY.entities = ents} -> mapM_ (ER.render E.InactiveLayerScope res) ents) $ LV.inactiveLayers level
-      -- render entities of active layer
-      mapM_ (ER.render E.ActiveLayerScope res) $ LY.entities $ LV.activeLayer level
-      -- render entities of level scope
-      mapM_ (ER.render E.LevelScope res) $ LV.entities level
+      forM_ (GD.levels $ AP.gameData appData) (\level ->
+         if LV.levelId level == currLevelId
+            then do mapM_ (ER.render E.LevelScope rstate) $ LV.entities level
+                    forM_ (LV.layers level) (\layer ->
+                       if LY.layerId layer == actLayerId
+                          then mapM_ (ER.render E.ActiveLayerScope rstate) $ LY.entities layer
+                          else mapM_ (ER.render E.InactiveLayerScope rstate) $ LY.entities layer)
+            else return ())
 
 
-initGLFW :: GD.DataRef -> IO ()
-initGLFW dataRef = do
+initGLFW :: AP.AppDataRef -> IO ()
+initGLFW appDataRef = do
    GLFW.initialize
    GLFW.openWindow GLFW.defaultDisplayOptions {
       GLFW.displayOptions_width             = winWidth,
@@ -109,20 +114,20 @@ initGLFW dataRef = do
       exitGame = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
 
       resize width height = do
-	 gameData <- readIORef dataRef
-         dataRef $= gameData {GD.windowSize = (width, height)}
+	 appData <- readIORef appDataRef
+         appDataRef $= appData {AP.windowSize = (width, height)}
          updateFrustum
          updateCamera
 
       updateFrustum = do
-	 gd@GD.Data {GD.windowSize = (width, height)} <- readIORef dataRef
+	 ad@AP.AppData {AP.windowSize = (width, height)} <- readIORef appDataRef
          let top   = orthoScale * (fromIntegral width / fromIntegral height)
              right = orthoScale
 
-         dataRef $= gd {GD.frustumSize = (right, top)} 
+         appDataRef $= ad {AP.frustumSize = (right, top)} 
 
       updateCamera = do
-         GD.Data {GD.windowSize = (w, h), GD.frustumSize = (r, t)} <- readIORef dataRef
+         AP.AppData {AP.windowSize = (w, h), AP.frustumSize = (r, t)} <- readIORef appDataRef
 	 GL.glViewport 0 0 (fromIntegral w) (fromIntegral h)
 	 GL.glMatrixMode GL.gl_PROJECTION
 	 GL.glLoadIdentity
@@ -134,9 +139,9 @@ initGL = do
    GL.glClearColor 0 0 0 0
 
 
-initRessources :: GD.DataRef -> IO ()
-initRessources dataRef = do
-   gameData <- readIORef dataRef
-   bg       <- BG.newBackground
-   res      <- ER.newRessources
-   dataRef $= gameData {GD.background = bg, GD.renderRessources = res}
+initRessources :: AP.AppDataRef -> IO ()
+initRessources appDataRef = do
+   appData <- readIORef appDataRef
+   bg      <- BG.newBackground
+   res     <- ER.newRessources
+   appDataRef $= appData {AP.background = bg, AP.renderRessources = res}

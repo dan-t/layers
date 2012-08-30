@@ -12,21 +12,21 @@ import qualified GameData.Animation as A
 
 
 toFileData :: D.Data -> FD.Data
-toFileData D.Data {D.otherLevels = othLvs, D.currentLevel = cLv} =
-   FD.Data FD.dataVersion (L.map toLevel $ LV.sortById (cLv : othLvs))
+toFileData D.Data {D.levels = levels} =
+   FD.Data FD.dataVersion $ L.map toLevel levels
 
 
 toLevel :: LV.Level -> FD.Level
-toLevel (LV.Level id es ls _) = FD.Level id fes fls
+toLevel LV.Level {LV.levelId = id, LV.entities = entities, LV.layers = layers} = FD.Level id fileEntities fileLayers
    where
-      fes = L.map toEntity es
-      fls = L.map toLayer ls
+      fileEntities = L.map toEntity entities
+      fileLayers   = L.map toLayer layers
 
 
 toLayer :: LY.Layer -> FD.Layer
-toLayer (LY.Layer id es g) = FD.Layer id fes g
+toLayer LY.Layer {LY.layerId = id, LY.entities = entities, LY.gravity = g} = FD.Layer id fileEntities g
    where
-      fes = L.map toEntity es
+      fileEntities = L.map toEntity entities
 
 
 toEntity :: E.Entity -> FD.Entity
