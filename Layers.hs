@@ -66,13 +66,13 @@ main = do
 
 gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
-   (nextFrame', interpolate) <- updateLoop nextFrame
+   (nextFrame', nextFrameFraction) <- updateLoop nextFrame
    io $ do
       GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
       GL.glMatrixMode GL.gl_MODELVIEW
       GL.glLoadIdentity
 
-   render interpolate
+   render nextFrameFraction
    io GLFW.swapBuffers
    gameLoop nextFrame'
 
@@ -93,12 +93,12 @@ update = do
 
 
 render :: Double -> AP.AppST ()
-render interpolate = do
+render nextFrameFraction = do
    appDataRef <- ST.get
    io $ do
       appData <- readIORef appDataRef
       let actLayerId = AP.activeLayerId appData
-          rstate     = ER.RenderState interpolate $ AP.renderRessources appData
+          rstate     = ER.RenderState nextFrameFraction $ AP.renderRessources appData
 
       BG.render $ AP.background appData
       case LE.getL AP.currentLevel appData of

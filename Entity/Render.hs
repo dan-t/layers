@@ -3,6 +3,8 @@ module Entity.Render where
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Ressources as R
 import qualified Gamgine.Gfx as G
+import qualified Gamgine.Math.Box as B
+import qualified Gamgine.Math.Vect as V
 import Gamgine.Gfx ((<<<*), (<<<<*), (<<<))
 import qualified GameData.Entity as E
 import qualified GameData.Player as P
@@ -18,8 +20,8 @@ data Ressources = Ressources {
 
 
 data RenderState = RenderState {
-   frameInterpolation :: Double,
-   ressources         :: Ressources
+   nextFrameFraction :: Double,    -- ^ value range 0-1
+   ressources        :: Ressources
    } deriving Show
 
 
@@ -32,23 +34,49 @@ newRessources = do
    return $ Ressources playTexId starTexId
 
 
-render :: E.Scope -> RenderState -> E.Entity -> IO ()
-render _ RenderState {ressources = res} E.Player {E.playerPosition = pos} =
-   G.renderTexturedQuad P.playerSize pos $ playerTextureId res
+interpolateFrame :: Double -> V.Vect -> V.Vect -> V.Vect
+interpolateFrame nextFrameFraction position velocity =
+   position + (velocity * (V.v3 nextFrameFraction nextFrameFraction nextFrameFraction))
 
-render _ RenderState {ressources = res} E.Star {E.starPosition = pos, E.starCollected = False} =
+
+interpolatePlaformPos :: Double -> E.PositionOrAnimation -> V.Vect
+interpolatePlaformPos _ (Left pos) = pos
+
+interpolatePlaformPos nextFrameFraction (Right ani) =
+   let velo    = A.velocity ani
+       veloVec = V.v3 velo velo velo
+       in interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentDirection ani * veloVec)
+
+
+render :: E.Scope ->
+          RenderState ->
+          E.Entity ->
+          IO ()
+
+render _
+       RenderState {nextFrameFraction = frac, ressources = res}
+       E.Player {E.playerPosition = pos, E.playerVelocity = velo} =
+   G.renderTexturedQuad P.playerSize (interpolateFrame frac pos velo) $ playerTextureId res
+
+render _
+       RenderState {ressources = res}
+       E.Star {E.starPosition = pos, E.starCollected = False} =
    G.renderTexturedQuad S.starSize pos $ starTextureId res
 
-render E.ActiveLayerScope _ E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
+render E.ActiveLayerScope
+       RenderState {nextFrameFraction = frac}
+       E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
-      GL.glTranslatef <<< E.currentPosition posOrAnim
+      GL.glTranslatef <<< interpolatePlaformPos frac posOrAnim
       GL.glColor3f <<<* (0.7,0.7,0.7) >> G.drawBox bound
       GL.glLineWidth 4
       G.withPolyMode GL.gl_LINE $ GL.glColor3f <<<* (0.4,0.4,0.4) >> G.drawBox bound
 
-render E.InactiveLayerScope _ E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
+render E.InactiveLayerScope
+       RenderState {nextFrameFraction = frac}
+       E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
-      GL.glTranslatef <<< E.currentPosition posOrAnim
+      GL.glTranslatef <<< interpolatePlaformPos frac posOrAnim
       G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $ do
          GL.glColor4f <<<<* (0.0,0.0,0.1,0.2) >> G.drawBox bound
          G.withPolyMode GL.gl_LINE $ GL.glColor4f <<<<* (0.0,0.0,0.3,0.2) >> G.drawBox bound
