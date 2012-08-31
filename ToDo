@@ -1,5 +1,5 @@
 
-- animiere platformen
+- player physik
 - bewege player
 - boundary kollisionsobjekte
 - collisions erkennung
