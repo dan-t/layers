@@ -1,7 +1,9 @@
 
 module AppData where
-import Data.IORef
-import Control.Monad.State
+import qualified Data.IORef as R
+import qualified Data.List as L
+import qualified Data.Lens.Strict as LE
+import qualified Control.Monad.State as S
 import qualified Background as BG
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
@@ -20,6 +22,20 @@ data AppData = AppData {
    }
 
 
+-- | a lens for the current level
+currentLevel =
+   LE.lens (\AppData {gameData = gd, currentLevelId = curId} ->
+              L.find ((== curId) . LV.levelId) $ GD.levels gd)
+
+           (\maybeLevel ad@AppData {gameData = gd} ->
+              maybe ad
+                    (\curLevel -> ad {gameData = gd {GD.levels = map (\level ->
+                       if LV.levelId level == LV.levelId curLevel
+                          then curLevel
+                          else level) $ GD.levels gd}})
+                    maybeLevel)
+
+
 newAppData :: GD.Data -> AppData
 newAppData gameData = AppData {
    windowSize       = (0,0),
@@ -35,9 +51,9 @@ newAppData gameData = AppData {
       actLayer  = LV.layers currLevel !! 0
 
 
-type AppDataRef = IORef AppData
-type AppST      = StateT AppDataRef IO
+type AppDataRef = R.IORef AppData
+type AppST      = S.StateT AppDataRef IO
 
 
 runApp :: AppST a -> AppDataRef -> IO (a, AppDataRef)
-runApp = runStateT
+runApp = S.runStateT

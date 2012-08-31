@@ -28,8 +28,8 @@ type PositionOrAnimation = Either V.Vect A.Animation
 
 
 currentPosition :: PositionOrAnimation -> V.Vect
-currentPosition (Prelude.Left  pos)                              = pos
-currentPosition (Prelude.Right A.Animation {A.path = (pos : _)}) = pos
+currentPosition (Prelude.Left  pos) = pos
+currentPosition (Prelude.Right ani) = A.currentPosition ani
 
 
 -- | the game entites

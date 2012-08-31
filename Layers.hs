@@ -1,6 +1,8 @@
 
-import Data.IORef (newIORef, readIORef)
+#include "Gamgine/Utils.cpp"
+import Data.IORef (newIORef, readIORef, modifyIORef)
 import Data.StateVar (($=))
+import qualified Data.Lens.Strict as LE
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import qualified Control.Monad.State as ST
@@ -19,6 +21,7 @@ import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 import qualified Entity.Render as ER
+import qualified Entity.Update as EU
 
 
 winWidth :: Int
@@ -75,7 +78,18 @@ gameLoop nextFrame = do
 
 
 update :: AP.AppST ()
-update = return ()
+update = do
+   appDataRef <- ST.get
+   io $ modifyIORef appDataRef (LE.modL AP.currentLevel updateEntities)
+   where
+      updateEntities (Just level) = Just $
+         level {LV.entities = map EU.update $ LV.entities level,
+                LV.layers   = map updateLayerEntities $ LV.layers level}
+
+      updateEntities _ = Nothing
+
+      updateLayerEntities layer =
+         layer {LY.entities = map EU.update $ LY.entities layer}
 
 
 render :: Double -> AP.AppST ()
@@ -83,19 +97,18 @@ render interpolate = do
    appDataRef <- ST.get
    io $ do
       appData <- readIORef appDataRef
-      BG.render $ AP.background appData
-      let currLevelId = AP.currentLevelId appData
-          actLayerId  = AP.activeLayerId appData
-          rstate = ER.RenderState interpolate $ AP.renderRessources appData
+      let actLayerId = AP.activeLayerId appData
+          rstate     = ER.RenderState interpolate $ AP.renderRessources appData
 
-      forM_ (GD.levels $ AP.gameData appData) (\level ->
-         if LV.levelId level == currLevelId
-            then do mapM_ (ER.render E.LevelScope rstate) $ LV.entities level
-                    forM_ (LV.layers level) (\layer ->
-                       if LY.layerId layer == actLayerId
-                          then mapM_ (ER.render E.ActiveLayerScope rstate) $ LY.entities layer
-                          else mapM_ (ER.render E.InactiveLayerScope rstate) $ LY.entities layer)
-            else return ())
+      BG.render $ AP.background appData
+      case LE.getL AP.currentLevel appData of
+           Just level -> do
+              mapM_ (ER.render E.LevelScope rstate) $ LV.entities level
+              forM_ (LV.layers level) (\layer ->
+                 mapM_ (ER.render (if LY.layerId layer == actLayerId
+                                      then E.ActiveLayerScope
+                                      else E.InactiveLayerScope) rstate) $ LY.entities layer)
+           _          -> return ()
 
 
 initGLFW :: AP.AppDataRef -> IO ()
@@ -114,17 +127,16 @@ initGLFW appDataRef = do
       exitGame = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
 
       resize width height = do
-	 appData <- readIORef appDataRef
-         appDataRef $= appData {AP.windowSize = (width, height)}
+         modifyIORef appDataRef (\appData -> appData {AP.windowSize = (width, height)})
          updateFrustum
          updateCamera
 
       updateFrustum = do
-	 ad@AP.AppData {AP.windowSize = (width, height)} <- readIORef appDataRef
-         let top   = orthoScale * (fromIntegral width / fromIntegral height)
-             right = orthoScale
-
-         appDataRef $= ad {AP.frustumSize = (right, top)} 
+         modifyIORef appDataRef (\appData ->
+            let (width, height) = AP.windowSize appData
+                top             = orthoScale * (fromIntegral height / fromIntegral width)
+                right           = orthoScale
+                in appData {AP.frustumSize = (right, top)})
 
       updateCamera = do
          AP.AppData {AP.windowSize = (w, h), AP.frustumSize = (r, t)} <- readIORef appDataRef

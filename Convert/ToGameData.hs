@@ -51,7 +51,8 @@ toEntity (FD.Platform id posOrAnim bound) =
       toPosOrAnimation (Right anim) = Right $ toAnimation anim
 
       toAnimation :: FD.Animation -> A.Animation
-      toAnimation (FD.Animation velo fpath bidir) = A.animation velo path bidir
+      toAnimation (FD.Animation _    []    _)     = error $ "Invalid animation data: missing path points!"
+      toAnimation (FD.Animation velo fpath bidir) = A.newAnimation velo path bidir
          where
             path = L.map V.fromTuple fpath
 

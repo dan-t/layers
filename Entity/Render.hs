@@ -33,13 +33,13 @@ newRessources = do
 
 
 render :: E.Scope -> RenderState -> E.Entity -> IO ()
-render scope RenderState {ressources = res} E.Player {E.playerPosition = pos} =
+render _ RenderState {ressources = res} E.Player {E.playerPosition = pos} =
    G.renderTexturedQuad P.playerSize pos $ playerTextureId res
 
-render scope RenderState {ressources = res} E.Star {E.starPosition = pos, E.starCollected = False} =
+render _ RenderState {ressources = res} E.Star {E.starPosition = pos, E.starCollected = False} =
    G.renderTexturedQuad S.starSize pos $ starTextureId res
 
-render E.ActiveLayerScope   _ E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
+render E.ActiveLayerScope _ E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< E.currentPosition posOrAnim
       GL.glColor3f <<<* (0.7,0.7,0.7) >> G.drawBox bound
