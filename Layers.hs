@@ -80,16 +80,21 @@ gameLoop nextFrame = do
 update :: AP.AppST ()
 update = do
    appDataRef <- ST.get
-   io $ modifyIORef appDataRef (LE.modL AP.currentLevel updateEntities)
+   io $ do
+      appData <- readIORef appDataRef
+      let gravity  = maybe 0 LY.gravity $ LE.getL AP.activeLayer appData
+          appData' = LE.modL AP.currentLevel (updateEntities gravity) appData
+
+      appDataRef $= appData'
    where
-      updateEntities (Just level) = Just $
-         level {LV.entities = map EU.update $ LV.entities level,
+      updateEntities activeLayerGravity (Just level) = Just $
+         level {LV.entities = map (EU.update $ EU.UpdateState activeLayerGravity) $ LV.entities level,
                 LV.layers   = map updateLayerEntities $ LV.layers level}
 
-      updateEntities _ = Nothing
+      updateEntities _ _ = Nothing
 
-      updateLayerEntities layer =
-         layer {LY.entities = map EU.update $ LY.entities layer}
+      updateLayerEntities layer@LY.Layer {LY.gravity = g} =
+         layer {LY.entities = map (EU.update $ EU.UpdateState g) $ LY.entities layer}
 
 
 render :: Double -> AP.AppST ()
