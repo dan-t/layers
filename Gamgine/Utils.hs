@@ -20,6 +20,11 @@ count x ys = go x 0 ys
       go x num []     = num
       go x num (y:ys) = go x (x == y ? num + 1 $ num) ys
 
+-- | replace all entries in 'as' by 'new' for which 'f' returns true
+replaceBy :: (a -> Bool) -> a -> [a] -> [a]
+replaceBy f new as = map (\a -> if f a then new else a) as
+
+
 errorsToStderr :: IO () -> IO ()
 errorsToStderr action =
    catch action (\e -> do pn <- normalizedProgName
