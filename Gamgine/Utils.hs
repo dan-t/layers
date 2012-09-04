@@ -1,8 +1,10 @@
 module Gamgine.Utils where
 #include "Gamgine/Utils.cpp"
 import Prelude hiding (catch)
-import qualified Data.ByteString.Lazy   as L
-import qualified Data.ByteString.Unsafe as S
+import qualified Data.ByteString.Lazy   as BL
+import qualified Data.ByteString.Unsafe as BU
+import qualified Data.IORef as R
+import qualified Control.Monad.State as ST
 import System.IO (hPutStrLn, stderr)
 import Control.Exception (catch, SomeException)
 import Data.Array.Storable
@@ -13,6 +15,17 @@ import Data.Word
 import Foreign.Ptr
 import Gamgine.System
 import Debug.Trace
+
+modifySTIORef :: (a -> a) -> ST.StateT (R.IORef a) IO ()
+modifySTIORef f = do
+   aRef <- ST.get
+   ST.liftIO $ R.modifyIORef aRef f
+
+readSTIORef :: (a -> b) -> ST.StateT (R.IORef a) IO b
+readSTIORef f = do
+   aRef <- ST.get
+   a    <- ST.liftIO $ R.readIORef aRef
+   return $ f a
 
 count :: Eq a => a -> [a] -> Int
 count x ys = go x 0 ys
@@ -62,13 +75,13 @@ word a b c d =  (fromIntegral a `shiftL` 24)
                 .|. (fromIntegral d            )
 
 
-bytesFromPointer :: Int -> Ptr Word8 -> IO L.ByteString
+bytesFromPointer :: Int -> Ptr Word8 -> IO BL.ByteString
 bytesFromPointer n ptr = do
-    s <- S.unsafePackCStringLen (castPtr ptr, n)
-    return $! L.fromChunks [s]
+    s <- BU.unsafePackCStringLen (castPtr ptr, n)
+    return $! BL.fromChunks [s]
 
 
-bytesFromStorableArray :: Int -> StorableArray (Int, Int) Word8 -> IO L.ByteString
+bytesFromStorableArray :: Int -> StorableArray (Int, Int) Word8 -> IO BL.ByteString
 bytesFromStorableArray n array = do
    bytes <- withStorableArray array (bytesFromPointer n)
    return bytes
