@@ -19,3 +19,8 @@ sortById levels = L.sortBy cmpIds levels
          | id1 < id2 = LT
          | id1 > id2 = GT
          | otherwise = EQ
+
+
+instance E.ApplyToEntity Level where
+   eMap f level = level {entities = E.eMap f $ entities level,
+                         layers   = L.map (E.eMap f) $ layers level}

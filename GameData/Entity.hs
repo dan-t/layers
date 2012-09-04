@@ -1,5 +1,7 @@
+{-# LANGUAGE FlexibleInstances #-}
 
 module GameData.Entity where
+import qualified Data.List as L
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
@@ -51,3 +53,11 @@ data Entity = Player {playerId         :: Int,
                         platformBound    :: B.Box}
 
             deriving Show
+
+
+class ApplyToEntity a where
+   eMap :: (Entity -> Entity) -> a -> a
+
+
+instance ApplyToEntity [Entity] where
+   eMap f es = L.map f es
