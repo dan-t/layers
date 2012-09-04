@@ -4,7 +4,7 @@ import qualified Data.IORef as R
 import qualified Data.List as L
 import Data.Maybe (fromMaybe)
 import qualified Data.Lens.Strict as LE
-import qualified Control.Monad.State as S
+import qualified Control.Monad.State as ST
 import qualified Gamgine.Utils as GU
 import qualified Background as BG
 import qualified Boundary as BD
@@ -27,38 +27,58 @@ data AppData = AppData {
 
 
 -- | a lens for the current level
-currentLevel = LE.lens getCurrentLevel setCurrentLevel
+currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
    where
       getCurrentLevel =
          (\AppData {gameData = gd, currentLevelId = curId} ->
-            L.find ((== curId) . LV.levelId) $ GD.levels gd)
+            case L.find ((== curId) . LV.levelId) $ GD.levels gd of
+                 Just level -> level
+                 _          -> error $ "Couldn't find current level with id=" ++ show curId ++ "!")
 
       setCurrentLevel =
-         (\maybeLevel ad@AppData {gameData = gd} ->
-            case maybeLevel of
-                 Just level@LV.Level {LV.levelId = levId} ->
-                    ad {currentLevelId = levId,
-                        gameData = gd {GD.levels = GU.replaceBy ((== levId) . LV.levelId) level $ GD.levels gd}}
-                 _          -> ad)
+         (\level@LV.Level {LV.levelId = levId} appData@AppData {gameData = gameData} ->
+            appData {currentLevelId = levId,
+                     gameData = gameData {GD.levels = GU.replaceBy ((== levId) . LV.levelId) level $ GD.levels gameData}})
+
+
+readCurrentLevel :: (LV.Level -> a) -> AppST a
+readCurrentLevel f = do
+   appDataRef <- ST.get
+   appData    <- ST.liftIO $ R.readIORef appDataRef
+   return (f $ LE.getL currentLevelLens appData)
+
+
+modifyCurrentLevel :: (LV.Level -> LV.Level) -> AppST ()
+modifyCurrentLevel f = modifyAppST $ LE.modL currentLevelLens f
 
 
 -- | a lens for the active layer
-activeLayer = LE.lens getActiveLayer setActiveLayer
+activeLayerLens = LE.lens getActiveLayer setActiveLayer
    where
       getActiveLayer =
-         (\ad@AppData {activeLayerId = actId} -> do
-            level <- LE.getL currentLevel ad
-            L.find ((== actId) . LY.layerId) $ LV.layers level)
+         (\appData@AppData {activeLayerId = actId} ->
+            let level = LE.getL currentLevelLens appData
+                in case L.find ((== actId) . LY.layerId) $ LV.layers level of
+                        Just layer -> layer
+                        _          -> error $ "Couldn't find active layer with id=" ++ show actId ++ "!")
 
       setActiveLayer =
-         (\maybeLayer appData ->
-            fromMaybe
-               appData
-               (do layer <- maybeLayer
-                   level <- LE.getL currentLevel appData
-                   let layId  = LY.layerId layer
-                       level' = Just $ level {LV.layers = GU.replaceBy ((== layId) . LY.layerId) layer $ LV.layers level}
-                   Just $ LE.setL currentLevel level' appData {activeLayerId = layId}))
+         (\layer appData ->
+            let level  = LE.getL currentLevelLens appData
+                layId  = LY.layerId layer
+                level' = level {LV.layers = GU.replaceBy ((== layId) . LY.layerId) layer $ LV.layers level}
+                in LE.setL currentLevelLens level' appData {activeLayerId = layId})
+
+
+readActiveLayer :: (LY.Layer -> a) -> AppST a
+readActiveLayer f = do
+   appDataRef <- ST.get
+   appData    <- ST.liftIO $ R.readIORef appDataRef
+   return (f $ LE.getL activeLayerLens appData)
+
+
+modifyActiveLayer :: (LY.Layer -> LY.Layer) -> AppST ()
+modifyActiveLayer f = modifyAppST $ LE.modL activeLayerLens f
 
 
 newAppData :: GD.Data -> AppData
@@ -78,8 +98,16 @@ newAppData gameData = AppData {
 
 
 type AppDataRef = R.IORef AppData
-type AppST      = S.StateT AppDataRef IO
+type AppST      = ST.StateT AppDataRef IO
 
 
-runApp :: AppST a -> AppDataRef -> IO (a, AppDataRef)
-runApp = S.runStateT
+readAppST :: (AppData -> a) -> AppST a
+readAppST f = GU.readSTIORef f
+
+
+modifyAppST :: (AppData -> AppData) -> AppST ()
+modifyAppST f = GU.modifySTIORef f
+
+
+runAppST :: AppST a -> AppDataRef -> IO (a, AppDataRef)
+runAppST = ST.runStateT

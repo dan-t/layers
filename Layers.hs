@@ -7,11 +7,13 @@ import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import qualified Control.Monad.State as ST
 import Control.Monad (forM_, mapM_)
+import Control.Arrow ((&&&))
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.Ressources as RS
 import qualified Gamgine.Gfx as G
+import qualified Gamgine.Utils as GU
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
@@ -61,7 +63,7 @@ main = do
    initRessources appDataRef
 
    time <- GLFW.getTime
-   AP.runApp (gameLoop time) appDataRef
+   AP.runAppST (gameLoop time) appDataRef
    return ()
 
 
@@ -82,19 +84,12 @@ gameLoop nextFrame = do
 
 update :: AP.AppST ()
 update = do
-   appDataRef <- ST.get
-   io $ do
-      appData <- readIORef appDataRef
-      let gravity  = maybe 0 LY.gravity $ LE.getL AP.activeLayer appData
-          appData' = LE.modL AP.currentLevel (updateEntities gravity) appData
-
-      appDataRef $= appData'
+   levelGravity <- AP.readActiveLayer LY.gravity
+   AP.modifyCurrentLevel $ updateEntities levelGravity
    where
-      updateEntities activeLayerGravity (Just level) = Just $
-         level {LV.entities = map (EU.update $ EU.UpdateState activeLayerGravity) $ LV.entities level,
+      updateEntities levelGravity level =
+         level {LV.entities = map (EU.update $ EU.UpdateState levelGravity) $ LV.entities level,
                 LV.layers   = map updateLayerEntities $ LV.layers level}
-
-      updateEntities _ _ = Nothing
 
       updateLayerEntities layer@LY.Layer {LY.gravity = g} =
          layer {LY.entities = map (EU.update $ EU.UpdateState g) $ LY.entities layer}
@@ -108,21 +103,16 @@ keepInsideBoundary = do
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   appDataRef <- ST.get
+   (actLayerId, (renderRes, background)) <- AP.readAppST (AP.activeLayerId &&& AP.renderRessources &&& AP.background)
+   (levelEntities, layers)               <- AP.readCurrentLevel (LV.entities &&& LV.layers)
+   let renderState = ER.RenderState nextFrameFraction renderRes
    io $ do
-      appData <- readIORef appDataRef
-      let actLayerId = AP.activeLayerId appData
-          rstate     = ER.RenderState nextFrameFraction $ AP.renderRessources appData
-
-      BG.render $ AP.background appData
-      case LE.getL AP.currentLevel appData of
-           Just level -> do
-              mapM_ (ER.render E.LevelScope rstate) $ LV.entities level
-              forM_ (LV.layers level) (\layer ->
-                 mapM_ (ER.render (if LY.layerId layer == actLayerId
-                                      then E.ActiveLayerScope
-                                      else E.InactiveLayerScope) rstate) $ LY.entities layer)
-           _          -> return ()
+      BG.render background
+      mapM_ (ER.render E.LevelScope renderState) levelEntities
+      forM_ layers (\layer ->
+         mapM_ (ER.render (if LY.layerId layer == actLayerId
+                              then E.ActiveLayerScope
+                              else E.InactiveLayerScope) renderState) $ LY.entities layer)
 
 
 initGLFW :: AP.AppDataRef -> IO ()
