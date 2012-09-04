@@ -26,14 +26,18 @@ b1 `intersects` b2 =
 moveBy :: Box -> Vect -> Box
 (Box min max) `moveBy` v = Box (min + v) (max + v)
 
+extendBy :: Box -> Box -> Box
+Box min1 max1 `extendBy` Box min2 max2 =
+   Box (V.minVec min1 min2) (V.maxVec max1 max2)
+
 contains :: Box -> Vect -> Bool
 contains b v =
    V.and (V.zipWith (\c1 c2 -> c1 >= c2) v (minPt b))
       && V.and (V.zipWith (\c1 c2 -> c1 <= c2) v (maxPt b))
 
 bound :: [Box] -> Box
-bound (b:bs) = L.foldr (\b1 b2 -> Box (minVec (minPt b1) (minPt b2))
-                                      (maxVec (maxPt b1) (maxPt b2))) b bs
+bound []     = Box (V.v3 0 0 0) (V.v3 0 0 0)
+bound (b:bs) = L.foldr (\b1 b2 -> b1 `extendBy` b2) b bs
 
 -- overlapping if distance negative in all dimensions
 distance :: Box -> Box -> Vect
