@@ -7,6 +7,7 @@ import qualified Data.Lens.Strict as LE
 import qualified Control.Monad.State as S
 import qualified Gamgine.Utils as GU
 import qualified Background as BG
+import qualified Boundary as BD
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
@@ -17,6 +18,7 @@ data AppData = AppData {
    windowSize       :: (Int, Int),
    frustumSize      :: (Double, Double),
    background       :: BG.Background,
+   boundary         :: BD.Boundary,
    renderRessources :: ER.Ressources,
    gameData         :: GD.Data,
    currentLevelId   :: Int,
@@ -64,6 +66,7 @@ newAppData gameData = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
    background       = BG.empty,
+   boundary         = BD.newBoundary currLevel,
    renderRessources = ER.Ressources (-1) (-1),
    gameData         = gameData,
    currentLevelId   = LV.levelId currLevel,

@@ -1,0 +1,44 @@
+
+module Boundary where
+import qualified Data.List as L
+import qualified GameData.Entity as E
+import qualified GameData.Level as LV
+import qualified GameData.Layer as LY
+import qualified GameData.Player as PL
+import qualified Gamgine.Math.Box as B
+import qualified Gamgine.Math.Vect as V
+import Gamgine.Math.Vect
+import qualified Gamgine.Math.BoxTree as BT
+import qualified Entity.Bound as EB
+
+
+-- | the boundary of the whole level
+data Boundary = Boundary B.Box
+
+
+newBoundary :: LV.Level -> Boundary
+newBoundary level = Boundary boundary
+   where
+      boundary         = B.Box (V.v3 0 0 0) $ maxLevel + V.v3 minBorderDist minBorderDist 0
+      B.Box _ maxLevel = levelArea level
+      minBorderDist    = (max (fst PL.playerSize) (snd PL.playerSize)) * 6
+
+
+keepInside :: E.Entity -> Boundary -> E.Entity
+player@E.Player {} `keepInside` Boundary (B.Box minBd maxBd) = player {E.playerPosition = pos'}
+   where
+      pos'   = V.minVec minPos maxPos
+      maxPos = maxBd - V.v3 (fst PL.playerSize) (snd PL.playerSize) 0
+      minPos = V.maxVec pos minBd
+      pos    = E.playerPosition player
+
+keepInside entity _ = entity
+
+
+levelArea :: LV.Level -> B.Box
+levelArea LV.Level {LV.entities = entities, LV.layers = layers} =
+   entitiesBound entities `B.extendBy` layersBound layers
+   where
+      layersBound layers = B.bound $ L.map layerBound layers
+      layerBound layer   = entitiesBound $ LY.entities layer
+      entitiesBound es   = B.bound $ L.map (BT.asBox . EB.bound) es

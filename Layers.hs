@@ -15,6 +15,7 @@ import qualified Gamgine.Gfx as G
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
+import qualified Boundary as BD
 import qualified AppData as AP
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
@@ -67,6 +68,8 @@ main = do
 gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
    (nextFrame', nextFrameFraction) <- updateLoop nextFrame
+   keepInsideBoundary
+
    io $ do
       GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
       GL.glMatrixMode GL.gl_MODELVIEW
@@ -95,6 +98,12 @@ update = do
 
       updateLayerEntities layer@LY.Layer {LY.gravity = g} =
          layer {LY.entities = map (EU.update $ EU.UpdateState g) $ LY.entities layer}
+
+
+keepInsideBoundary :: AP.AppST ()
+keepInsideBoundary = do
+   boundary <- AP.readAppST AP.boundary
+   AP.modifyCurrentLevel $ E.eMap (`BD.keepInside` boundary)
 
 
 render :: Double -> AP.AppST ()
