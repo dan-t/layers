@@ -52,6 +52,10 @@ modifyCurrentLevel :: (LV.Level -> LV.Level) -> AppST ()
 modifyCurrentLevel f = modifyAppST $ LE.modL currentLevelLens f
 
 
+currentLevel :: AppData -> LV.Level
+currentLevel appData = LE.getL currentLevelLens appData
+
+
 -- | a lens for the active layer
 activeLayerLens = LE.lens getActiveLayer setActiveLayer
    where
@@ -79,6 +83,20 @@ readActiveLayer f = do
 
 modifyActiveLayer :: (LY.Layer -> LY.Layer) -> AppST ()
 modifyActiveLayer f = modifyAppST $ LE.modL activeLayerLens f
+
+
+activeAndInactiveLayers :: AppData -> (LY.Layer, [LY.Layer])
+activeAndInactiveLayers appData@AppData {activeLayerId = actLayerId} =
+   L.foldr
+      (\layer (actLayer, inactLayers) ->
+         if LY.layerId layer == actLayerId
+            then (layer, inactLayers)
+            else (actLayer, layer : inactLayers))
+      (LY.empty, [])
+      layers
+   where
+      layers       = LV.layers currentLevel
+      currentLevel = LE.getL currentLevelLens appData
 
 
 newAppData :: GD.Data -> AppData

@@ -1,13 +1,12 @@
 module Gamgine.Math.Vect (module Data.Vec,Vect,Vect4,x,y,z,v3,v4,fromTuple,toTuple,fromVect4,len,
-                          inverseVec,clampVec,maxVec,minVec,greaterComp,lesserComp,index,
-			  absVec,and) where
+                          inverseVec,clampVec,maxVec,minVec,index,absVec,and,or,all,any) where
 
 import Gamgine.Utils
 #include "Gamgine/Utils.cpp"
 import qualified Gamgine.Math.Utils as U
 import Data.Vec
 import qualified Data.Vec as V
-import Prelude hiding (and)
+import Prelude hiding (and, or, all, any)
 import Debug.Trace
 
 type Vect  = Vec3 Double
@@ -40,8 +39,7 @@ fromVect4 (x:.y:.z:.w:.()) = v3 x y z
 len :: Vect -> Double
 len = norm
 
-inverseVec :: Vect -> Vect
-inverseVec (x:.y:.z:.()) = v3 (-x) (-y) (-z)
+inverseVec v = V.map (* (-1)) v
 
 index :: (Double -> Bool) -> Vect -> Int
 index f (x:.y:.z:.())
@@ -54,24 +52,16 @@ clampVec :: Vect -> Vect -> Vect -> Vect
 clampVec (minX:.minY:.minZ:.()) (maxX:.maxY:.maxZ:.()) (x:.y:.z:.()) =
    v3 (U.clamp minX maxX x) (U.clamp minY maxY y) (U.clamp minZ maxZ z)
 
-maxVec :: Vect -> Vect -> Vect
-maxVec (x0:.y0:.z0:.()) (x1:.y1:.z1:.()) = v3 (max x0 x1) (max y0 y1) (max z0 z1)
+maxVec v1 v2 = V.zipWith max v1 v2
 
-minVec :: Vect -> Vect -> Vect
-minVec (x0:.y0:.z0:.()) (x1:.y1:.z1:.()) = v3 (min x0 x1) (min y0 y1) (min z0 z1)
+minVec v1 v2 = V.zipWith min v1 v2
 
-absVec :: Vect -> Vect
-absVec (x:.y:.z:.()) = v3 (abs x) (abs y) (abs z)
+absVec v = V.map abs v
 
-and :: Vec3 Bool -> Bool
-and v = V.foldr (\c1 c2 -> c1 && c2) True v
+and v = V.foldr (&&) True v
 
--- if a component of the first vector is greater
--- than a component of the second one
-greaterComp :: Vect -> Vect -> Bool
-(x0:.y0:.z0:.()) `greaterComp` (x1:.y1:.z1:.()) = x0 > x1 || y0 > y1 || z0 > z1
+or v = V.foldr (||) False v
 
--- if a component of the first vector is lesser
--- than a component of the second one
-lesserComp :: Vect -> Vect -> Bool
-(x0:.y0:.z0:.()) `lesserComp` (x1:.y1:.z1:.()) = x0 < x1 || y0 < y1 || z0 < z1
+all f v1 v2 = and $ V.zipWith f v1 v2
+
+any f v1 v2 = or $ V.zipWith f v1 v2

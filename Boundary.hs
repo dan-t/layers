@@ -1,5 +1,6 @@
 
 module Boundary where
+#include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified GameData.Entity as E
 import qualified GameData.Level as LV
@@ -40,9 +41,4 @@ keepInside entity _ = entity
 
 
 levelArea :: LV.Level -> B.Box
-levelArea LV.Level {LV.entities = entities, LV.layers = layers} =
-   entitiesBound entities `B.extendBy` layersBound layers
-   where
-      layersBound layers = B.bound $ L.map layerBound layers
-      layerBound layer   = entitiesBound $ LY.entities layer
-      entitiesBound es   = B.bound $ L.map (BT.asBox . EB.bound) es
+levelArea level = B.bound $ L.map (BT.asBox . EB.bound) $ LV.allEntities level

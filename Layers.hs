@@ -103,16 +103,14 @@ keepInsideBoundary = do
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   (actLayerId, (renderRes, background)) <- AP.readAppST (AP.activeLayerId &&& AP.renderRessources &&& AP.background)
-   (levelEntities, layers)               <- AP.readCurrentLevel (LV.entities &&& LV.layers)
+   (renderRes, background)             <- AP.readAppST $ AP.renderRessources &&& AP.background
+   (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
    let renderState = ER.RenderState nextFrameFraction renderRes
    io $ do
       BG.render background
-      mapM_ (ER.render E.LevelScope renderState) levelEntities
-      forM_ layers (\layer ->
-         mapM_ (ER.render (if LY.layerId layer == actLayerId
-                              then E.ActiveLayerScope
-                              else E.InactiveLayerScope) renderState) $ LY.entities layer)
+      mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
+      forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
+      mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
 
 
 initGLFW :: AP.AppDataRef -> IO ()
