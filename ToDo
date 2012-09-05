@@ -1,4 +1,5 @@
 
 - bewege player
-- boundary kollisionsobjekte
-- collisions erkennung
+- springe player
+- collisions erkennung platform
+- collisions erkennung stern
