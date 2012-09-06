@@ -26,16 +26,20 @@ newBoundary level = Boundary boundary
 
 
 keepInside :: E.Entity -> Boundary -> E.Entity
-player@E.Player {} `keepInside` Boundary bBound@(B.Box minBd maxBd)
+player@E.Player {} `keepInside` Boundary bBound@(B.Box minBd@(_:.minY:._) maxBd)
    | pBound `B.inside` bBound = player
    | otherwise                = player {E.playerPosition = pos', E.playerVelocity = velo'}
    where
-      pBound          = (BT.asBox $ E.playerBound player) `B.moveBy` E.playerPosition player
-      pos'            = V.minVec minPos maxPos
-      velo'           = V.v3 vx 0 vz
-      (vx:._:.vz:.()) = E.playerVelocity player
-      maxPos          = maxBd - V.v3 (fst PL.playerSize) (snd PL.playerSize) 0
-      minPos          = V.maxVec (E.playerPosition player) minBd
+      pBound               = (BT.asBox $ E.playerBound player) `B.moveBy` playPos
+      pos'                 = V.minVec (V.maxVec minBd playPos) maxPos
+      velo'                = V.v3 vx vy' vz
+      vy' | posY > maxY    = 0
+          | posY < minY    = 0
+          | otherwise      = vy
+
+      maxPos@(_:.maxY:._)  = maxBd - V.v3 (fst PL.playerSize) (snd PL.playerSize) 0
+      playPos@(_:.posY:._) = E.playerPosition player
+      (vx:.vy:.vz:.())     = E.playerVelocity player
 
 keepInside entity _ = entity
 

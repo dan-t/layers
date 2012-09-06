@@ -10,5 +10,6 @@ data DataEvent = DataEvent
 
 data EntityEvent = PlayerStartsMoving E.Movement
                  | PlayerStopsMoving E.Movement
+                 | PlayerJumping
                  | MoveEntity {entityId :: Int, toPosition :: V.Vect}
                  | ResizePlatform {platformId :: Int, toSize :: B.Box}

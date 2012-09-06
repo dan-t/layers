@@ -21,6 +21,8 @@ newKeyCallback appDataRef = keyCallback
 
       keyCallback GLFW.KeyRight False = sendEvent $ EV.PlayerStopsMoving E.ToTheRight
 
+      keyCallback GLFW.KeyUp True = sendEvent EV.PlayerJumping
+
       keyCallback _ _ = return ()
 
       sendEvent e          = modifyCurrentLevel $ E.eMap (HE.handleEvent e)

@@ -15,6 +15,7 @@ handleEvent (EV.PlayerStartsMoving movement) player@E.Player {E.playerVelocity =
                           E.ToTheRight -> V.v3 PL.playerVelocity 0 0
                           E.AtRest     -> V.v3 0 0 0
 
+
 handleEvent (EV.PlayerStopsMoving movement) player@E.Player {E.playerVelocity = velo} =
    player {E.playerVelocity = velo'}
    where
@@ -22,6 +23,12 @@ handleEvent (EV.PlayerStopsMoving movement) player@E.Player {E.playerVelocity = 
                           E.ToTheLeft  -> V.v3 PL.playerVelocity 0 0
                           E.ToTheRight -> V.v3 (-PL.playerVelocity) 0 0
                           E.AtRest     -> V.v3 0 0 0
+
+
+handleEvent EV.PlayerJumping player@E.Player {E.playerVelocity = (vx:._:.vz:.())} =
+   player {E.playerVelocity = velo'}
+   where
+      velo' = V.v3 vx PL.jumpAcceleration vz
 
 
 handleEvent _ entity = entity
