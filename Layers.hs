@@ -2,7 +2,6 @@
 #include "Gamgine/Utils.cpp"
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Data.StateVar (($=))
-import qualified Data.Lens.Strict as LE
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import qualified Control.Monad.State as ST
@@ -14,11 +13,13 @@ import qualified Gamgine.Engine as EG
 import qualified Gamgine.Ressources as RS
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
+import Defaults
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
 import qualified Boundary as BD
 import qualified AppData as AP
+import qualified KeyCallback as KC
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
@@ -26,24 +27,6 @@ import qualified GameData.Entity as E
 import qualified Entity.Render as ER
 import qualified Entity.Update as EU
 
-
-winWidth :: Int
-winWidth = 1000
-
-winHeight :: Int
-winHeight = 1000
-
-ticksPerSecond :: Double
-ticksPerSecond = 120
-
-skipTicks :: Double
-skipTicks = 1 / ticksPerSecond
-
-maxFrameSkip :: Int
-maxFrameSkip = 10
-
-orthoScale :: Double
-orthoScale = 45
 
 updateLoop = EG.updateLoop skipTicks maxFrameSkip update
 
@@ -125,27 +108,31 @@ initGLFW appDataRef = do
    GLFW.setWindowBufferSwapInterval 1
    GLFW.setWindowSizeCallback resize
    GLFW.setWindowCloseCallback exitGame
+   GLFW.setKeyCallback $ KC.newKeyCallback appDataRef
    where
       exitGame = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
 
       resize width height = do
-         modifyIORef appDataRef (\appData -> appData {AP.windowSize = (width, height)})
+         modifyAppData (\appData -> appData {AP.windowSize = (width, height)})
          updateFrustum
          updateCamera
 
       updateFrustum = do
-         modifyIORef appDataRef (\appData ->
+         modifyAppData (\appData ->
             let (width, height) = AP.windowSize appData
                 top             = orthoScale * (fromIntegral height / fromIntegral width)
                 right           = orthoScale
                 in appData {AP.frustumSize = (right, top)})
 
       updateCamera = do
-         AP.AppData {AP.windowSize = (w, h), AP.frustumSize = (r, t)} <- readIORef appDataRef
+         AP.AppData {AP.windowSize = (w, h), AP.frustumSize = (r, t)} <- readAppData
 	 GL.glViewport 0 0 (fromIntegral w) (fromIntegral h)
 	 GL.glMatrixMode GL.gl_PROJECTION
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
+
+      modifyAppData f = modifyIORef appDataRef f
+      readAppData     = readIORef appDataRef
 
 
 initGL :: IO ()

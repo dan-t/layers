@@ -7,7 +7,6 @@ import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V
 import qualified FileData.Data2 as FD
-import qualified Event as EV
 import qualified GameData.Animation as A
 
 -- | for classification of a box inside the box tree
