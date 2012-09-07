@@ -1,5 +1,6 @@
 
 module GameData.Level where
+import Data.Function
 import qualified Data.List as L
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
@@ -13,12 +14,7 @@ data Level = Level {
 
 
 sortById :: [Level] -> [Level]
-sortById levels = L.sortBy cmpIds levels
-   where
-      cmpIds Level {levelId = id1} Level {levelId = id2}
-         | id1 < id2 = LT
-         | id1 > id2 = GT
-         | otherwise = EQ
+sortById levels = L.sortBy (compare `on` levelId) levels
 
 
 -- | the entities of the level and all its layers

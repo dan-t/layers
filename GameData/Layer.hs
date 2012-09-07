@@ -1,5 +1,6 @@
 
 module GameData.Layer where
+import Data.Function
 import qualified Data.List as L
 import qualified GameData.Entity as E
 
@@ -12,12 +13,7 @@ data Layer = Layer {
 
 
 sortById :: [Layer] -> [Layer]
-sortById layers = L.sortBy cmpIds layers
-   where
-      cmpIds Layer {layerId = id1} Layer {layerId = id2}
-         | id1 < id2 = LT
-         | id1 > id2 = GT
-         | otherwise = EQ
+sortById layers = L.sortBy (compare `on` layerId) layers
 
 
 empty :: Layer
