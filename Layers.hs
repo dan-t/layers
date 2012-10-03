@@ -89,7 +89,7 @@ keepInsideBoundary = do
 
 levelScrolling :: Double -> AP.AppST V.Vect
 levelScrolling nextFrameFraction = do
-   ((fx, fy), ba@(ax:.ay:._)) <- AP.readAppST $ AP.frustumSize &&& (BD.boundaryArea . AP.boundary)
+   ((fx, fy), (ax:.ay:._)) <- AP.readAppST $ AP.frustumSize &&& (BD.boundaryArea . AP.boundary)
    playerPos               <- AP.readCurrentLevel $ (interpolatePos nextFrameFraction) . LV.getPlayer
    let fvec      = V.v3 (fx / 2) (fy / 2) 0
        scroll    = V.map (max 0) (playerPos - fvec)
@@ -106,15 +106,15 @@ render nextFrameFraction = do
    (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
    scrolling                           <- levelScrolling nextFrameFraction
    let renderState              = ER.RenderState nextFrameFraction renderRes
-       renderLevelEntities      = mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
        renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
        renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
+       renderLevelEntities      = mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
    io $ do
       GL.glTranslatef <<< scrolling
       BG.render background
-      renderLevelEntities
       renderInactLayerEntities
       renderActLayerEntities
+      renderLevelEntities
 
 
 initGLFW :: AP.AppDataRef -> IO ()
