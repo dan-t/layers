@@ -25,6 +25,10 @@ newBoundary level = Boundary boundary
       minBorderDist    = (max (fst PL.playerSize) (snd PL.playerSize)) * 6
 
 
+boundaryArea :: Boundary -> V.Vect
+boundaryArea (Boundary (B.Box minPt maxPt)) = maxPt - minPt
+
+
 keepInside :: E.Entity -> Boundary -> E.Entity
 player@E.Player {} `keepInside` Boundary bBound@(B.Box minBd@(_:.minY:._) maxBd)
    | pBound `B.inside` bBound = player

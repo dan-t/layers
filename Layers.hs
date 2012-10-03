@@ -2,6 +2,7 @@
 #include "Gamgine/Utils.cpp"
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Data.StateVar (($=))
+import qualified Data.List as L
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import qualified Control.Monad.State as ST
@@ -11,9 +12,11 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.Ressources as RS
-import qualified Gamgine.Gfx as G
+import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
+import Gamgine.Math.Vect as V
 import Defaults
+import qualified Utils as LU
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
@@ -71,11 +74,11 @@ update = do
    AP.modifyCurrentLevel $ updateEntities levelGravity
    where
       updateEntities levelGravity level =
-         level {LV.entities = map (EU.update $ EU.UpdateState levelGravity) $ LV.entities level,
-                LV.layers   = map updateLayerEntities $ LV.layers level}
+         level {LV.entities = L.map (EU.update $ EU.UpdateState levelGravity) $ LV.entities level,
+                LV.layers   = L.map updateLayerEntities $ LV.layers level}
 
       updateLayerEntities layer@LY.Layer {LY.gravity = g} =
-         layer {LY.entities = map (EU.update $ EU.UpdateState g) $ LY.entities layer}
+         layer {LY.entities = L.map (EU.update $ EU.UpdateState g) $ LY.entities layer}
 
 
 keepInsideBoundary :: AP.AppST ()
@@ -84,16 +87,34 @@ keepInsideBoundary = do
    AP.modifyCurrentLevel $ E.eMap (`BD.keepInside` boundary)
 
 
+levelScrolling :: Double -> AP.AppST V.Vect
+levelScrolling nextFrameFraction = do
+   ((fx, fy), ba@(ax:.ay:._)) <- AP.readAppST $ AP.frustumSize &&& (BD.boundaryArea . AP.boundary)
+   playerPos               <- AP.readCurrentLevel $ (interpolatePos nextFrameFraction) . LV.getPlayer
+   let fvec      = V.v3 (fx / 2) (fy / 2) 0
+       scroll    = V.map (max 0) (playerPos - fvec)
+       maxScroll = V.v3 (ax - fx) (ay - fy) 0
+   return $ (V.minVec scroll maxScroll) * (-1)
+   where
+      interpolatePos factor player =
+         LU.interpolateFrame factor (E.playerPosition player) (E.playerVelocity player)
+
+
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
    (renderRes, background)             <- AP.readAppST $ AP.renderRessources &&& AP.background
    (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
-   let renderState = ER.RenderState nextFrameFraction renderRes
+   scrolling                           <- levelScrolling nextFrameFraction
+   let renderState              = ER.RenderState nextFrameFraction renderRes
+       renderLevelEntities      = mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
+       renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
+       renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
    io $ do
+      GL.glTranslatef <<< scrolling
       BG.render background
-      mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
-      forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
-      mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
+      renderLevelEntities
+      renderInactLayerEntities
+      renderActLayerEntities
 
 
 initGLFW :: AP.AppDataRef -> IO ()
