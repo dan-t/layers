@@ -109,22 +109,6 @@ handleIntersections = do
             events = catMaybes [RI.resolveIntersection $ EI.intersect e1 e2 | e1 <- es1, e2 <- es2]
 
 
---computeIntersections :: AP.AppST [EI.Intersection]
---computeIntersections = do
---   (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
---   let levelEnts           = LV.entities curLevel
---       actLayerEnts        = LY.entities actLayer
---       inactLayersEnts     = map LY.entities inactLayers
---       levelIsects         = intersect levelEnts levelEnts
---       actLayerIsects      = intersect actLayerEnts actLayerEnts
---       levelActLayerIsects = intersect levelEnts actLayerEnts
---       inactLayersIsects   = L.concat $ L.map (\es -> intersect es es) inactLayersEnts
---
---   return $ catMaybes $ levelIsects ++ actLayerIsects ++ levelActLayerIsects ++ inactLayersIsects
---   where
---      intersect es1 es2 = [e1 `EI.intersect` e2 | e1 <- es1, e2 <- es2]
-
-
 levelScrolling :: Double -> AP.AppST V.Vect
 levelScrolling nextFrameFraction = do
    ((fx, fy), (ax:.ay:._)) <- AP.readAppST $ AP.frustumSize &&& (BD.boundaryArea . AP.boundary)
