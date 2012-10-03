@@ -10,6 +10,7 @@ import qualified GameData.Entity as E
 import qualified GameData.Player as P
 import qualified GameData.Star as S
 import qualified GameData.Animation as A
+import qualified Utils as LU
 
 
 -- | render ressources of entities
@@ -34,18 +35,13 @@ newRessources = do
    return $ Ressources playTexId starTexId
 
 
-interpolateFrame :: Double -> V.Vect -> V.Vect -> V.Vect
-interpolateFrame nextFrameFraction position velocity =
-   position + (velocity * (V.v3 nextFrameFraction nextFrameFraction nextFrameFraction))
-
-
 interpolatePlaformPos :: Double -> E.PositionOrAnimation -> V.Vect
 interpolatePlaformPos _ (Left pos) = pos
 
 interpolatePlaformPos nextFrameFraction (Right ani) =
    let velo    = A.velocity ani
        veloVec = V.v3 velo velo velo
-       in interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentDirection ani * veloVec)
+       in LU.interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentDirection ani * veloVec)
 
 
 render :: E.Scope ->
@@ -56,7 +52,7 @@ render :: E.Scope ->
 render _
        RenderState {nextFrameFraction = frac, ressources = res}
        E.Player {E.playerPosition = pos, E.playerVelocity = velo} =
-   G.renderTexturedQuad P.playerSize (interpolateFrame frac pos velo) $ playerTextureId res
+   G.renderTexturedQuad P.playerSize (LU.interpolateFrame frac pos velo) $ playerTextureId res
 
 render _
        RenderState {ressources = res}
