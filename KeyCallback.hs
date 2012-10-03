@@ -20,7 +20,7 @@ newKeyCallback appDataRef = keyCallback
 
       keyCallback GLFW.KeyRight False = accelerateToTheLeft
 
-      keyCallback GLFW.KeyUp True = sendEvent $ Right $ EV.UpdateEntity $ \e ->
+      keyCallback GLFW.KeyUp True = sendEvent $ EV.MkEntityEvent $ EV.UpdateEntity $ \e ->
          case e of
               E.Player {E.playerVelocity = vx:.vy:.vz:.(), E.playerOnBottom = True} ->
                  e {E.playerVelocity = V.v3 vx PL.jumpAcceleration vz, E.playerOnBottom = False}
@@ -33,7 +33,7 @@ newKeyCallback appDataRef = keyCallback
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
 
-      updatePlayerVelocity f = sendEvent $ Right $ EV.UpdateEntity $ \e ->
+      updatePlayerVelocity f = sendEvent $ EV.MkEntityEvent $ EV.UpdateEntity $ \e ->
          case e of
               E.Player {E.playerVelocity = v} -> e {E.playerVelocity = f v}
               _                               -> e
