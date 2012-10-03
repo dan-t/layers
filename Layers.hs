@@ -2,6 +2,7 @@
 #include "Gamgine/Utils.cpp"
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Data.StateVar (($=))
+import Data.Maybe (catMaybes)
 import qualified Data.List as L
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
@@ -23,12 +24,15 @@ import qualified Background as BG
 import qualified Boundary as BD
 import qualified AppData as AP
 import qualified KeyCallback as KC
+import qualified ResolveIntersection as RI
+import qualified Event as EV
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 import qualified Entity.Render as ER
 import qualified Entity.Update as EU
+import qualified Entity.Intersect as EI
 
 
 updateLoop = EG.updateLoop skipTicks maxFrameSkip update
@@ -57,6 +61,8 @@ gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
    (nextFrame', nextFrameFraction) <- updateLoop nextFrame
    keepInsideBoundary
+   events <- handleIntersections
+   mapM_ EV.handleEventST events
 
    io $ do
       GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
@@ -85,6 +91,38 @@ keepInsideBoundary :: AP.AppST ()
 keepInsideBoundary = do
    boundary <- AP.readAppST AP.boundary
    AP.modifyCurrentLevel $ E.eMap (`BD.keepInside` boundary)
+
+
+handleIntersections :: AP.AppST [EV.Event]
+handleIntersections = do
+   (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
+   let levelEnts       = LV.entities curLevel
+       actLayerEnts    = LY.entities actLayer
+       inactLayersEnts = L.map LY.entities inactLayers
+
+       events  = L.foldl' (\evs es -> evs ++ handleIntersection es es) [] $ [levelEnts, actLayerEnts] ++ inactLayersEnts
+
+   return $ events ++ handleIntersection levelEnts actLayerEnts
+   where
+      handleIntersection es1 es2 = events
+         where
+            events = catMaybes [RI.resolveIntersection $ EI.intersect e1 e2 | e1 <- es1, e2 <- es2]
+
+
+--computeIntersections :: AP.AppST [EI.Intersection]
+--computeIntersections = do
+--   (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
+--   let levelEnts           = LV.entities curLevel
+--       actLayerEnts        = LY.entities actLayer
+--       inactLayersEnts     = map LY.entities inactLayers
+--       levelIsects         = intersect levelEnts levelEnts
+--       actLayerIsects      = intersect actLayerEnts actLayerEnts
+--       levelActLayerIsects = intersect levelEnts actLayerEnts
+--       inactLayersIsects   = L.concat $ L.map (\es -> intersect es es) inactLayersEnts
+--
+--   return $ catMaybes $ levelIsects ++ actLayerIsects ++ levelActLayerIsects ++ inactLayersIsects
+--   where
+--      intersect es1 es2 = [e1 `EI.intersect` e2 | e1 <- es1, e2 <- es2]
 
 
 levelScrolling :: Double -> AP.AppST V.Vect
