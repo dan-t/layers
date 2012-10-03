@@ -25,8 +25,8 @@ handleEvent (EV.PlayerStopsMoving movement) player@E.Player {E.playerVelocity = 
                           E.AtRest     -> V.v3 0 0 0
 
 
-handleEvent EV.PlayerJumping player@E.Player {E.playerVelocity = (vx:._:.vz:.())} =
-   player {E.playerVelocity = velo'}
+handleEvent EV.PlayerJumping player@E.Player {E.playerVelocity = (vx:._:.vz:.()), E.playerOnBottom = True} =
+   player {E.playerVelocity = velo', E.playerOnBottom = False}
    where
       velo' = V.v3 vx PL.jumpAcceleration vz
 

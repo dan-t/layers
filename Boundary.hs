@@ -32,14 +32,19 @@ boundaryArea (Boundary (B.Box minPt maxPt)) = maxPt - minPt
 keepInside :: E.Entity -> Boundary -> E.Entity
 player@E.Player {} `keepInside` Boundary bBound@(B.Box minBd@(_:.minY:._) maxBd)
    | pBound `B.inside` bBound = player
-   | otherwise                = player {E.playerPosition = pos', E.playerVelocity = velo'}
+   | otherwise                = player {E.playerPosition = pos',
+                                        E.playerVelocity = velo',
+                                        E.playerOnBottom = onBottom}
    where
-      pBound               = (BT.asBox $ E.playerBound player) `B.moveBy` playPos
-      pos'                 = V.minVec (V.maxVec minBd playPos) maxPos
-      velo'                = V.v3 vx vy' vz
-      vy' | posY > maxY    = 0
-          | posY < minY    = 0
-          | otherwise      = vy
+      pBound            = (BT.asBox $ E.playerBound player) `B.moveBy` playPos
+      pos'              = V.minVec (V.maxVec minBd playPos) maxPos
+      velo'             = V.v3 vx vy' vz
+      vy' | posY > maxY = 0
+          | posY < minY = 0
+          | otherwise   = vy
+
+      onBottom | posY < minY = True
+               | otherwise   = E.playerOnBottom player
 
       maxPos@(_:.maxY:._)  = maxBd - V.v3 (fst PL.playerSize) (snd PL.playerSize) 0
       playPos@(_:.posY:._) = E.playerPosition player
