@@ -33,7 +33,7 @@ playerSize = (2, 2.5)
 
 playerBound :: (Double, Double) -> E.Bound
 playerBound (x, y) =
-   let frac1      = 1/20
+   let frac1      = 1/10
        frac2      = 1 - frac1
        topBox     = B.Box (V.v3 (frac1*x) (frac2*y) 0) (V.v3 (frac2*x) (1*y) 0)
        bottomBox  = B.Box (V.v3 (frac1*x) 0 0)         (V.v3 (frac2*x) (frac1*y) 0)
