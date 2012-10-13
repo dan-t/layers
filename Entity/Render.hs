@@ -39,9 +39,7 @@ interpolatePlaformPos :: Double -> E.PositionOrAnimation -> V.Vect
 interpolatePlaformPos _ (Left pos) = pos
 
 interpolatePlaformPos nextFrameFraction (Right ani) =
-   let velo    = A.velocity ani
-       veloVec = V.v3 velo velo velo
-       in LU.interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentDirection ani * veloVec)
+   LU.interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentVelocity ani)
 
 
 render :: E.Scope ->
@@ -51,8 +49,9 @@ render :: E.Scope ->
 
 render _
        RenderState {nextFrameFraction = frac, ressources = res}
-       E.Player {E.playerPosition = pos, E.playerVelocity = velo} =
-   G.renderTexturedQuad P.playerSize (LU.interpolateFrame frac pos velo) $ playerTextureId res
+       E.Player {E.playerPosition = pos, E.playerVelocity = velo} = do
+   let ipos = LU.interpolateFrame frac pos velo
+   G.renderTexturedQuad P.playerSize ipos $ playerTextureId res
 
 render _
        RenderState {ressources = res}

@@ -3,9 +3,11 @@ module Boundary where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified GameData.Entity as E
+import qualified Entity.Bound as EB
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified GameData.Player as PL
+import qualified GameData.Animation as A
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V
 import Gamgine.Math.Vect
@@ -54,4 +56,10 @@ keepInside entity _ = entity
 
 
 levelArea :: LV.Level -> B.Box
-levelArea level = B.bound $ L.map (BT.asBox . EB.bound) $ LV.allEntities level
+levelArea level = B.bound $ L.map bound $ LV.allEntities level
+   where
+      bound E.Platform {E.platformPosition = Right ani, E.platformBound = bound} = pathBound
+         where
+            pathBound = B.bound $ L.map (bound `B.moveBy`) $ A.path ani
+
+      bound e = BT.asBox $ EB.bound e
