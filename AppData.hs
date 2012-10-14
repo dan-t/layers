@@ -6,27 +6,13 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Lens.Strict as LE
 import qualified Control.Monad.State as ST
 import qualified Gamgine.Utils as GU
-import qualified Gamgine.Coroutine as CO
 import qualified Background as BG
 import qualified Boundary as BD
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified Entity.Render as ER
-
-
-type Finished = Bool
--- | a render routine which is called/used until it returns Finished=True,
---   used for temporary animations
-type Renderer = CO.CoroutineM IO ER.RenderState Finished
-
-runRenderer = CO.runCoroutineM
-
-finishRenderer :: (Bool, Renderer)
-finishRenderer = (True, CO.CoroutineM $ f)
-   where f state = return (True, CO.CoroutineM $ f)
-
-continueRenderer f = (False, CO.CoroutineM $ f)
+import qualified Renderer as RD
 
 
 data AppData = AppData {
@@ -35,7 +21,7 @@ data AppData = AppData {
    background       :: BG.Background,
    boundary         :: BD.Boundary,
    renderRessources :: ER.Ressources,
-   renderers        :: [Renderer],
+   renderers        :: [RD.Renderer],
    gameData         :: GD.Data,
    currentLevelId   :: Int,
    activeLayerId    :: Int

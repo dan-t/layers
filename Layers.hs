@@ -25,6 +25,7 @@ import qualified Convert.ToGameData as TGD
 import qualified Background as BG
 import qualified Boundary as BD
 import qualified AppData as AP
+import qualified Renderer as RD
 import qualified KeyCallback as KC
 import qualified ResolveIntersection as RI
 import qualified Event as EV
@@ -144,7 +145,7 @@ runRenderers :: ER.RenderState -> AP.AppST ()
 runRenderers renderState = do
    rs  <- AP.readAppST AP.renderers
    rs' <- foldrM (\r rs -> io $ do
-                    (finished, r') <- AP.runRenderer r renderState
+                    (finished, r') <- RD.runRenderer r renderState
                     if finished
                        then return rs
                        else return $ r' : rs) [] rs

@@ -11,6 +11,8 @@ import qualified Entity.Bound as EB
 import qualified Entity.Position as EP
 import qualified Entity.Velocity as EV
 import qualified Event as EV
+import qualified Renderer as RD
+import qualified AppData as AP
 
 
 resolveIntersection :: EI.Intersection -> Maybe EV.Event
@@ -29,18 +31,22 @@ resolveIntersection isect@(e1, e2, isects) =
    where
       isectPositions leaf = L.map (\i -> snd . leaf $ i) isects
 
-      resolvePlayerWithStarIsect _ E.Star {E.starId = isectId} = mkUpdateEntityEvent $ \e ->
-         case e of
-              E.Star {E.starId = id} | id == isectId -> e {E.starCollected = True}
-                                     | otherwise     -> e
-              _ -> e
+      resolvePlayerWithStarIsect _ E.Star {E.starId = isectId, E.starPosition = pos} = Just . mkMultiEvent $ [
+         mkUpdateEntityEvent $ \e ->
+            case e of
+                 E.Star {E.starId = id} | id == isectId -> e {E.starCollected = True}
+                                        | otherwise     -> e
+                 _ -> e,
+
+         mkUpdateAppEvent $ \a@AP.AppData {AP.renderers = rds} -> a {AP.renderers = RD.mkRenderer (RD.fadeOutStar pos 0) : rds}]
+
 
       resolvePlayerWithPlatformIsect (player, isectPos) platform
          | isAnimated platform = moveAwayFromEachOther
          | otherwise           = movePlayerAwayFromPlatform
 
          where
-            movePlayerAwayFromPlatform = mkUpdateEntityEvent $ \e ->
+            movePlayerAwayFromPlatform = Just . mkUpdateEntityEvent $ \e ->
                case e of
                     E.Player {} -> e {E.playerPosition = playerPos',
                                       E.playerOnBottom = onBottom',
@@ -50,7 +56,7 @@ resolveIntersection isect@(e1, e2, isects) =
                   playerPos'   = playerPos + V.v3 ox oy 0
 
 
-            moveAwayFromEachOther = mkUpdateEntityEvent $ \e ->
+            moveAwayFromEachOther = Just . mkUpdateEntityEvent $ \e ->
                case e of
                     E.Player {} -> e {E.playerPosition = playerPos',
                                       E.playerOnBottom = onBottom',
@@ -111,5 +117,6 @@ resolveIntersection isect@(e1, e2, isects) =
             isAnimated E.Platform {E.platformPosition = Right _} = True
             isAnimated E.Platform {E.platformPosition = Left  _} = False
 
-
-      mkUpdateEntityEvent = Just . EV.MkEntityEvent . EV.UpdateEntity
+      mkMultiEvent        = EV.MkMultiEvent
+      mkUpdateAppEvent    = EV.MkAppEvent    . EV.UpdateApp
+      mkUpdateEntityEvent = EV.MkEntityEvent . EV.UpdateEntity
