@@ -60,9 +60,6 @@ main = do
 gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
    (nextFrame', nextFrameFraction) <- updateLoop nextFrame
-   keepInsideBoundary
-   events <- handleIntersections
-   mapM_ EV.handleEventST events
 
    io $ do
       GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
@@ -78,6 +75,9 @@ update :: AP.AppST ()
 update = do
    levelGravity <- AP.readActiveLayer LY.gravity
    AP.modifyCurrentLevel $ updateEntities levelGravity
+   keepInsideBoundary
+   events <- handleIntersections
+   mapM_ EV.handleEventST events
    where
       updateEntities levelGravity level =
          level {LV.entities = L.map (EU.update $ EU.UpdateState levelGravity) $ LV.entities level,
