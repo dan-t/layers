@@ -61,13 +61,8 @@ gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
    (nextFrame', nextFrameFraction) <- updateLoop nextFrame
 
-   io $ do
-      GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
-      GL.glMatrixMode GL.gl_MODELVIEW
-      GL.glLoadIdentity
-
+   clearGLState
    render nextFrameFraction
-   io GLFW.swapBuffers
    gameLoop nextFrame'
 
 
@@ -131,12 +126,22 @@ render nextFrameFraction = do
        renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
        renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
        renderLevelEntities      = mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
+
    io $ do
       GL.glTranslatef <<< scrolling
       BG.render background
       renderInactLayerEntities
       renderActLayerEntities
       renderLevelEntities
+
+   io GLFW.swapBuffers
+
+
+clearGLState :: AP.AppST ()
+clearGLState = io $ do
+   GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
+   GL.glMatrixMode GL.gl_MODELVIEW
+   GL.glLoadIdentity
 
 
 initGLFW :: AP.AppDataRef -> IO ()
