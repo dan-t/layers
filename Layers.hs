@@ -3,6 +3,7 @@
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import Data.StateVar (($=))
 import Data.Maybe (catMaybes)
+import Data.Foldable (foldrM)
 import qualified Data.List as L
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
@@ -13,6 +14,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.Ressources as RS
+import qualified Gamgine.Coroutine as CO
 import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
 import Gamgine.Math.Vect as V
@@ -134,7 +136,20 @@ render nextFrameFraction = do
       renderActLayerEntities
       renderLevelEntities
 
+   runRenderers renderState
    io GLFW.swapBuffers
+
+
+runRenderers :: ER.RenderState -> AP.AppST ()
+runRenderers renderState = do
+   rs  <- AP.readAppST AP.renderers
+   rs' <- foldrM (\r rs -> io $ do
+                    (finished, r') <- AP.runRenderer r renderState
+                    if finished
+                       then return rs
+                       else return $ r' : rs) [] rs
+
+   AP.modifyAppST $ \app -> app {AP.renderers = rs'}
 
 
 clearGLState :: AP.AppST ()
