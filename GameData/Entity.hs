@@ -33,8 +33,8 @@ data Entity = Player {playerId         :: Int,
                       playerPosition   :: V.Vect,
                       playerVelocity   :: V.Vect,
                       playerOnBottom   :: Bool,
-                      playerMovement   :: Movement,
-                      playerBound      :: Bound}
+                      playerBound      :: Bound,
+                      playerWalkCycle  :: (Int, Double)}
 
             | Star {starId        :: Int,
                     starPosition  :: V.Vect,

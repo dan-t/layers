@@ -1,8 +1,9 @@
 
 module Renderer where
 import Control.Monad (forM_)
-import Graphics.Rendering.OpenGL.Raw
-import Gamgine.Gfx
+import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Gamgine.Gfx as G
+import Gamgine.Gfx ((<<*), (<<<<*))
 import qualified Gamgine.Coroutine as CO
 import Gamgine.Math.Vect
 import qualified GameData.Star as S
@@ -37,16 +38,16 @@ fadeOutStar pos factor rstate = do
       else return finishRenderer
 
    where
-      renderStar :: Vect -> (Double,Double) -> RGBA -> GLuint -> IO ()
+      renderStar :: Vect -> (Double,Double) -> G.RGBA -> GL.GLuint -> IO ()
       renderStar (px:.py:._) (sx,sy) color texId = do
          let (minX, minY) = (px, py)
              (maxX, maxY) = (px + sx, py + sy)
-         withTexture2d texId $
-            withBlend gl_SRC_ALPHA gl_ONE_MINUS_SRC_ALPHA $
-               withPrimitive gl_QUADS $ do
-                  let coords   = quadTexCoords 1 1
-                      vertices = quad (minX,minY) (maxX,maxY)
-                  glColor4f <<<<* color
+         G.withTexture2d texId $
+            G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
+               G.withPrimitive GL.gl_QUADS $ do
+                  let coords   = G.quadTexCoords 1 1
+                      vertices = G.quad (minX,minY) (maxX,maxY)
+                  GL.glColor4f <<<<* color
                   forM_ (zip coords vertices) (\(c,v) -> do
-                     glTexCoord2f <<* c
-                     glVertex2f <<* v)
+                     GL.glTexCoord2f <<* c
+                     GL.glVertex2f <<* v)

@@ -1,11 +1,13 @@
 
 module Entity.Render where
+import Control.Monad (when, forM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
+import Gamgine.Utils ((?))
 import qualified Gamgine.Ressources as R
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Math.Box as B
-import qualified Gamgine.Math.Vect as V
-import Gamgine.Gfx ((<<<*), (<<<<*), (<<<))
+import Gamgine.Math.Vect as V
+import Gamgine.Gfx ((<<*), (<<<*), (<<<<*), (<<<))
 import qualified GameData.Entity as E
 import qualified GameData.Player as P
 import qualified GameData.Star as S
@@ -49,14 +51,32 @@ render :: E.Scope ->
 
 render _
        RenderState {nextFrameFraction = frac, ressources = res}
-       E.Player {E.playerPosition = pos, E.playerVelocity = velo} = do
-   let ipos = LU.interpolateFrame frac pos velo
-   G.renderTexturedQuad P.playerSize ipos $ playerTextureId res
+       E.Player {E.playerPosition = pos, E.playerVelocity = velo@(vx:._),
+                 E.playerOnBottom = onBot, E.playerWalkCycle = (_, angle)} =
+   renderWalk P.playerSize pos (onBot && vx /= 0 ? angle $ 0) (playerTextureId res)
+   where
+      renderWalk :: (Double,Double) -> Vect -> Double -> GL.GLuint -> IO ()
+      renderWalk (sizeX, sizeY) translation angle texture =
+         G.withPushedMatrix $ do
+            GL.glTranslatef <<<* (sizeX * 0.5, sizeY * 0.5, 0)
+            GL.glTranslatef <<< translation
+            GL.glRotatef <<<<* (angle, 0, 0, -1)
+            G.withTexture2d texture $
+               G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
+                  G.withPrimitive GL.gl_QUADS $ do
+                     let coords   = G.quadTexCoords 1 1
+                         vertices = G.quad (sizeX * (-0.5), sizeY * (-0.5)) (sizeX * 0.5, sizeY * 0.5)
+                     GL.glColor3f <<<* (1,1,1)
+                     forM_ (zip coords vertices) (\(c,v) -> do
+                        GL.glTexCoord2f <<* c
+                        GL.glVertex2f <<* v)
 
 render _
        RenderState {ressources = res}
        E.Star {E.starPosition = pos, E.starCollected = False} =
-   G.renderTexturedQuad S.starSize pos $ starTextureId res
+   G.withPushedMatrix $ do
+      GL.glTranslatef <<< pos
+      G.renderTexturedQuad S.starSize $ starTextureId res
 
 render E.ActiveLayerScope
        RenderState {nextFrameFraction = frac}

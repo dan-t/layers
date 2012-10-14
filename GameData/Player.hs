@@ -14,8 +14,8 @@ newPlayer id initPos = E.Player {
    E.playerPosition   = initPos,
    E.playerVelocity   = V.v3 0 0 0,
    E.playerOnBottom   = False,
-   E.playerMovement   = E.AtRest,
-   E.playerBound      = playerBound playerSize
+   E.playerBound      = playerBound playerSize,
+   E.playerWalkCycle  = (0, 4)
    }
 
 
