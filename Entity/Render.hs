@@ -77,3 +77,10 @@ render E.InactiveLayerScope
          G.withPolyMode GL.gl_LINE $ GL.glColor4f <<<<* (0.0,0.0,0.3,0.2) >> G.drawBox bound
 
 render _ _ _ = return ()
+
+
+renderBound :: E.Bound -> IO ()
+renderBound bound = do
+   GL.glColor3f <<<* (0,0,0)
+   GL.glLineWidth 1
+   G.withPolyMode GL.gl_LINE $ G.drawBoxTree bound
