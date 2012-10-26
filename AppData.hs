@@ -59,9 +59,6 @@ currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
                      gameData = gameData {GD.levels = GU.replaceBy ((== levId) . LV.levelId) level $ GD.levels gameData}})
 
 
-currentLevel = LE.getL currentLevelL
-
-
 -- | a lens for the active layer
 activeLayerL    = activeLayerLens
 activeLayerLens = LE.lens getActiveLayer setActiveLayer

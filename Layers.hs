@@ -9,7 +9,6 @@ import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import qualified Control.Monad.State as ST
 import Control.Monad (forM_, mapM_)
-import Control.Arrow ((&&&))
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
@@ -98,7 +97,8 @@ keepInsideBoundary = do
 
 handleIntersections :: AP.AppST [EV.Event]
 handleIntersections = do
-   (curLevel, (actLayer, inactLayers)) <- AP.gets $ AP.currentLevel &&& AP.activeAndInactiveLayers
+   curLevel                <- AP.getL AP.currentLevelL
+   (actLayer, inactLayers) <- AP.gets AP.activeAndInactiveLayers
    let levelEnts       = LV.entities curLevel
        actLayerEnts    = LY.entities actLayer
        inactLayersEnts = L.map LY.entities inactLayers
@@ -114,9 +114,11 @@ handleIntersections = do
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   (renderRes, background)             <- AP.gets $ AP.renderRessources &&& AP.background
-   (curLevel, (actLayer, inactLayers)) <- AP.gets $ AP.currentLevel &&& AP.activeAndInactiveLayers
-   scrolling                           <- AP.gets $ LU.levelScrolling nextFrameFraction
+   renderRes               <- AP.getL AP.renderRessourcesL
+   background              <- AP.getL AP.backgroundL
+   curLevel                <- AP.getL AP.currentLevelL
+   (actLayer, inactLayers) <- AP.gets AP.activeAndInactiveLayers
+   scrolling               <- AP.gets $ LU.levelScrolling nextFrameFraction
    let renderState              = RR.RenderState nextFrameFraction renderRes
        renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
        renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
