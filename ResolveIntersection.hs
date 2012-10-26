@@ -1,5 +1,6 @@
 
 module ResolveIntersection where
+#include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
@@ -13,6 +14,7 @@ import qualified Entity.Velocity as EV
 import qualified Event as EV
 import qualified Rendering.Renderer as RR
 import qualified AppData as AP
+IMPORT_LENS
 
 
 resolveIntersection :: EI.Intersection -> Maybe EV.Event
@@ -38,7 +40,7 @@ resolveIntersection isect@(e1, e2, isects) =
                                         | otherwise     -> e
                  _ -> e,
 
-         mkUpdateAppEvent $ \a@AP.AppData {AP.renderers = rds} -> a {AP.renderers = RR.mkRenderer (RR.fadeOutStar pos 0) : rds}]
+         mkUpdateAppEvent $ LE.modL AP.renderersL $ \rds -> RR.mkRenderer (RR.fadeOutStar pos 0) : rds ]
 
 
       resolvePlayerWithPlatformIsect (player, isectPos) platform
