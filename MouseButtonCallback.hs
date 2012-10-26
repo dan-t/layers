@@ -15,7 +15,7 @@ import qualified Entity.Position as EP
 import qualified Entity.Bound as EB
 import qualified GameData.Entity as E
 import qualified GameData.Player as PL
-import qualified GameData.Platform as PL
+import qualified GameData.Platform as PF
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
 import qualified Utils as LU
@@ -52,14 +52,19 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
 
               _ -> return () 
 
---      callback GLFW.MouseButton0 False = do
---         app      <- readApp
---         mousePos <- V.setElem 2 0 <$> LU.mousePosInWorldCoords app
---         let editing = ED.editing . AP.editor $ app
---         case editing of
---              ED.CreatePlatform pt -> updateAppEvent $ \app ->
---                 let freeId
+      callback GLFW.MouseButton0 False = do
+         app      <- readApp
+         mousePos <- V.setElem 2 0 <$> LU.mousePosInWorldCoords app
+         let editing = ED.editing . AP.editor $ app
+         case editing of
+              ED.CreatePlatform pt -> updateAppEvent $ \app ->
+                 let freeId = LV.nextFreeEntityId $ LE.getL AP.currentLevelL app
+                     bound  = B.Box (V.v3 0 0 0) (V.map abs $ mousePos - pt)
+                     pos    = Left $ V.minVec mousePos pt
+                     in LE.modL (LY.entitiesL . AP.activeLayerL) (\es -> PF.newPlatform freeId pos bound : es)
+                           $ LE.setL (ED.editingL . AP.editorL) ED.NoEdition app
 
+              _ -> return ()
 
 
       callback _ _ = return ()
