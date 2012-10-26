@@ -82,11 +82,12 @@ withPrimitive primType act = do
    act
    glEnd
 
-withPushedMatrix :: IO () -> IO ()
+withPushedMatrix :: IO a -> IO a
 withPushedMatrix act = do
    glPushMatrix
-   act
+   a <- act
    glPopMatrix
+   return a
 
 withPolyMode :: GLenum -> IO () -> IO ()
 withPolyMode mode act = do

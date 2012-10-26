@@ -1,6 +1,7 @@
 module Gamgine.Utils where
 #include "Gamgine/Utils.cpp"
 import Prelude hiding (catch)
+import Control.Applicative ((<$>))
 import qualified Data.ByteString.Lazy   as BL
 import qualified Data.ByteString.Unsafe as BU
 import qualified Data.IORef as R
@@ -16,16 +17,26 @@ import Foreign.Ptr
 import Gamgine.System
 import Debug.Trace
 
-modifySTIORef :: (a -> a) -> ST.StateT (R.IORef a) IO ()
+type StateIORef a = ST.StateT (R.IORef a) IO 
+
+mapIORef :: R.IORef a -> (a -> b) -> IO b
+mapIORef ref f = f <$> R.readIORef ref
+
+-- | modify the value of the IORef inside of State
+modifySTIORef :: (a -> a) -> StateIORef a ()
 modifySTIORef f = do
    aRef <- ST.get
    ST.liftIO $ R.modifyIORef aRef f
 
-readSTIORef :: (a -> b) -> ST.StateT (R.IORef a) IO b
-readSTIORef f = do
+-- | map a function on the value of the IORef inside of State
+mapSTIORef :: (a -> b) -> StateIORef a b
+mapSTIORef f = f <$> readSTIORef
+
+-- | read the value of the IORef inside of State
+readSTIORef :: StateIORef a a
+readSTIORef = do
    aRef <- ST.get
-   a    <- ST.liftIO $ R.readIORef aRef
-   return $ f a
+   ST.liftIO $ R.readIORef aRef
 
 count :: Eq a => a -> [a] -> Int
 count x ys = go x 0 ys

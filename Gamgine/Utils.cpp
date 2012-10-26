@@ -20,6 +20,10 @@
 #define PRINT4(a,b,c,d) putStrLn S4(a,b,c,d)
 #define P4(a,b,c,d)     PRINT4(a,b,c,d)
 
-#define SHOWLN(x)      (#x ++ "=" ++ (show (x)) ++ "\n")
+#define SHOWLN(x)       (#x ++ "=" ++ (show (x)) ++ "\n")
 
-#define LENS(field)    field##L = lens field (\value record -> record {field=value})
+#define IMPORT_LENS     import qualified Data.Lens.Strict as LE; \
+                        import Control.Category ((.)); \
+                        import Prelude hiding ((.)); \
+
+#define LENS(field)    field##L = LE.lens field (\value record -> record {field=value})

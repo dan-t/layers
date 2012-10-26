@@ -12,12 +12,12 @@ currentPosition E.Platform {E.platformPosition = Left  pos} = pos
 currentPosition E.Platform {E.platformPosition = Right ani} = A.currentPosition ani
 
 
-updatePosition :: E.Entity -> V.Vect -> E.Entity
-updatePosition p@E.Player {} newPos = p {E.playerPosition = newPos}
-updatePosition s@E.Star   {} newPos = s {E.starPosition   = newPos}
+updateCurrentPosition :: E.Entity -> V.Vect -> E.Entity
+updateCurrentPosition p@E.Player {} newPos = p {E.playerPosition = newPos}
+updateCurrentPosition s@E.Star   {} newPos = s {E.starPosition   = newPos}
 
-updatePosition p@E.Platform {E.platformPosition = Left _} newPos = 
+updateCurrentPosition p@E.Platform {E.platformPosition = Left _} newPos =
    p {E.platformPosition = Left newPos}
 
-updatePosition p@E.Platform {E.platformPosition = Right ani} newPos =
+updateCurrentPosition p@E.Platform {E.platformPosition = Right ani} newPos =
    p {E.platformPosition = Right ani {A.currentPosition = newPos}}

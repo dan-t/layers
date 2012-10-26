@@ -1,6 +1,6 @@
 
 module KeyCallback where
-
+#include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
@@ -10,28 +10,31 @@ import qualified GameData.Entity as E
 import qualified GameData.Player as PL
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
+IMPORT_LENS
 
+type Pressed     = Bool
+type KeyCallback = (GLFW.Key -> Pressed -> IO ())
 
-newKeyCallback :: AP.AppDataRef -> (GLFW.Key -> Bool -> IO ())
-newKeyCallback appDataRef = keyCallback
+newKeyCallback :: AP.AppDataRef -> AP.AppMode -> KeyCallback
+newKeyCallback appDataRef _ = callback
    where
-      keyCallback GLFW.KeyLeft True = accelerateToTheLeft
+      callback GLFW.KeyLeft True   = accelerateToTheLeft
 
-      keyCallback GLFW.KeyLeft False = accelerateToTheRight
+      callback GLFW.KeyLeft False  = accelerateToTheRight
 
-      keyCallback GLFW.KeyRight True = accelerateToTheRight
+      callback GLFW.KeyRight True  = accelerateToTheRight
 
-      keyCallback GLFW.KeyRight False = accelerateToTheLeft
+      callback GLFW.KeyRight False = accelerateToTheLeft
 
-      keyCallback GLFW.KeyUp True = sendEvent . mkUpdateEntityEvent $ \e ->
-         case e of
-              E.Player {E.playerVelocity = vx:.vy:.vz:.(), E.playerOnBottom = True} ->
-                 e {E.playerVelocity = V.v3 vx PL.jumpAcceleration vz, E.playerOnBottom = False}
+      callback GLFW.KeyUp True     = jump
 
-              _ -> e
+      callback GLFW.KeyTab True    = switchToNextLayer
 
-      keyCallback GLFW.KeyTab True = sendEvent . mkUpdateAppEvent $ \app ->
-         let layerIds   = L.map LY.layerId (LV.layers . AP.currentLevel $ app)
+      callback _ _                 = return ()
+
+
+      switchToNextLayer = updateAppEvent $ \app ->
+         let layerIds   = L.map LY.layerId $ LE.getL (LV.layersL . AP.currentLevelL) app
              actLayId   = AP.activeLayerId app
              greaterIds = L.filter (> actLayId) layerIds
              smallerIds = L.filter (< actLayId) layerIds
@@ -42,16 +45,23 @@ newKeyCallback appDataRef = keyCallback
              in app {AP.activeLayerId = newLayId}
 
 
-      keyCallback _ _ = return ()
+      jump = updateEntityEvent $ \e ->
+         case e of
+              E.Player {E.playerVelocity = vx:.vy:.vz:.(), E.playerOnBottom = True} ->
+                 e {E.playerVelocity = V.v3 vx PL.jumpAcceleration vz, E.playerOnBottom = False}
+
+              _ -> e
 
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
 
-      updatePlayerVelocity f = sendEvent . mkUpdateEntityEvent $ \e ->
+      updatePlayerVelocity f = updateEntityEvent $ \e ->
          case e of
               E.Player {E.playerVelocity = v} -> e {E.playerVelocity = f v}
               _                               -> e
 
-      sendEvent e         = EV.handleEventIO e appDataRef
+      updateEntityEvent   = sendEvent . mkUpdateEntityEvent
+      updateAppEvent      = sendEvent . mkUpdateAppEvent
       mkUpdateEntityEvent = EV.MkEntityEvent . EV.UpdateEntity
       mkUpdateAppEvent    = EV.MkAppEvent . EV.UpdateApp
+      sendEvent e         = EV.handleEventIO e appDataRef

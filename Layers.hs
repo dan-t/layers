@@ -17,6 +17,7 @@ import qualified Gamgine.Ressources as RS
 import qualified Gamgine.Coroutine as CO
 import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
+import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
 import Defaults
 import qualified Utils as LU
@@ -25,17 +26,21 @@ import qualified Convert.ToGameData as TGD
 import qualified Background as BG
 import qualified Boundary as BD
 import qualified AppData as AP
-import qualified Renderer as RD
+import qualified Editor as ED
 import qualified KeyCallback as KC
+import qualified MouseButtonCallback as MC
 import qualified ResolveIntersection as RI
 import qualified Event as EV
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
+import qualified Rendering.Ressources as RR
+import qualified Rendering.Renderer as RD
 import qualified Entity.Render as ER
 import qualified Entity.Update as EU
 import qualified Entity.Intersect as EI
+IMPORT_LENS
 
 
 updateLoop = EG.updateLoop skipTicks maxFrameSkip update
@@ -51,7 +56,7 @@ main = do
        gameData = TGD.toGameData fileData
 
    appDataRef <- newIORef $ AP.newAppData gameData
-   initGLFW appDataRef
+   initGLFW appDataRef AP.EditMode
    initGL
    initRessources appDataRef
 
@@ -71,8 +76,8 @@ gameLoop nextFrame = do
 
 update :: AP.AppST ()
 update = do
-   levelGravity <- AP.readActiveLayer LY.gravity
-   AP.modifyCurrentLevel $ updateEntities levelGravity
+   levelGravity <- AP.getL (LY.gravityL . AP.activeLayerL)
+   AP.modL AP.currentLevelL $ updateEntities levelGravity
    keepInsideBoundary
    events <- handleIntersections
    mapM_ EV.handleEventST events
@@ -87,13 +92,13 @@ update = do
 
 keepInsideBoundary :: AP.AppST ()
 keepInsideBoundary = do
-   boundary <- AP.readAppST AP.boundary
-   AP.modifyCurrentLevel $ E.eMap (`BD.keepInside` boundary)
+   boundary <- AP.gets AP.boundary
+   AP.modL AP.currentLevelL $ E.eMap (`BD.keepInside` boundary)
 
 
 handleIntersections :: AP.AppST [EV.Event]
 handleIntersections = do
-   (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
+   (curLevel, (actLayer, inactLayers)) <- AP.gets $ AP.currentLevel &&& AP.activeAndInactiveLayers
    let levelEnts       = LV.entities curLevel
        actLayerEnts    = LY.entities actLayer
        inactLayersEnts = L.map LY.entities inactLayers
@@ -107,25 +112,12 @@ handleIntersections = do
             events = catMaybes [RI.resolveIntersection $ EI.intersect e1 e2 | e1 <- es1, e2 <- es2]
 
 
-levelScrolling :: Double -> AP.AppST V.Vect
-levelScrolling nextFrameFraction = do
-   ((fx, fy), (ax:.ay:._)) <- AP.readAppST $ AP.frustumSize &&& (BD.boundaryArea . AP.boundary)
-   playerPos               <- AP.readCurrentLevel $ (interpolatePos nextFrameFraction) . LV.getPlayer
-   let fvec      = V.v3 (fx / 2) (fy / 2) 0
-       scroll    = V.map (max 0) (playerPos - fvec)
-       maxScroll = V.v3 (ax - fx) (ay - fy) 0
-   return $ (V.minVec scroll maxScroll) * (-1)
-   where
-      interpolatePos factor player =
-         LU.interpolateFrame factor (E.playerPosition player) (E.playerVelocity player)
-
-
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   (renderRes, background)             <- AP.readAppST $ AP.renderRessources &&& AP.background
-   (curLevel, (actLayer, inactLayers)) <- AP.readAppST $ AP.currentLevel &&& AP.activeAndInactiveLayers
-   scrolling                           <- levelScrolling nextFrameFraction
-   let renderState              = ER.RenderState nextFrameFraction renderRes
+   (renderRes, background)             <- AP.gets $ AP.renderRessources &&& AP.background
+   (curLevel, (actLayer, inactLayers)) <- AP.gets $ AP.currentLevel &&& AP.activeAndInactiveLayers
+   scrolling                           <- AP.gets $ LU.levelScrolling nextFrameFraction
+   let renderState              = RR.RenderState nextFrameFraction renderRes
        renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
        renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
        renderLevelEntities      = mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
@@ -138,19 +130,41 @@ render nextFrameFraction = do
       renderLevelEntities
 
    runRenderers renderState
+   renderEditor renderState
    io GLFW.swapBuffers
 
 
-runRenderers :: ER.RenderState -> AP.AppST ()
+runRenderers :: RR.RenderState -> AP.AppST ()
 runRenderers renderState = do
-   rs  <- AP.readAppST AP.renderers
+   rs  <- AP.gets AP.renderers
    rs' <- foldrM (\r rs -> io $ do
                     (finished, r') <- RD.runRenderer r renderState
                     if finished
                        then return rs
                        else return $ r' : rs) [] rs
 
-   AP.modifyAppST $ \app -> app {AP.renderers = rs'}
+   AP.setL AP.renderersL rs'
+
+
+renderEditor :: RR.RenderState -> AP.AppST ()
+renderEditor renderState = do
+   app      <- AP.get
+   mousePos <- io $ LU.mousePosInWorldCoords app
+   let editing  = ED.editing . AP.editor $ app
+   io $ case editing of
+             ED.CreatePlatform pt -> do
+                G.withPolyMode GL.gl_LINE $ do
+                   GL.glLineWidth 2
+                   GL.glColor3f <<<* (0,0,0)
+                   let box = (B.Box (V.minVec pt mousePos) (V.maxVec pt mousePos))
+                   G.drawBox box
+
+             ED.DefineMovingPath path _ -> do
+                GL.glLineWidth 2
+                GL.glColor3f <<<* (0,0,0)
+                G.draw GL.gl_LINE_STRIP (mousePos : path)
+
+             otherwise -> return ()
 
 
 clearGLState :: AP.AppST ()
@@ -160,8 +174,8 @@ clearGLState = io $ do
    GL.glLoadIdentity
 
 
-initGLFW :: AP.AppDataRef -> IO ()
-initGLFW appDataRef = do
+initGLFW :: AP.AppDataRef -> AP.AppMode -> IO ()
+initGLFW appDataRef appMode = do
    GLFW.initialize
    GLFW.openWindow GLFW.defaultDisplayOptions {
       GLFW.displayOptions_width             = winWidth,
@@ -172,31 +186,35 @@ initGLFW appDataRef = do
    GLFW.setWindowBufferSwapInterval 1
    GLFW.setWindowSizeCallback resize
    GLFW.setWindowCloseCallback exitGame
-   GLFW.setKeyCallback $ KC.newKeyCallback appDataRef
+   GLFW.setKeyCallback $ KC.newKeyCallback appDataRef appMode
+   GLFW.setMouseButtonCallback $ MC.newMouseButtonCallback appDataRef appMode
    where
       exitGame = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
 
       resize width height = do
-         modifyAppData (\appData -> appData {AP.windowSize = (width, height)})
+         setL AP.windowSizeL (width, height)
          updateFrustum
          updateCamera
 
       updateFrustum = do
-         modifyAppData (\appData ->
-            let (width, height) = AP.windowSize appData
+         modApp (\app ->
+            let (width, height) = AP.windowSize app
+                orthoScale      = LU.orthoScale app
                 top             = orthoScale * (fromIntegral height / fromIntegral width)
                 right           = orthoScale
-                in appData {AP.frustumSize = (right, top)})
+                in app {AP.frustumSize = (right, top)})
 
       updateCamera = do
-         AP.AppData {AP.windowSize = (w, h), AP.frustumSize = (r, t)} <- readAppData
+         (w, h) <- getL AP.windowSizeL
+         (r, t) <- getL AP.frustumSizeL
 	 GL.glViewport 0 0 (fromIntegral w) (fromIntegral h)
 	 GL.glMatrixMode GL.gl_PROJECTION
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 
-      modifyAppData f = modifyIORef appDataRef f
-      readAppData     = readIORef appDataRef
+      getL lens       = GU.mapIORef appDataRef $ LE.getL lens
+      setL lens value = modifyIORef appDataRef $ LE.setL lens value
+      modApp          = modifyIORef appDataRef
 
 
 initGL :: IO ()
@@ -206,7 +224,6 @@ initGL = do
 
 initRessources :: AP.AppDataRef -> IO ()
 initRessources appDataRef = do
-   appData <- readIORef appDataRef
-   bg      <- BG.newBackground
-   res     <- ER.newRessources
-   appDataRef $= appData {AP.background = bg, AP.renderRessources = res}
+   bg  <- BG.newBackground
+   res <- RR.newRessources
+   modifyIORef appDataRef $ \app -> app {AP.background = bg, AP.renderRessources = res}

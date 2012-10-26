@@ -15,6 +15,3 @@ skipTicks = 1 / ticksPerSecond
 
 maxFrameSkip :: Int
 maxFrameSkip = 10
-
-orthoScale :: Double
-orthoScale = 45

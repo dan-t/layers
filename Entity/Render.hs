@@ -3,7 +3,6 @@ module Entity.Render where
 import Control.Monad (when, forM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import Gamgine.Utils ((?))
-import qualified Gamgine.Ressources as R
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
@@ -13,28 +12,7 @@ import qualified GameData.Player as P
 import qualified GameData.Star as S
 import qualified GameData.Animation as A
 import qualified Utils as LU
-
-
--- | render ressources of entities
-data Ressources = Ressources {
-   playerTextureId :: GL.GLuint,
-   starTextureId   :: GL.GLuint
-   } deriving Show
-
-
-data RenderState = RenderState {
-   nextFrameFraction :: Double,    -- ^ value range 0-1
-   ressources        :: Ressources
-   } deriving Show
-
-
-newRessources :: IO Ressources
-newRessources = do
-   playTex   <- R.getImageFilePath "Player.png"
-   starTex   <- R.getImageFilePath "Star.png"
-   playTexId <- G.makeTexture2d playTex GL.gl_REPEAT
-   starTexId <- G.makeTexture2d starTex GL.gl_REPEAT
-   return $ Ressources playTexId starTexId
+import qualified Rendering.Ressources as RR
 
 
 interpolatePlaformPos :: Double -> E.PositionOrAnimation -> V.Vect
@@ -45,15 +23,15 @@ interpolatePlaformPos nextFrameFraction (Right ani) =
 
 
 render :: E.Scope ->
-          RenderState ->
+          RR.RenderState ->
           E.Entity ->
           IO ()
 
 render _
-       RenderState {nextFrameFraction = frac, ressources = res}
+       RR.RenderState {RR.nextFrameFraction = frac, RR.ressources = res}
        E.Player {E.playerPosition = pos, E.playerVelocity = velo@(vx:._),
                  E.playerOnBottom = onBot, E.playerWalkCycle = (_, angle)} =
-   renderWalk P.playerSize pos (onBot && vx /= 0 ? angle $ 0) (playerTextureId res)
+   renderWalk P.playerSize pos (onBot && vx /= 0 ? angle $ 0) (RR.playerTextureId res)
    where
       renderWalk :: (Double,Double) -> Vect -> Double -> GL.GLuint -> IO ()
       renderWalk (sizeX, sizeY) translation angle texture =
@@ -72,14 +50,14 @@ render _
                         GL.glVertex2f <<* v)
 
 render _
-       RenderState {ressources = res}
+       RR.RenderState {RR.ressources = res}
        E.Star {E.starPosition = pos, E.starCollected = False} =
    G.withPushedMatrix $ do
       GL.glTranslatef <<< pos
-      G.renderTexturedQuad S.starSize $ starTextureId res
+      G.renderTexturedQuad S.starSize $ RR.starTextureId res
 
 render E.ActiveLayerScope
-       RenderState {nextFrameFraction = frac}
+       RR.RenderState {RR.nextFrameFraction = frac}
        E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolatePlaformPos frac posOrAnim
@@ -88,7 +66,7 @@ render E.ActiveLayerScope
       G.withPolyMode GL.gl_LINE $ GL.glColor3f <<<* (0.4,0.4,0.4) >> G.drawBox bound
 
 render E.InactiveLayerScope
-       RenderState {nextFrameFraction = frac}
+       RR.RenderState {RR.nextFrameFraction = frac}
        E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolatePlaformPos frac posOrAnim

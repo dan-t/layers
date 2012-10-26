@@ -18,7 +18,7 @@ data EntityEvent = UpdateEntity (E.Entity -> E.Entity)
 
 
 handleEventST :: Event -> AP.AppST ()
-handleEventST event = AP.modifyAppST (handleEvent event)
+handleEventST event = AP.mod (handleEvent event)
 
 
 handleEventIO :: Event -> AP.AppDataRef -> IO ()

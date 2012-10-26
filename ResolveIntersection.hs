@@ -11,7 +11,7 @@ import qualified Entity.Bound as EB
 import qualified Entity.Position as EP
 import qualified Entity.Velocity as EV
 import qualified Event as EV
-import qualified Renderer as RD
+import qualified Rendering.Renderer as RR
 import qualified AppData as AP
 
 
@@ -38,7 +38,7 @@ resolveIntersection isect@(e1, e2, isects) =
                                         | otherwise     -> e
                  _ -> e,
 
-         mkUpdateAppEvent $ \a@AP.AppData {AP.renderers = rds} -> a {AP.renderers = RD.mkRenderer (RD.fadeOutStar pos 0) : rds}]
+         mkUpdateAppEvent $ \a@AP.AppData {AP.renderers = rds} -> a {AP.renderers = RR.mkRenderer (RR.fadeOutStar pos 0) : rds}]
 
 
       resolvePlayerWithPlatformIsect (player, isectPos) platform
@@ -62,7 +62,7 @@ resolveIntersection isect@(e1, e2, isects) =
                                       E.playerOnBottom = onBottom',
                                       E.playerVelocity = playerVelo'}
 
-                    E.Platform {E.platformId = id} | id == isectId -> EP.updatePosition e platformPos'
+                    E.Platform {E.platformId = id} | id == isectId -> EP.updateCurrentPosition e platformPos'
                                                    | otherwise     -> e
 
                     _          -> e

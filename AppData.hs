@@ -1,9 +1,9 @@
 
 module AppData where
+#include "Gamgine/Utils.cpp"
 import qualified Data.IORef as R
 import qualified Data.List as L
 import Data.Maybe (fromMaybe)
-import qualified Data.Lens.Strict as LE
 import qualified Control.Monad.State as ST
 import qualified Gamgine.Utils as GU
 import qualified Background as BG
@@ -11,24 +11,40 @@ import qualified Boundary as BD
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
-import qualified Entity.Render as ER
-import qualified Renderer as RD
-
+import qualified Rendering.Ressources as RR
+import qualified Rendering.Renderer as RD
+import qualified Editor as ED
+IMPORT_LENS
 
 data AppData = AppData {
    windowSize       :: (Int, Int),
    frustumSize      :: (Double, Double),
+   editor           :: ED.Editor,
    background       :: BG.Background,
    boundary         :: BD.Boundary,
-   renderRessources :: ER.Ressources,
+   renderRessources :: RR.Ressources,
    renderers        :: [RD.Renderer],
    gameData         :: GD.Data,
    currentLevelId   :: Int,
    activeLayerId    :: Int
    }
 
+LENS(windowSize)
+LENS(frustumSize)
+LENS(editor)
+LENS(background)
+LENS(boundary)
+LENS(renderRessources)
+LENS(renderers)
+LENS(gameData)
+LENS(currentLevelId)
+LENS(activeLayerId)
+
+data AppMode = GameMode | EditMode
+
 
 -- | a lens for the current level
+currentLevelL    = currentLevelLens
 currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
    where
       getCurrentLevel =
@@ -43,22 +59,11 @@ currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
                      gameData = gameData {GD.levels = GU.replaceBy ((== levId) . LV.levelId) level $ GD.levels gameData}})
 
 
-readCurrentLevel :: (LV.Level -> a) -> AppST a
-readCurrentLevel f = do
-   appDataRef <- ST.get
-   appData    <- ST.liftIO $ R.readIORef appDataRef
-   return (f $ LE.getL currentLevelLens appData)
-
-
-modifyCurrentLevel :: (LV.Level -> LV.Level) -> AppST ()
-modifyCurrentLevel f = modifyAppST $ LE.modL currentLevelLens f
-
-
-currentLevel :: AppData -> LV.Level
-currentLevel appData = LE.getL currentLevelLens appData
+currentLevel = LE.getL currentLevelL
 
 
 -- | a lens for the active layer
+activeLayerL    = activeLayerLens
 activeLayerLens = LE.lens getActiveLayer setActiveLayer
    where
       getActiveLayer =
@@ -76,17 +81,6 @@ activeLayerLens = LE.lens getActiveLayer setActiveLayer
                 in LE.setL currentLevelLens level' appData {activeLayerId = layId})
 
 
-readActiveLayer :: (LY.Layer -> a) -> AppST a
-readActiveLayer f = do
-   appDataRef <- ST.get
-   appData    <- ST.liftIO $ R.readIORef appDataRef
-   return (f $ LE.getL activeLayerLens appData)
-
-
-modifyActiveLayer :: (LY.Layer -> LY.Layer) -> AppST ()
-modifyActiveLayer f = modifyAppST $ LE.modL activeLayerLens f
-
-
 activeAndInactiveLayers :: AppData -> (LY.Layer, [LY.Layer])
 activeAndInactiveLayers appData@AppData {activeLayerId = actLayerId} =
    L.foldr
@@ -98,16 +92,17 @@ activeAndInactiveLayers appData@AppData {activeLayerId = actLayerId} =
       layers
    where
       layers       = LV.layers currentLevel
-      currentLevel = LE.getL currentLevelLens appData
+      currentLevel = LE.getL currentLevelL appData
 
 
 newAppData :: GD.Data -> AppData
 newAppData gameData = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
+   editor           = ED.empty,
    background       = BG.empty,
    boundary         = BD.newBoundary currLevel,
-   renderRessources = ER.Ressources (-1) (-1),
+   renderRessources = RR.Ressources (-1) (-1),
    renderers        = [],
    gameData         = gameData,
    currentLevelId   = LV.levelId currLevel,
@@ -122,12 +117,28 @@ type AppDataRef = R.IORef AppData
 type AppST      = ST.StateT AppDataRef IO
 
 
-readAppST :: (AppData -> a) -> AppST a
-readAppST f = GU.readSTIORef f
+getL :: LE.Lens AppData a -> AppST a
+getL lens = GU.mapSTIORef $ LE.getL lens
 
 
-modifyAppST :: (AppData -> AppData) -> AppST ()
-modifyAppST f = GU.modifySTIORef f
+setL :: LE.Lens AppData a -> a -> AppST ()
+setL lens value = GU.modifySTIORef $ LE.setL lens value
+
+
+modL :: LE.Lens AppData a -> (a -> a) -> AppST ()
+modL lens f = GU.modifySTIORef $ LE.modL lens f
+
+
+gets :: (AppData -> a) -> AppST a
+gets f = GU.mapSTIORef f
+
+
+get :: AppST AppData
+get = GU.readSTIORef
+
+
+mod :: (AppData -> AppData) -> AppST ()
+mod f = GU.modifySTIORef f
 
 
 runAppST :: AppST a -> AppDataRef -> IO (a, AppDataRef)

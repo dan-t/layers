@@ -1,5 +1,5 @@
 
-module Renderer where
+module Rendering.Renderer where
 import Control.Monad (forM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as G
@@ -7,12 +7,12 @@ import Gamgine.Gfx ((<<*), (<<<<*))
 import qualified Gamgine.Coroutine as CO
 import Gamgine.Math.Vect
 import qualified GameData.Star as S
-import qualified Entity.Render as ER
+import qualified Rendering.Ressources as RR
 
 type Finished = Bool
 -- | a render routine which is called/used until it returns Finished=True,
 --   used for temporary animations
-type Renderer = CO.CoroutineM IO ER.RenderState Finished
+type Renderer = CO.CoroutineM IO RR.RenderState Finished
 
 runRenderer = CO.runCoroutineM
 
@@ -25,9 +25,9 @@ continueRenderer f = (False, CO.CoroutineM $ f)
 mkRenderer rd = CO.CoroutineM rd
 
 
-fadeOutStar :: Vect -> Double -> ER.RenderState -> IO (Finished, Renderer)
+fadeOutStar :: Vect -> Double -> RR.RenderState -> IO (Finished, Renderer)
 fadeOutStar pos factor rstate = do
-   let texId   = ER.starTextureId . ER.ressources $ rstate
+   let texId   = RR.starTextureId . RR.ressources $ rstate
        (sx,sy) = S.starSize
        f'      = factor + 0.02
    if f' < 1

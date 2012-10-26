@@ -1,9 +1,14 @@
 
 module GameData.Level where
-import Data.Function
+#include "Gamgine/Utils.cpp"
+import Data.Function (on)
 import qualified Data.List as L
+import qualified Gamgine.Math.Box as B
+import qualified Gamgine.Math.BoxTree as BT
+import qualified Entity.Bound as EB
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
+IMPORT_LENS
 
 
 data Level = Level {
@@ -11,6 +16,10 @@ data Level = Level {
    entities :: [E.Entity],
    layers   :: [LY.Layer]
    } deriving Show
+
+LENS(levelId)
+LENS(entities)
+LENS(layers)
 
 
 sortById :: [Level] -> [Level]
@@ -27,14 +36,33 @@ findEntity :: (E.Entity -> Bool) -> Level -> Maybe E.Entity
 findEntity f level = L.find f $ allEntities level
 
 
-getPlayer :: Level -> E.Entity
-getPlayer level =
-   case findEntity isPlayer level of
-        Just p -> p
-        _      -> error $ "Couldn't find player!"
+findEntityAt pos = findEntity $ \e -> (BT.asBox . EB.bound $ e) `B.contains` pos
+
+
+playerL    = playerLens
+playerLens = LE.lens getPlayer setPlayer
    where
-      isPlayer E.Player {} = True
-      isPlayer _           = False
+      getPlayer = \level ->
+         case findEntity isPlayer level of
+              Just p -> p
+              _      -> error $ "Couldn't find player!"
+         where
+            isPlayer E.Player {} = True
+            isPlayer _           = False
+
+      setPlayer = \player level -> E.eMap (set player) level
+         where
+            set player E.Player {} = player
+            set _      e           = e
+
+
+nextFreeEntityId :: Level -> Int
+nextFreeEntityId level = maxId + 1
+   where
+      maxId | L.null allIds = 0
+            | otherwise     = L.maximum allIds
+
+      allIds = L.map E.entityId (allEntities level)
 
 
 instance E.ApplyToEntity Level where
