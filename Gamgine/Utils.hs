@@ -23,18 +23,18 @@ mapIORef :: R.IORef a -> (a -> b) -> IO b
 mapIORef ref f = f <$> R.readIORef ref
 
 -- | modify the value of the IORef inside of State
-modifySTIORef :: (a -> a) -> StateIORef a ()
-modifySTIORef f = do
+modifyStateIORef :: (a -> a) -> StateIORef a ()
+modifyStateIORef f = do
    aRef <- ST.get
    ST.liftIO $ R.modifyIORef aRef f
 
 -- | map a function on the value of the IORef inside of State
-mapSTIORef :: (a -> b) -> StateIORef a b
-mapSTIORef f = f <$> readSTIORef
+mapStateIORef :: (a -> b) -> StateIORef a b
+mapStateIORef f = f <$> readStateIORef
 
 -- | read the value of the IORef inside of State
-readSTIORef :: StateIORef a a
-readSTIORef = do
+readStateIORef :: StateIORef a a
+readStateIORef = do
    aRef <- ST.get
    ST.liftIO $ R.readIORef aRef
 
