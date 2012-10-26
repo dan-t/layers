@@ -212,7 +212,7 @@ initGLFW appDataRef appMode = do
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 
-      getL lens       = GU.mapIORef appDataRef $ LE.getL lens
+      getL lens       = GU.mapIORef (LE.getL lens) appDataRef
       setL lens value = modifyIORef appDataRef $ LE.setL lens value
       modApp          = modifyIORef appDataRef
 

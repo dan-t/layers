@@ -19,8 +19,9 @@ import Debug.Trace
 
 type StateIORef a = ST.StateT (R.IORef a) IO 
 
-mapIORef :: R.IORef a -> (a -> b) -> IO b
-mapIORef ref f = f <$> R.readIORef ref
+-- | map a function on the value of the IORef
+mapIORef :: (a -> b) -> R.IORef a -> IO b
+mapIORef f ref = f <$> R.readIORef ref
 
 -- | modify the value of the IORef inside of State
 modifyStateIORef :: (a -> a) -> StateIORef a ()
