@@ -77,7 +77,7 @@ gameLoop nextFrame = do
 update :: AP.AppST ()
 update = do
    runUpdaters
-   levelGravity <- GR.getsL (LY.gravityL . LV.activeLayerL . AP.currentLevelL)
+   levelGravity <- GR.getsL (LY.gravityL . AP.activeLayerL)
    GR.modifyL AP.currentLevelL $ updateEntities levelGravity
    keepInsideBoundary
    events <- handleIntersections
@@ -113,8 +113,8 @@ keepInsideBoundary = do
 handleIntersections :: AP.AppST [EV.Event]
 handleIntersections = do
    curLevel    <- GR.getsL AP.currentLevelL
-   actLayer    <- GR.getsL (LV.activeLayerL . AP.currentLevelL)
-   inactLayers <- GR.getsL (LV.inactiveLayersL . AP.currentLevelL)
+   actLayer    <- GR.getsL AP.activeLayerL
+   inactLayers <- GR.getsL AP.inactiveLayersL
    let levelEnts       = LV.entities curLevel
        actLayerEnts    = LY.entities actLayer
        inactLayersEnts = L.map LY.entities inactLayers
@@ -133,8 +133,8 @@ render nextFrameFraction = do
    renderRes   <- GR.getsL AP.renderRessourcesL
    background  <- GR.getsL AP.backgroundL
    curLevel    <- GR.getsL AP.currentLevelL
-   actLayer    <- GR.getsL (LV.activeLayerL . AP.currentLevelL)
-   inactLayers <- GR.getsL (LV.inactiveLayersL . AP.currentLevelL)
+   actLayer    <- GR.getsL AP.activeLayerL
+   inactLayers <- GR.getsL AP.inactiveLayersL
    scrolling   <- GR.gets $ LU.levelScrolling nextFrameFraction
    let renderState              = RR.RenderState nextFrameFraction renderRes
        renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
