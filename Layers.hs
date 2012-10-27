@@ -197,7 +197,7 @@ initGLFW appDataRef appMode = do
       updateFrustum = do
          modify (\app ->
             let (width, height) = AP.windowSize app
-                orthoScale      = LU.orthoScale app
+                orthoScale      = AP.orthoScale app
                 top             = orthoScale * (fromIntegral height / fromIntegral width)
                 right           = orthoScale
                 in app {AP.frustumSize = (right, top)})

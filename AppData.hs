@@ -14,13 +14,13 @@ import qualified GameData.Layer as LY
 import qualified Rendering.Ressources as RR
 import qualified Rendering.Renderer as RD
 import qualified Updater as UP
-import qualified Editor as ED
+import qualified Defaults as DF
 IMPORT_LENS
 
 data AppData = AppData {
    windowSize       :: (Int, Int),
    frustumSize      :: (Double, Double),
-   editor           :: ED.Editor,
+   orthoScale       :: Double,
    background       :: BG.Background,
    boundary         :: BD.Boundary,
    renderRessources :: RR.Ressources,
@@ -31,7 +31,7 @@ data AppData = AppData {
 
 LENS(windowSize)
 LENS(frustumSize)
-LENS(editor)
+LENS(orthoScale)
 LENS(background)
 LENS(boundary)
 LENS(renderRessources)
@@ -51,7 +51,7 @@ newAppData :: GD.Data -> AppData
 newAppData gameData = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
-   editor           = ED.empty,
+   orthoScale       = DF.orthoScale,
    background       = BG.empty,
    boundary         = BD.newBoundary $ GD.currentLevel gameData,
    renderRessources = RR.Ressources (-1) (-1),

@@ -11,7 +11,6 @@ import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.IORef as GR
 import qualified AppData as AP
-import qualified Editor as ED
 import qualified Entity.Position as EP
 import qualified Entity.Bound as EB
 import qualified Entity.Id as EI

@@ -5,7 +5,6 @@ import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Matrix as M
 import qualified AppData as AP
-import qualified Editor as ED
 import qualified Boundary as BD
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
@@ -42,14 +41,7 @@ mousePosInScreenCoords :: AP.AppData -> IO V.Vect
 mousePosInScreenCoords appData = do
    (x, y) <- GLFW.getMousePosition
    (w, h) <- GLFW.getWindowDimensions
-   let mat    = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (orthoScale appData * (fromIntegral h / fromIntegral w))
+   let mat    = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (AP.orthoScale appData * (fromIntegral h / fromIntegral w))
        invMat = M.inverseOrIdentity mat
        vec    = V.fromVect4 (multmv invMat (v4 (fromIntegral x) (fromIntegral y) 0 1))
    return $ V.setElem 2 0 vec
-
-
-orthoScale :: AP.AppData -> Double
-orthoScale appData = defaultOrthoScale + (fromIntegral $ ED.zoom . AP.editor $ appData)
-   where
-      defaultOrthoScale = 45
-
