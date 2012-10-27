@@ -2,23 +2,26 @@
 module MouseButtonCallback where
 #include "Gamgine/Utils.cpp"
 import Control.Applicative ((<$>))
+import Control.Monad (when)
 import qualified Data.IORef as R
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
-import qualified Event as EV
+import qualified Gamgine.IORef as GR
 import qualified AppData as AP
 import qualified Editor as ED
 import qualified Entity.Position as EP
 import qualified Entity.Bound as EB
+import qualified Entity.Id as EI
 import qualified GameData.Entity as E
 import qualified GameData.Player as PL
 import qualified GameData.Platform as PF
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
 import qualified Utils as LU
+import qualified Updater as UP
 IMPORT_LENS
 
 type Pressed             = Bool
@@ -30,46 +33,64 @@ newMouseButtonCallback _ AP.GameMode = \_ _ -> return ()
 newMouseButtonCallback appDataRef AP.EditMode = callback
    where
       callback GLFW.MouseButton0 True = do
-         app          <- readApp
          ctrlPressed  <- isAnyKeyPressed ctrlKeys
          shiftPressed <- isAnyKeyPressed shiftKeys
-         mousePos     <- V.setElem 2 0 <$> LU.mousePosInWorldCoords app
-         let editing     = ED.editing . AP.editor $ app
-             foundEntity = LV.findEntityAt mousePos $ LE.getL AP.currentLevelL app
-
-         case editing of
-              ED.NoEdition 
-                 | ctrlPressed  -> just foundEntity $ \fe -> updateEntityEvent $ \e ->
-                                      if E.entityId e == E.entityId fe
-                                         then EP.updateCurrentPosition e mousePos
-                                         else e
-
-                 | shiftPressed -> just foundEntity $ \fe -> updateEditing $ 
-                                      ED.ResizePlatform (B.maxPt . BT.asBox . EB.bound $ fe)
-                                                        mousePos (E.entityId fe)
-
-                 | otherwise    -> updateEditing $ ED.CreatePlatform mousePos
-
-              _ -> return () 
-
-      callback GLFW.MouseButton0 False = do
-         app      <- readApp
-         mousePos <- V.setElem 2 0 <$> LU.mousePosInWorldCoords app
-         let editing = ED.editing . AP.editor $ app
-         case editing of
-              ED.CreatePlatform pt -> updateAppEvent $ \app ->
-                 let freeId = LV.nextFreeEntityId $ LE.getL AP.currentLevelL app
-                     bound  = B.Box (V.v3 0 0 0) (V.map abs $ mousePos - pt)
-                     pos    = Left $ V.minVec mousePos pt
-                     in LE.modL (LY.entitiesL . AP.activeLayerL) (\es -> PF.newPlatform freeId pos bound : es)
-                           $ LE.setL (ED.editingL . AP.editorL) ED.NoEdition app
-
-              _ -> return ()
-
+         when ctrlPressed  moveEntity
+         when shiftPressed resizePlatform
+         when (not ctrlPressed && not shiftPressed) createPlatform
 
       callback _ _ = return ()
 
-      updateEditing edit   = updateAppEvent $ LE.setL (ED.editingL . AP.editorL) edit
+      moveEntity = do
+         mousePos <- mousePosition
+         entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
+         just entity $ \e -> do
+            let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
+            addUpdater $ moving (mousePos, EP.currentPosition e, finished, EI.entityId e)
+            where
+               moving (startPos, basePos, finished, id) app = do
+                  mousePos <- LU.mousePosInWorldCoords app
+                  let newBasePos = basePos + (mousePos - startPos)
+                      app'       = LE.modL AP.currentLevelL (E.eMap $ \e ->
+                                      if id /= EI.entityId e
+                                         then e
+                                         else EP.setCurrentPosition e newBasePos) app
+                  fin <- finished
+                  return $ UP.contineUpdater (app', fin) $ moving (startPos, basePos, finished, id)
+
+
+      resizePlatform = return ()
+
+      createPlatform = do
+         mousePos   <- mousePosition
+         platformId <- LV.freeEntityId <$> getL AP.currentLevelL
+         modL AP.currentLevelL $ \level ->
+            let bound  = B.Box V.nullVec V.nullVec
+                pos    = Left mousePos
+                in LV.addEntity (PF.newPlatform platformId pos bound) LV.ToActiveLayer level
+
+         let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
+         addUpdater $ resizing (mousePos, finished, platformId)
+         where
+            resizing (startPos, finished, id) app = do
+               mousePos <- LU.mousePosInWorldCoords app
+               let app' = LE.modL AP.activeLayerL (E.eMap $ \e ->
+                             if id /= EI.entityId e
+                                then e
+                                else let newMinPt = V.minVec startPos mousePos
+                                         newMaxPt = V.maxVec startPos mousePos
+                                         diffVec  = V.map abs $ newMaxPt - newMinPt
+                                         in e {E.platformPosition = Left newMinPt,
+                                               E.platformBound    = B.Box (V.v3 0 0 0) diffVec}) app
+               fin <- finished
+               return $ UP.contineUpdater (app', fin) $ resizing (startPos, finished, id)
+
+
+      mousePosition = do
+         app <- readApp
+         LU.mousePosInWorldCoords app
+
+      addUpdater updater   = modL AP.updatersL $ (UP.mkUpdater updater :)
 
       isAnyKeyPressed keys = L.any (== True) <$> mapM GLFW.keyIsPressed keys
       shiftKeys            = [GLFW.KeyLeftShift, GLFW.KeyRightShift]
@@ -77,12 +98,10 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
 
       readApp              = R.readIORef appDataRef
       modifyApp            = R.modifyIORef appDataRef
+      mapApp               = GR.mapIORef appDataRef
+
+      modL                 = GR.modL appDataRef
+      getL                 = GR.getL appDataRef
 
       just (Just e) f      = f e
       just _        _      = return ()
-
-      updateEntityEvent    = sendEvent . mkUpdateEntityEvent
-      updateAppEvent       = sendEvent . mkUpdateAppEvent
-      mkUpdateEntityEvent  = EV.MkEntityEvent . EV.UpdateEntity
-      mkUpdateAppEvent     = EV.MkAppEvent . EV.UpdateApp
-      sendEvent e          = EV.handleEventIO e appDataRef

@@ -1,5 +1,5 @@
 module Gamgine.Math.Vect (module Data.Vec,Vect,Vect4,x,y,z,v3,v4,fromTuple,toTuple,fromVect4,len,
-                          inverseVec,clampVec,maxVec,minVec,index,absVec,and,or,all,any) where
+                          inverseVec,clampVec,maxVec,minVec,index,absVec,nullVec,and,or,all,any) where
 
 import Gamgine.Utils
 #include "Gamgine/Utils.cpp"
@@ -57,6 +57,8 @@ maxVec v1 v2 = V.zipWith max v1 v2
 minVec v1 v2 = V.zipWith min v1 v2
 
 absVec v = V.map abs v
+
+nullVec = v3 0 0 0
 
 and v = V.foldr (&&) True v
 

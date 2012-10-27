@@ -64,7 +64,7 @@ resolveIntersection isect@(e1, e2, isects) =
                                       E.playerOnBottom = onBottom',
                                       E.playerVelocity = playerVelo'}
 
-                    E.Platform {E.platformId = id} | id == isectId -> EP.updateCurrentPosition e platformPos'
+                    E.Platform {E.platformId = id} | id == isectId -> EP.setCurrentPosition e platformPos'
                                                    | otherwise     -> e
 
                     _          -> e

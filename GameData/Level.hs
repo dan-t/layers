@@ -65,17 +65,12 @@ findEntityAt pos = findEntity $ \e -> (BT.asBox . EB.bound $ e) `B.contains` pos
 data AddEntityTo = ToLevel | ToActiveLayer
 
 addEntity :: E.Entity -> AddEntityTo -> Level -> Level
-addEntity entity addTo level =
-   let entity' = EI.setEntityId entity freeId
-       in case addTo of
-               ToLevel       -> LE.modL entitiesL (entity' :) level
-               ToActiveLayer -> LE.modL (LY.entitiesL . activeLayerL) (entity' :) level
-   where
-      freeId = nextFreeEntityId level
+addEntity entity ToLevel       level = LE.modL entitiesL (entity :) level
+addEntity entity ToActiveLayer level = LE.modL (LY.entitiesL . activeLayerL) (entity :) level
 
 
-nextFreeEntityId :: Level -> Int
-nextFreeEntityId level = maxId + 1
+freeEntityId :: Level -> Int
+freeEntityId level = maxId + 1
    where
       maxId | L.null allIds = 0
             | otherwise     = L.maximum allIds

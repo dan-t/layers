@@ -34,6 +34,12 @@ getsL lens = do
    ref <- ST.get
    ST.liftIO $ getL ref lens
 
+-- | set the value of the IORef inside of the State
+put :: a -> StateIORef a ()
+put value = do
+   ref <- ST.get
+   ST.liftIO $ R.writeIORef ref value
+
 -- | put a value 
 putL :: LE.Lens a b -> b -> StateIORef a ()
 putL lens value = do

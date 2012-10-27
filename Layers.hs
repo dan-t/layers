@@ -26,7 +26,6 @@ import qualified Convert.ToGameData as TGD
 import qualified Background as BG
 import qualified Boundary as BD
 import qualified AppData as AP
-import qualified Editor as ED
 import qualified KeyCallback as KC
 import qualified MouseButtonCallback as MC
 import qualified ResolveIntersection as RI
@@ -37,6 +36,7 @@ import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
 import qualified Rendering.Renderer as RD
+import qualified Updater as UP
 import qualified Entity.Render as ER
 import qualified Entity.Update as EU
 import qualified Entity.Intersect as EI
@@ -94,14 +94,15 @@ update = do
 
 runUpdaters :: AP.AppST ()
 runUpdaters = do
-   ups  <- GR.gets AP.updaters
-   ups' <- foldrM (\up ups -> io $ do
-      (finished, up') <- UP.runUpdater up ()
+   app          <- GR.get
+   ups          <- GR.gets AP.updaters
+   (app', ups') <- foldrM (\up (app, ups) -> io $ do
+      ((app', finished), up') <- UP.runUpdater up app
       if finished
-         then return ups
-         else return $ up' : ups) [] ups
+         then return (app', ups)
+         else return $ (app', up' : ups)) (app, []) ups
 
-   GR.putL AP.updatersL ups'
+   GR.put $ app' {AP.updaters = ups'}
 
 
 keepInsideBoundary :: AP.AppST ()
@@ -149,7 +150,6 @@ render nextFrameFraction = do
       renderLevelEntities
 
    runRenderers renderState
-   renderEditor renderState
    io GLFW.swapBuffers
 
 
@@ -163,27 +163,6 @@ runRenderers renderState = do
                        else return $ r' : rs) [] rs
 
    GR.putL AP.renderersL rs'
-
-
-renderEditor :: RR.RenderState -> AP.AppST ()
-renderEditor renderState = do
-   app      <- GR.get
-   mousePos <- io $ LU.mousePosInWorldCoords app
-   let editing  = ED.editing . AP.editor $ app
-   io $ case editing of
-             ED.CreatePlatform pt -> do
-                G.withPolyMode GL.gl_LINE $ do
-                   GL.glLineWidth 2
-                   GL.glColor3f <<<* (0,0,0)
-                   let box = (B.Box (V.minVec pt mousePos) (V.maxVec pt mousePos))
-                   G.drawBox box
-
-             ED.DefineMovingPath path _ -> do
-                GL.glLineWidth 2
-                GL.glColor3f <<<* (0,0,0)
-                G.draw GL.gl_LINE_STRIP (mousePos : path)
-
-             otherwise -> return ()
 
 
 clearGLState :: AP.AppST ()

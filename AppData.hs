@@ -25,7 +25,7 @@ data AppData = AppData {
    boundary         :: BD.Boundary,
    renderRessources :: RR.Ressources,
    renderers        :: [RD.Renderer],
-   updaters         :: [UP.Updater],
+   updaters         :: [UP.Updater AppData],
    gameData         :: GD.Data
    }
 

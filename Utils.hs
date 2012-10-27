@@ -35,7 +35,7 @@ levelScrolling nextFrameFraction appData =
 mousePosInWorldCoords :: AP.AppData -> IO V.Vect
 mousePosInWorldCoords appData = do
    mp <- mousePosInScreenCoords appData
-   return $ mp - (levelScrolling 0 appData)
+   return $ V.setElem 2 0 $ mp - (levelScrolling 0 appData)
 
 
 mousePosInScreenCoords :: AP.AppData -> IO V.Vect
