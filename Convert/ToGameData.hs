@@ -16,7 +16,7 @@ import qualified GameData.Data as GD
 
 toGameData :: FD.Data -> GD.Data
 toGameData (FD.Data _ [])     = error $ "Invalid game data: missing levels!"
-toGameData (FD.Data _ levels) = GD.Data {GD.levels = gameLevels}
+toGameData (FD.Data _ levels) = GD.newData gameLevels
    where
       gameLevels = LV.sortById $ L.map toLevel levels
 

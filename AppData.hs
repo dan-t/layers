@@ -13,6 +13,7 @@ import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified Rendering.Ressources as RR
 import qualified Rendering.Renderer as RD
+import qualified Updater as UP
 import qualified Editor as ED
 IMPORT_LENS
 
@@ -24,8 +25,8 @@ data AppData = AppData {
    boundary         :: BD.Boundary,
    renderRessources :: RR.Ressources,
    renderers        :: [RD.Renderer],
-   gameData         :: GD.Data,
-   currentLevelId   :: Int
+   updaters         :: [UP.Updater],
+   gameData         :: GD.Data
    }
 
 LENS(windowSize)
@@ -35,26 +36,15 @@ LENS(background)
 LENS(boundary)
 LENS(renderRessources)
 LENS(renderers)
+LENS(updaters)
 LENS(gameData)
-LENS(currentLevelId)
 
 data AppMode = GameMode | EditMode
 
 
--- | a lens for the current level
-currentLevelL    = currentLevelLens
-currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
-   where
-      getCurrentLevel =
-         (\AppData {gameData = gd, currentLevelId = curId} ->
-            case L.find ((== curId) . LV.levelId) $ GD.levels gd of
-                 Just level -> level
-                 _          -> error $ "Couldn't find current level with id=" ++ show curId ++ "!")
-
-      setCurrentLevel =
-         (\level@LV.Level {LV.levelId = levId} appData@AppData {gameData = gameData} ->
-            appData {currentLevelId = levId,
-                     gameData = gameData {GD.levels = GU.replaceBy ((== levId) . LV.levelId) level $ GD.levels gameData}})
+currentLevelL   = GD.currentLevelL . gameDataL
+activeLayerL    = LV.activeLayerL . currentLevelL
+inactiveLayersL = LV.inactiveLayersL . currentLevelL
 
 
 newAppData :: GD.Data -> AppData
@@ -63,14 +53,12 @@ newAppData gameData = AppData {
    frustumSize      = (0,0),
    editor           = ED.empty,
    background       = BG.empty,
-   boundary         = BD.newBoundary currLevel,
+   boundary         = BD.newBoundary $ GD.currentLevel gameData,
    renderRessources = RR.Ressources (-1) (-1),
    renderers        = [],
-   gameData         = gameData,
-   currentLevelId   = LV.levelId currLevel
+   updaters         = [],
+   gameData         = gameData
    }
-   where
-      currLevel = GD.levels gameData !! 0
 
 
 type AppDataRef = R.IORef AppData

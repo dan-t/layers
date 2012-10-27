@@ -12,8 +12,8 @@ import qualified GameData.Animation as A
 
 
 toFileData :: D.Data -> FD.Data
-toFileData D.Data {D.levels = levels} =
-   FD.Data FD.dataVersion $ L.map toLevel levels
+toFileData dat =
+   FD.Data FD.dataVersion $ L.map toLevel (D.allLevels dat)
 
 
 toLevel :: LV.Level -> FD.Level
