@@ -14,6 +14,7 @@ import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.Ressources as RS
 import qualified Gamgine.Coroutine as CO
+import qualified Gamgine.IORef as GR
 import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
 import qualified Gamgine.Math.Box as B
@@ -75,8 +76,9 @@ gameLoop nextFrame = do
 
 update :: AP.AppST ()
 update = do
-   levelGravity <- AP.getL (LY.gravityL . AP.activeLayerL)
-   AP.modL AP.currentLevelL $ updateEntities levelGravity
+   runUpdaters
+   levelGravity <- GR.getsL (LY.gravityL . AP.activeLayerL)
+   GR.modifyL AP.currentLevelL $ updateEntities levelGravity
    keepInsideBoundary
    events <- handleIntersections
    mapM_ EV.handleEventST events
@@ -89,16 +91,28 @@ update = do
          layer {LY.entities = L.map (EU.update $ EU.UpdateState g) $ LY.entities layer}
 
 
+runUpdaters :: AP.AppST ()
+runUpdaters = do
+   ups  <- GR.gets AP.updaters
+   ups' <- foldrM (\up ups -> io $ do
+      (finished, up') <- UP.runUpdater up ()
+      if finished
+         then return ups
+         else return $ up' : ups) [] ups
+
+   GR.putL AP.updatersL ups'
+
+
 keepInsideBoundary :: AP.AppST ()
 keepInsideBoundary = do
-   boundary <- AP.gets AP.boundary
-   AP.modL AP.currentLevelL $ E.eMap (`BD.keepInside` boundary)
+   boundary <- GR.gets AP.boundary
+   GR.modifyL AP.currentLevelL $ E.eMap (`BD.keepInside` boundary)
 
 
 handleIntersections :: AP.AppST [EV.Event]
 handleIntersections = do
-   curLevel                <- AP.getL AP.currentLevelL
-   (actLayer, inactLayers) <- AP.gets AP.activeAndInactiveLayers
+   curLevel                <- GR.getsL AP.currentLevelL
+   (actLayer, inactLayers) <- GR.gets  AP.activeAndInactiveLayers
    let levelEnts       = LV.entities curLevel
        actLayerEnts    = LY.entities actLayer
        inactLayersEnts = L.map LY.entities inactLayers
@@ -114,11 +128,11 @@ handleIntersections = do
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   renderRes               <- AP.getL AP.renderRessourcesL
-   background              <- AP.getL AP.backgroundL
-   curLevel                <- AP.getL AP.currentLevelL
-   (actLayer, inactLayers) <- AP.gets AP.activeAndInactiveLayers
-   scrolling               <- AP.gets $ LU.levelScrolling nextFrameFraction
+   renderRes               <- GR.getsL AP.renderRessourcesL
+   background              <- GR.getsL AP.backgroundL
+   curLevel                <- GR.getsL AP.currentLevelL
+   (actLayer, inactLayers) <- GR.gets AP.activeAndInactiveLayers
+   scrolling               <- GR.gets $ LU.levelScrolling nextFrameFraction
    let renderState              = RR.RenderState nextFrameFraction renderRes
        renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
        renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
@@ -138,19 +152,19 @@ render nextFrameFraction = do
 
 runRenderers :: RR.RenderState -> AP.AppST ()
 runRenderers renderState = do
-   rs  <- AP.gets AP.renderers
+   rs  <- GR.gets AP.renderers
    rs' <- foldrM (\r rs -> io $ do
                     (finished, r') <- RD.runRenderer r renderState
                     if finished
                        then return rs
                        else return $ r' : rs) [] rs
 
-   AP.setL AP.renderersL rs'
+   GR.putL AP.renderersL rs'
 
 
 renderEditor :: RR.RenderState -> AP.AppST ()
 renderEditor renderState = do
-   app      <- AP.get
+   app      <- GR.get
    mousePos <- io $ LU.mousePosInWorldCoords app
    let editing  = ED.editing . AP.editor $ app
    io $ case editing of
@@ -199,7 +213,7 @@ initGLFW appDataRef appMode = do
          updateCamera
 
       updateFrustum = do
-         modApp (\app ->
+         modify (\app ->
             let (width, height) = AP.windowSize app
                 orthoScale      = LU.orthoScale app
                 top             = orthoScale * (fromIntegral height / fromIntegral width)
@@ -214,9 +228,9 @@ initGLFW appDataRef appMode = do
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 
-      getL lens       = GU.mapIORef (LE.getL lens) appDataRef
-      setL lens value = modifyIORef appDataRef $ LE.setL lens value
-      modApp          = modifyIORef appDataRef
+      getL   = GR.getL appDataRef
+      setL   = GR.setL appDataRef
+      modify = modifyIORef appDataRef
 
 
 initGL :: IO ()

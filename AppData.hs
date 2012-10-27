@@ -114,29 +114,5 @@ type AppDataRef = R.IORef AppData
 type AppST      = ST.StateT AppDataRef IO
 
 
-getL :: LE.Lens AppData a -> AppST a
-getL lens = GU.mapStateIORef $ LE.getL lens
-
-
-setL :: LE.Lens AppData a -> a -> AppST ()
-setL lens value = GU.modifyStateIORef $ LE.setL lens value
-
-
-modL :: LE.Lens AppData a -> (a -> a) -> AppST ()
-modL lens f = GU.modifyStateIORef $ LE.modL lens f
-
-
-gets :: (AppData -> a) -> AppST a
-gets f = GU.mapStateIORef f
-
-
-get :: AppST AppData
-get = GU.readStateIORef
-
-
-mod :: (AppData -> AppData) -> AppST ()
-mod f = GU.modifyStateIORef f
-
-
 runAppST :: AppST a -> AppDataRef -> IO (a, AppDataRef)
 runAppST = ST.runStateT
