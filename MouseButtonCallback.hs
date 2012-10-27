@@ -2,7 +2,7 @@
 module MouseButtonCallback where
 #include "Gamgine/Utils.cpp"
 import Control.Applicative ((<$>))
-import Control.Monad (when)
+import Control.Monad (when, liftM2)
 import qualified Data.IORef as R
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
@@ -33,8 +33,8 @@ newMouseButtonCallback _ AP.GameMode = \_ _ -> return ()
 newMouseButtonCallback appDataRef AP.EditMode = callback
    where
       callback GLFW.MouseButton0 True = do
-         ctrlPressed  <- isAnyKeyPressed ctrlKeys
-         shiftPressed <- isAnyKeyPressed shiftKeys
+         ctrlPressed  <- anyCtrlKeyPressed
+         shiftPressed <- anyShiftKeyPressed
          when ctrlPressed  moveEntity
          when shiftPressed resizePlatform
          when (not ctrlPressed && not shiftPressed) createPlatform
@@ -59,7 +59,25 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
                   return $ UP.contineUpdater (app', fin) $ moving (startPos, basePos, finished, id)
 
 
-      resizePlatform = return ()
+      resizePlatform = do
+         mousePos <- mousePosition
+         entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
+         justPlatform entity $ \platform -> do
+            let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
+                basePos  = B.maxPt . E.platformBound $ platform
+            addUpdater $ resizing (mousePos, basePos, finished, E.platformId platform)
+            where
+               resizing (startPos, basePos, finished, id) app = do
+                  mousePos <- LU.mousePosInWorldCoords app
+                  let diffVec = mousePos - startPos
+                      app'    = LE.modL AP.currentLevelL (E.eMap $ \e ->
+                                   if id /= EI.entityId e
+                                      then e
+                                      else let bound' = (E.platformBound e) {B.maxPt = basePos + diffVec}
+                                               in e {E.platformBound = bound'}) app
+                  fin <- finished
+                  return $ UP.contineUpdater (app', fin) $ resizing (startPos, basePos, finished, id)
+
 
       createPlatform = do
          mousePos   <- mousePosition
@@ -87,21 +105,19 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
 
 
       mousePosition = do
-         app <- readApp
+         app <- R.readIORef appDataRef
          LU.mousePosInWorldCoords app
 
       addUpdater updater   = modL AP.updatersL $ (UP.mkUpdater updater :)
 
-      isAnyKeyPressed keys = L.any (== True) <$> mapM GLFW.keyIsPressed keys
-      shiftKeys            = [GLFW.KeyLeftShift, GLFW.KeyRightShift]
-      ctrlKeys             = [GLFW.KeyLeftCtrl, GLFW.KeyRightCtrl]
-
-      readApp              = R.readIORef appDataRef
-      modifyApp            = R.modifyIORef appDataRef
-      mapApp               = GR.mapIORef appDataRef
+      anyCtrlKeyPressed  = liftM2 (||) (GLFW.keyIsPressed GLFW.KeyLeftCtrl)  (GLFW.keyIsPressed GLFW.KeyRightCtrl)
+      anyShiftKeyPressed = liftM2 (||) (GLFW.keyIsPressed GLFW.KeyLeftShift) (GLFW.keyIsPressed GLFW.KeyRightShift)
 
       modL                 = GR.modL appDataRef
       getL                 = GR.getL appDataRef
 
       just (Just e) f      = f e
       just _        _      = return ()
+
+      justPlatform (Just p@E.Platform {}) f = f p
+      justPlatform _                      _ = return ()
