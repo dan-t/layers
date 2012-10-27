@@ -1,5 +1,5 @@
 
-module KeyCallback where
+module Callback.Key where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW

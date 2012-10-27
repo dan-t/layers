@@ -1,5 +1,5 @@
 
-module MouseButtonCallback where
+module Callback.MouseButton where
 #include "Gamgine/Utils.cpp"
 import Control.Applicative ((<$>))
 import Control.Monad (when, liftM2)

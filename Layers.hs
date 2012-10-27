@@ -26,8 +26,8 @@ import qualified Convert.ToGameData as TGD
 import qualified Background as BG
 import qualified Boundary as BD
 import qualified AppData as AP
-import qualified KeyCallback as KC
-import qualified MouseButtonCallback as MC
+import qualified Callback.Key as KC
+import qualified Callback.MouseButton as MC
 import qualified ResolveIntersection as RI
 import qualified Event as EV
 import qualified GameData.Data as GD
