@@ -33,17 +33,7 @@ newKeyCallback appDataRef _ = callback
       callback _ _                 = return ()
 
 
-      switchToNextLayer = updateAppEvent $ \app ->
-         let layerIds   = L.map LY.layerId $ LE.getL (LV.layersL . AP.currentLevelL) app
-             actLayId   = AP.activeLayerId app
-             greaterIds = L.filter (> actLayId) layerIds
-             smallerIds = L.filter (< actLayId) layerIds
-             newLayId | not . null $ greaterIds = L.head greaterIds
-                      | not . null $ smallerIds = L.head smallerIds
-                      | otherwise               = actLayId
-
-             in app {AP.activeLayerId = newLayId}
-
+      switchToNextLayer = updateAppEvent $ LE.modL AP.currentLevelL LV.switchToNextLayer
 
       jump = updateEntityEvent $ \e ->
          case e of

@@ -23,11 +23,7 @@ toGameData (FD.Data _ levels) = GD.Data {GD.levels = gameLevels}
 
 toLevel :: FD.Level -> LV.Level
 toLevel (FD.Level _  _        [])     = error $ "Invalid level data: missing layers!"
-toLevel (FD.Level id entities layers) = LV.Level {
-   LV.levelId  = id,
-   LV.entities = gameEntities,
-   LV.layers   = gameLayers
-   }
+toLevel (FD.Level id entities layers) = LV.newLevel id gameEntities gameLayers
    where
       gameEntities = L.map toEntity entities
       gameLayers   = LY.sortById $ L.map toLayer layers

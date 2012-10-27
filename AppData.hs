@@ -25,8 +25,7 @@ data AppData = AppData {
    renderRessources :: RR.Ressources,
    renderers        :: [RD.Renderer],
    gameData         :: GD.Data,
-   currentLevelId   :: Int,
-   activeLayerId    :: Int
+   currentLevelId   :: Int
    }
 
 LENS(windowSize)
@@ -38,7 +37,6 @@ LENS(renderRessources)
 LENS(renderers)
 LENS(gameData)
 LENS(currentLevelId)
-LENS(activeLayerId)
 
 data AppMode = GameMode | EditMode
 
@@ -59,39 +57,6 @@ currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
                      gameData = gameData {GD.levels = GU.replaceBy ((== levId) . LV.levelId) level $ GD.levels gameData}})
 
 
--- | a lens for the active layer
-activeLayerL    = activeLayerLens
-activeLayerLens = LE.lens getActiveLayer setActiveLayer
-   where
-      getActiveLayer =
-         (\appData@AppData {activeLayerId = actId} ->
-            let level = LE.getL currentLevelLens appData
-                in case L.find ((== actId) . LY.layerId) $ LV.layers level of
-                        Just layer -> layer
-                        _          -> error $ "Couldn't find active layer with id=" ++ show actId ++ "!")
-
-      setActiveLayer =
-         (\layer appData ->
-            let level  = LE.getL currentLevelLens appData
-                layId  = LY.layerId layer
-                level' = level {LV.layers = GU.replaceBy ((== layId) . LY.layerId) layer $ LV.layers level}
-                in LE.setL currentLevelLens level' appData {activeLayerId = layId})
-
-
-activeAndInactiveLayers :: AppData -> (LY.Layer, [LY.Layer])
-activeAndInactiveLayers appData@AppData {activeLayerId = actLayerId} =
-   L.foldr
-      (\layer (actLayer, inactLayers) ->
-         if LY.layerId layer == actLayerId
-            then (layer, inactLayers)
-            else (actLayer, layer : inactLayers))
-      (LY.empty, [])
-      layers
-   where
-      layers       = LV.layers currentLevel
-      currentLevel = LE.getL currentLevelL appData
-
-
 newAppData :: GD.Data -> AppData
 newAppData gameData = AppData {
    windowSize       = (0,0),
@@ -102,12 +67,10 @@ newAppData gameData = AppData {
    renderRessources = RR.Ressources (-1) (-1),
    renderers        = [],
    gameData         = gameData,
-   currentLevelId   = LV.levelId currLevel,
-   activeLayerId    = LY.layerId actLayer
+   currentLevelId   = LV.levelId currLevel
    }
    where
       currLevel = GD.levels gameData !! 0
-      actLayer  = LV.layers currLevel !! 0
 
 
 type AppDataRef = R.IORef AppData

@@ -48,16 +48,6 @@ data Entity = Player {playerId         :: Int,
             deriving Show
 
 
-entityId :: Entity -> Int
-entityId Player   {playerId   = id} = id
-entityId Star     {starId     = id} = id
-entityId Platform {platformId = id} = id
-
-
-invalidEntityId :: Int
-invalidEntityId = -1
-
-
 class ApplyToEntity a where
    eMap :: (Entity -> Entity) -> a -> a
 

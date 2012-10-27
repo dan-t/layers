@@ -10,8 +10,8 @@ IMPORT_LENS
 type StateIORef a = ST.StateT (R.IORef a) IO 
 
 -- | map a function on the value of the IORef
-mapIORef :: (a -> b) -> R.IORef a -> IO b
-mapIORef f ref = f <$> R.readIORef ref
+mapIORef :: R.IORef a -> (a -> b) -> IO b
+mapIORef ref f = f <$> R.readIORef ref
 
 
 {- functions to operate on the value of a IORef inside of a State -}
@@ -26,7 +26,7 @@ get = do
 gets :: (a -> b) -> StateIORef a b
 gets f = do
    ref <- ST.get
-   ST.liftIO $ mapIORef f ref
+   ST.liftIO $ mapIORef ref f
 
 -- | apply the getter lens on the value of the IORef inside of the State
 getsL :: LE.Lens a b -> StateIORef a b
@@ -57,7 +57,7 @@ modifyL lens f = do
 
 -- | apply the getter of the lens on the value of the IORef  
 getL :: R.IORef a -> LE.Lens a b -> IO b
-getL ref lens = mapIORef (LE.getL lens) ref
+getL ref lens = mapIORef ref $ LE.getL lens
 
 -- | apply the setter of the lens on the value of the IORef  
 setL :: R.IORef a -> LE.Lens a b -> b -> IO ()
