@@ -53,7 +53,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
                       app'       = LE.modL AP.currentLevelL (E.eMap $ \e ->
                                       if id /= EI.entityId e
                                          then e
-                                         else EP.setCurrentPosition e newBasePos) app
+                                         else EP.setPosition e newBasePos) app
                   fin <- finished
                   return $ UP.contineUpdater (app', fin) $ moving (startPos, basePos, finished, id)
 

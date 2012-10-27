@@ -21,6 +21,16 @@ setCurrentPosition p@E.Platform {E.platformPosition = Left _} newPos =
    p {E.platformPosition = Left newPos}
 
 setCurrentPosition p@E.Platform {E.platformPosition = Right ani} newPos =
+   p {E.platformPosition = Right ani {A.currentPosition = newPos}}
+
+
+position :: E.Entity -> V.Vect
+position E.Platform {E.platformPosition = Right ani} = L.head . A.path $ ani
+position entity                                      = currentPosition entity
+
+
+setPosition :: E.Entity -> V.Vect -> E.Entity
+setPosition p@E.Platform {E.platformPosition = Right ani} newPos =
    let (basePt : path) = A.path ani
        diffPath        = L.map ((-) basePt) path
        path'           = L.map (newPos `plus`) diffPath
@@ -29,3 +39,5 @@ setCurrentPosition p@E.Platform {E.platformPosition = Right ani} newPos =
                                                          (A.bidirectional ani)}
    where
       plus = (+)
+
+setPosition entity newPos = setCurrentPosition entity newPos
