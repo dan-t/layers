@@ -7,6 +7,7 @@ import qualified Data.IORef as R
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
+import Gamgine.Utils (ifJust, applyIf, applyIfM)
 import Gamgine.Utils as GU
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
@@ -44,7 +45,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
       moveEntity = do
          mousePos <- mousePosition
          entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
-         GU.just entity $ \e -> do
+         ifJust entity $ \e -> do
             let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
             addUpdater $ moving (mousePos, EP.currentPosition e, finished, EI.entityId e)
             where
@@ -60,7 +61,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
       resizePlatform = do
          mousePos <- mousePosition
          entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
-         justPlatform entity $ \platform -> do
+         ifJust entity $ applyIfM E.isPlatform $ \platform -> do
             let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
                 basePos  = B.maxPt . E.platformBound $ platform
             addUpdater $ resizing (mousePos, basePos, finished, E.platformId platform)
@@ -110,7 +111,4 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
       modL                 = GR.modL appDataRef
       getL                 = GR.getL appDataRef
 
-      ifEntityId id        = GU.applyIf ((== id) . EI.entityId)
-
-      justPlatform (Just p@E.Platform {}) f = f p
-      justPlatform _                      _ = return ()
+      ifEntityId id        = applyIf ((== id) . EI.entityId)

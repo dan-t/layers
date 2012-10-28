@@ -15,9 +15,9 @@ import Gamgine.System
 import Debug.Trace
 
 -- | if a is just than apply f, otherwise 'return ()'
-just :: Monad m => Maybe a -> (a -> m ()) -> m ()
-just (Just a) f = f a
-just _        _ = return ()
+ifJust :: Monad m => Maybe a -> (a -> m ()) -> m ()
+ifJust (Just a) f = f a
+ifJust _        _ = return ()
 
 -- | apply f on a if p is true, otherwise just return a
 applyIf :: (a -> Bool) -> (a -> a) -> a -> a

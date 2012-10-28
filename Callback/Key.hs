@@ -7,7 +7,7 @@ import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import Gamgine.IORef as GR
-import Gamgine.Utils as GU
+import Gamgine.Utils (ifJust, applyIf, applyIfM)
 import qualified Utils as LU
 import qualified AppData as AP
 import qualified GameData.Entity as E
@@ -45,7 +45,7 @@ newKeyCallback appDataRef _ = callback
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
 
-      jump = updateEntity (GU.applyIf (\e -> E.isPlayer e && E.playerOnBottom e) $ \e ->
+      jump = updateEntity (applyIf (\e -> E.isPlayer e && E.playerOnBottom e) $ \e ->
          e {E.playerVelocity = V.setElem 1 PL.jumpAcceleration $ E.playerVelocity e,
             E.playerOnBottom = False})
 
@@ -62,11 +62,11 @@ newKeyCallback appDataRef _ = callback
       removeEntity = do
          mousePos <- mousePosition
          entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
-         GU.just entity $ GU.applyIfM (not . E.isPlayer) $ \e ->
+         ifJust entity $ applyIfM (not . E.isPlayer) $ \e ->
             modL AP.currentLevelL (E.eFilter ((/= EI.entityId e) . EI.entityId))
 
 
-      updatePlayerVelocity f = updateEntity (GU.applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
+      updatePlayerVelocity f = updateEntity (applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
 
       mousePosition  = do app <- R.readIORef appDataRef
                           LU.mousePosInWorldCoords app
