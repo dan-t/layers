@@ -47,15 +47,13 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
             let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
             addUpdater $ moving (mousePos, EP.currentPosition e, finished, EI.entityId e)
             where
-               moving (startPos, basePos, finished, id) app = do
+               moving args@(startPos, basePos, finished, id) app = do
                   mousePos <- LU.mousePosInWorldCoords app
                   let newBasePos = basePos + (mousePos - startPos)
-                      app'       = LE.modL AP.currentLevelL (E.eMap $ \e ->
-                                      if id /= EI.entityId e
-                                         then e
-                                         else EP.setPosition e newBasePos) app
+                      app'       = LE.modL AP.currentLevelL (E.eMap $ ifEntityId id $ \e ->
+                                      EP.setPosition e newBasePos) app
                   fin <- finished
-                  return $ UP.contineUpdater (app', fin) $ moving (startPos, basePos, finished, id)
+                  return $ UP.contineUpdater (app', fin) $ moving args
 
 
       resizePlatform = do
@@ -66,16 +64,14 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
                 basePos  = B.maxPt . E.platformBound $ platform
             addUpdater $ resizing (mousePos, basePos, finished, E.platformId platform)
             where
-               resizing (startPos, basePos, finished, id) app = do
+               resizing args@(startPos, basePos, finished, id) app = do
                   mousePos <- LU.mousePosInWorldCoords app
                   let diffVec = mousePos - startPos
-                      app'    = LE.modL AP.currentLevelL (E.eMap $ \e ->
-                                   if id /= EI.entityId e
-                                      then e
-                                      else let bound' = (E.platformBound e) {B.maxPt = basePos + diffVec}
-                                               in e {E.platformBound = bound'}) app
+                      app'    = LE.modL AP.currentLevelL (E.eMap $ ifEntityId id $ \e ->
+                                   let bound' = (E.platformBound e) {B.maxPt = basePos + diffVec}
+                                       in e {E.platformBound = bound'}) app
                   fin <- finished
-                  return $ UP.contineUpdater (app', fin) $ resizing (startPos, basePos, finished, id)
+                  return $ UP.contineUpdater (app', fin) $ resizing args
 
 
       createPlatform = do
@@ -89,18 +85,16 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
          let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
          addUpdater $ resizing (mousePos, finished, platformId)
          where
-            resizing (startPos, finished, id) app = do
+            resizing args@(startPos, finished, id) app = do
                mousePos <- LU.mousePosInWorldCoords app
-               let app' = LE.modL AP.activeLayerL (E.eMap $ \e ->
-                             if id /= EI.entityId e
-                                then e
-                                else let newMinPt = V.minVec startPos mousePos
-                                         newMaxPt = V.maxVec startPos mousePos
-                                         diffVec  = V.map abs $ newMaxPt - newMinPt
-                                         in e {E.platformPosition = Left newMinPt,
-                                               E.platformBound    = B.Box (V.v3 0 0 0) diffVec}) app
+               let app' = LE.modL AP.activeLayerL (E.eMap $ ifEntityId id $ \e ->
+                             let newMinPt = V.minVec startPos mousePos
+                                 newMaxPt = V.maxVec startPos mousePos
+                                 diffVec  = V.map abs $ newMaxPt - newMinPt
+                                 in e {E.platformPosition = Left newMinPt,
+                                       E.platformBound    = B.Box (V.v3 0 0 0) diffVec}) app
                fin <- finished
-               return $ UP.contineUpdater (app', fin) $ resizing (startPos, finished, id)
+               return $ UP.contineUpdater (app', fin) $ resizing args
 
 
       mousePosition = do
@@ -114,6 +108,9 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
 
       modL                 = GR.modL appDataRef
       getL                 = GR.getL appDataRef
+
+      ifEntityId id f entity | id == EI.entityId entity = f entity
+                             | otherwise                = entity
 
       just (Just e) f      = f e
       just _        _      = return ()

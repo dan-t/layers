@@ -54,3 +54,16 @@ class ApplyToEntity a where
 
 instance ApplyToEntity [Entity] where
    eMap f es = L.map f es
+
+
+isPlayer :: Entity -> Bool
+isPlayer Player {} = True
+isPlayer _         = False
+
+isStar :: Entity -> Bool
+isStar Star {} = True
+isStar _       = False
+
+isPlatform :: Entity -> Bool
+isPlatform Platform {} = True
+isPlatform _           = False

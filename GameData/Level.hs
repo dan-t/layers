@@ -83,12 +83,9 @@ playerL    = playerLens
 playerLens = LE.lens getPlayer setPlayer
    where
       getPlayer = \level ->
-         case findEntity isPlayer level of
+         case findEntity E.isPlayer level of
               Just p -> p
               _      -> error $ "Couldn't find player!"
-         where
-            isPlayer E.Player {} = True
-            isPlayer _           = False
 
       setPlayer = \player level -> E.eMap (set player) level
          where
