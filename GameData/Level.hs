@@ -3,12 +3,15 @@ module GameData.Level where
 #include "Gamgine/Utils.cpp"
 import Data.Function (on)
 import qualified Data.List as L
+import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Entity.Bound as EB
 import qualified Entity.Id as EI
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
+import qualified GameData.Player as PL
+import qualified Defaults as DF
 IMPORT_LENS
 
 
@@ -37,6 +40,14 @@ instance E.ApplyToEntity Level where
 
 newLevel :: Int -> [E.Entity] -> [LY.Layer] -> Level
 newLevel id entites (actLay : inactLays) = Level id entites actLay inactLays
+
+
+newEmptyLevel :: Int -> Level
+newEmptyLevel id =
+   Level {levelId        = id,
+          entities       = [PL.newPlayer 0 (V.v3 1 1 0)],
+          activeLayer    = (LY.Layer 1 [] DF.gravity),
+          inactiveLayers = [LY.Layer 2 [] DF.gravity]}
 
 
 allLayers :: Level -> [LY.Layer]

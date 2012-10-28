@@ -47,7 +47,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
          entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
          ifJust entity $ \e -> do
             let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
-            addUpdater $ moving (mousePos, EP.currentPosition e, finished, EI.entityId e)
+            addUpdater $ moving (mousePos, EP.position e, finished, EI.entityId e)
             where
                moving args@(startPos, basePos, finished, id) app = do
                   mousePos <- LU.mousePosInWorldCoords app

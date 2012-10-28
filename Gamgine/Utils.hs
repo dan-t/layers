@@ -3,6 +3,8 @@ module Gamgine.Utils where
 import Prelude hiding (catch)
 import qualified Data.ByteString.Lazy   as BL
 import qualified Data.ByteString.Unsafe as BU
+import qualified Data.List as L
+import qualified Data.List.Zipper as LZ
 import System.IO (hPutStrLn, stderr)
 import Control.Exception (catch, SomeException)
 import Data.Array.Storable
@@ -13,6 +15,10 @@ import Data.Word
 import Foreign.Ptr
 import Gamgine.System
 import Debug.Trace
+
+-- | map the elements of the zipper by f
+mapz :: (a -> a) -> LZ.Zipper a -> LZ.Zipper a
+mapz f z = LZ.fromList . L.map f . LZ.toList $ z
 
 -- | if a is just than apply f, otherwise 'return ()'
 ifJust :: Monad m => Maybe a -> (a -> m ()) -> m ()

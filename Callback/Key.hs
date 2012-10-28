@@ -3,6 +3,7 @@ module Callback.Key where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Data.IORef as R
+import Control.Monad (liftM2)
 import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
@@ -15,6 +16,7 @@ import qualified GameData.Player as PL
 import qualified GameData.Star as S
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
+import qualified GameData.Data as GD
 import qualified Entity.Id as EI
 IMPORT_LENS
 
@@ -25,20 +27,21 @@ newKeyCallback :: AP.AppDataRef -> AP.AppMode -> KeyCallback
 newKeyCallback appDataRef _ = callback
    where
       callback GLFW.KeyLeft       True  = accelerateToTheLeft
-
       callback GLFW.KeyLeft       False = accelerateToTheRight
-
       callback GLFW.KeyRight      True  = accelerateToTheRight
-
       callback GLFW.KeyRight      False = accelerateToTheLeft
-
       callback GLFW.KeyUp         True  = jump
-
       callback GLFW.KeyTab        True  = switchToNextLayer
+      callback (GLFW.CharKey 'P') True  = placeStar
+      callback (GLFW.CharKey 'R') True  = removeEntity
+      callback (GLFW.CharKey 'A') True  = addEmptyLevel
 
-      callback (GLFW.CharKey 'P') True = placeStar
+      callback (GLFW.CharKey 'N') True  = do
+         shiftPressed <- anyShiftKeyPressed
+         if shiftPressed
+            then toPreviousLevel
+            else toNextLevel
 
-      callback (GLFW.CharKey 'R') True = removeEntity
 
       callback _ _                     = return ()
 
@@ -66,11 +69,21 @@ newKeyCallback appDataRef _ = callback
             modL AP.currentLevelL (E.eFilter ((/= EI.entityId e) . EI.entityId))
 
 
+      addEmptyLevel   = modL AP.gameDataL GD.addEmptyLevel
+      toNextLevel     = modL AP.gameDataL GD.toNextLevel
+      toPreviousLevel = modL AP.gameDataL GD.toPreviousLevel
+
+
       updatePlayerVelocity f = updateEntity (applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
 
-      mousePosition  = do app <- R.readIORef appDataRef
-                          LU.mousePosInWorldCoords app
+      mousePosition  = do
+         app <- R.readIORef appDataRef
+         LU.mousePosInWorldCoords app
+
 
       updateEntity f = modL AP.currentLevelL $ E.eMap f
       modL           = GR.modL appDataRef
       getL           = GR.getL appDataRef
+
+      anyCtrlKeyPressed  = liftM2 (||) (GLFW.keyIsPressed GLFW.KeyLeftCtrl)  (GLFW.keyIsPressed GLFW.KeyRightCtrl)
+      anyShiftKeyPressed = liftM2 (||) (GLFW.keyIsPressed GLFW.KeyLeftShift) (GLFW.keyIsPressed GLFW.KeyRightShift)
