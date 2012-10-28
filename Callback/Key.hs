@@ -5,6 +5,7 @@ import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import Gamgine.IORef as GR
+import Gamgine.Utils as GU
 import qualified AppData as AP
 import qualified GameData.Entity as E
 import qualified GameData.Player as PL
@@ -35,20 +36,15 @@ newKeyCallback appDataRef _ = callback
 
       switchToNextLayer = modL AP.currentLevelL LV.switchToNextLayer
 
-      jump = updateEntity $ \e ->
-         case e of
-              E.Player {E.playerVelocity = vx:.vy:.vz:.(), E.playerOnBottom = True} ->
-                 e {E.playerVelocity = V.v3 vx PL.jumpAcceleration vz, E.playerOnBottom = False}
-
-              _ -> e
+      jump = updateEntity (GU.applyIf (\e -> E.isPlayer e && E.playerOnBottom e) $ \e ->
+         let (vx:.vy:.vz:.()) = E.playerVelocity e
+             in e {E.playerVelocity = V.v3 vx PL.jumpAcceleration vz,
+                   E.playerOnBottom = False})
 
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
 
-      updatePlayerVelocity f = updateEntity $ \e ->
-         case e of
-              E.Player {E.playerVelocity = v} -> e {E.playerVelocity = f v}
-              _                               -> e
+      updatePlayerVelocity f = updateEntity (GU.applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
 
       updateEntity f = modL AP.currentLevelL $ E.eMap f
       modL           = GR.modL appDataRef

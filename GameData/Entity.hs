@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module GameData.Entity where
+#include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Math.BoxTree as BT
@@ -8,6 +9,7 @@ import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V
 import qualified FileData.Data2 as FD
 import qualified GameData.Animation as A
+IMPORT_LENS
 
 -- | for classification of a box inside the box tree
 data Position = Top | Bottom | Left | Right | Center | Whatever deriving (Show, Eq)
@@ -46,6 +48,23 @@ data Entity = Player {playerId         :: Int,
                         platformBound    :: B.Box}
 
             deriving Show
+
+LENS(playerId)
+LENS(playerInitialPos)
+LENS(playerPosition)
+LENS(playerVelocity)
+LENS(playerOnBottom)
+LENS(playerBound)
+LENS(playerWalkCycle)
+
+LENS(starId)
+LENS(starPosition)
+LENS(starBound)
+LENS(starCollected)
+
+LENS(platformId)
+LENS(platformPosition)
+LENS(platformBound)
 
 
 class ApplyToEntity a where
