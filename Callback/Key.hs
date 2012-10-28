@@ -18,6 +18,8 @@ import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
 import qualified GameData.Data as GD
 import qualified Entity.Id as EI
+import qualified Convert.ToFileData as TF
+import qualified Convert.ToGameData as TG
 IMPORT_LENS
 
 type Pressed     = Bool
@@ -42,6 +44,7 @@ newKeyCallback appDataRef _ = callback
             then toPreviousLevel
             else toNextLevel
 
+      callback (GLFW.CharKey 'L') True  = reloadCurrentLevel
 
       callback _ _                     = return ()
 
@@ -72,6 +75,8 @@ newKeyCallback appDataRef _ = callback
       addEmptyLevel   = modL AP.gameDataL GD.addEmptyLevel
       toNextLevel     = modL AP.gameDataL GD.toNextLevel
       toPreviousLevel = modL AP.gameDataL GD.toPreviousLevel
+
+      reloadCurrentLevel = modL AP.currentLevelL $ TG.toLevel . TF.toLevel
 
 
       updatePlayerVelocity f = updateEntity (applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
