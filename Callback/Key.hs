@@ -32,7 +32,9 @@ newKeyCallback appDataRef _ = callback
       callback GLFW.KeyLeft       False = accelerateToTheRight
       callback GLFW.KeyRight      True  = accelerateToTheRight
       callback GLFW.KeyRight      False = accelerateToTheLeft
+      callback (GLFW.CharKey ' ') True  = jump
       callback GLFW.KeyUp         True  = jump
+      callback GLFW.KeySpace      True  = jump
       callback GLFW.KeyTab        True  = switchToNextLayer
       callback (GLFW.CharKey 'P') True  = placeStar
       callback (GLFW.CharKey 'R') True  = removeEntity
@@ -46,7 +48,8 @@ newKeyCallback appDataRef _ = callback
 
       callback (GLFW.CharKey 'L') True  = reloadCurrentLevel
 
-      callback _ _                     = return ()
+      callback _                  _     = return ()
+
 
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
