@@ -2,13 +2,17 @@
 module Callback.Key where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
+import qualified Data.IORef as R
+import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import Gamgine.IORef as GR
 import Gamgine.Utils as GU
+import qualified Utils as LU
 import qualified AppData as AP
 import qualified GameData.Entity as E
 import qualified GameData.Player as PL
+import qualified GameData.Star as S
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
 IMPORT_LENS
@@ -19,32 +23,43 @@ type KeyCallback = (GLFW.Key -> Pressed -> IO ())
 newKeyCallback :: AP.AppDataRef -> AP.AppMode -> KeyCallback
 newKeyCallback appDataRef _ = callback
    where
-      callback GLFW.KeyLeft True   = accelerateToTheLeft
+      callback GLFW.KeyLeft       True  = accelerateToTheLeft
 
-      callback GLFW.KeyLeft False  = accelerateToTheRight
+      callback GLFW.KeyLeft       False = accelerateToTheRight
 
-      callback GLFW.KeyRight True  = accelerateToTheRight
+      callback GLFW.KeyRight      True  = accelerateToTheRight
 
-      callback GLFW.KeyRight False = accelerateToTheLeft
+      callback GLFW.KeyRight      False = accelerateToTheLeft
 
-      callback GLFW.KeyUp True     = jump
+      callback GLFW.KeyUp         True  = jump
 
-      callback GLFW.KeyTab True    = switchToNextLayer
+      callback GLFW.KeyTab        True  = switchToNextLayer
 
-      callback _ _                 = return ()
+      callback (GLFW.CharKey 'P') True = placeStar
 
-
-      switchToNextLayer = modL AP.currentLevelL LV.switchToNextLayer
-
-      jump = updateEntity (GU.applyIf (\e -> E.isPlayer e && E.playerOnBottom e) $ \e ->
-         let (vx:.vy:.vz:.()) = E.playerVelocity e
-             in e {E.playerVelocity = V.v3 vx PL.jumpAcceleration vz,
-                   E.playerOnBottom = False})
+      callback _ _                     = return ()
 
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
 
+      jump = updateEntity (GU.applyIf (\e -> E.isPlayer e && E.playerOnBottom e) $ \e ->
+         e {E.playerVelocity = V.setElem 1 PL.jumpAcceleration $ E.playerVelocity e,
+            E.playerOnBottom = False})
+
+
+      switchToNextLayer = modL AP.currentLevelL LV.switchToNextLayer
+
+      placeStar = do
+         (mx:.my:._) <- mousePosition
+         starId      <- LV.freeEntityId <$> getL AP.currentLevelL
+         let starPos = V.v3 (mx - (fst S.starSize * 0.5)) (my - (snd S.starSize * 0.5)) 0
+         modL (LV.entitiesL . AP.currentLevelL) $ (S.newStar starId starPos :)
+
+
       updatePlayerVelocity f = updateEntity (GU.applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
+
+      mousePosition  = do app <- R.readIORef appDataRef
+                          LU.mousePosInWorldCoords app
 
       updateEntity f = modL AP.currentLevelL $ E.eMap f
       modL           = GR.modL appDataRef
