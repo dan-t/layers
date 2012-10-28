@@ -39,7 +39,7 @@ LENS(renderers)
 LENS(updaters)
 LENS(gameData)
 
-data AppMode = GameMode | EditMode
+data AppMode = GameMode | EditMode deriving Eq
 
 
 currentLevelL   = GD.currentLevelL . gameDataL

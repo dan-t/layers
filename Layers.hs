@@ -19,7 +19,7 @@ import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
-import Defaults
+import Defaults as DF
 import qualified Utils as LU
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
@@ -186,6 +186,7 @@ initGLFW appDataRef appMode = do
    GLFW.setWindowCloseCallback exitGame
    GLFW.setKeyCallback $ KC.newKeyCallback appDataRef appMode
    GLFW.setMouseButtonCallback $ MC.newMouseButtonCallback appDataRef appMode
+   GLFW.setMouseWheelCallback $ if appMode == AP.EditMode then updateOrthoScale else \_ -> return ()
    where
       exitGame = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
 
@@ -209,6 +210,11 @@ initGLFW appDataRef appMode = do
 	 GL.glMatrixMode GL.gl_PROJECTION
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
+
+      updateOrthoScale mouseWheelPos = do
+         setL AP.orthoScaleL (DF.orthoScale + fromIntegral mouseWheelPos)
+         updateFrustum
+         updateCamera
 
       getL   = GR.getL appDataRef
       setL   = GR.setL appDataRef
