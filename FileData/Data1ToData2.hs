@@ -30,7 +30,7 @@ convertPlayer (D1.Player id initPos) = D2.Player id initPos
 convertStar (D1.Star id pos) = D2.Star id pos
 
 convertLayer (D1.Layer id gravity platforms) =
-   D2.Layer id (map convertPlatform platforms) gravity
+   D2.Layer (map convertPlatform platforms) gravity
 
 convertPlatform (D1.Platform id size pos) =
    D2.Platform id (convertPos pos) size

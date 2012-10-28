@@ -43,13 +43,13 @@ newLevel entites (actLay : inactLays) = Level entites actLay inactLays
 newEmptyLevel :: Level
 newEmptyLevel =
    Level {entities       = [PL.newPlayer 0 (V.v3 1 1 0)],
-          activeLayer    = (LY.Layer 1 [] DF.gravity),
-          inactiveLayers = [LY.Layer 2 [] DF.gravity]}
+          activeLayer    = (LY.Layer [] DF.gravity),
+          inactiveLayers = [LY.Layer [] DF.gravity]}
 
 
 allLayers :: Level -> [LY.Layer]
 allLayers Level {activeLayer = actLay, inactiveLayers = inactLays} =
-   LY.sortById $ actLay : inactLays
+   actLay : inactLays
 
 
 switchToNextLayer :: Level -> Level

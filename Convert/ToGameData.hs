@@ -24,13 +24,11 @@ toLevel (FD.Level _        [])     = error $ "Invalid level data: missing layers
 toLevel (FD.Level entities layers) = LV.newLevel gameEntities gameLayers
    where
       gameEntities = L.map toEntity entities
-      gameLayers   = LY.sortById $ L.map toLayer layers
+      gameLayers   = L.map toLayer layers
 
 
 toLayer :: FD.Layer -> LY.Layer
-toLayer (FD.Layer id entities gravity) = LY.Layer id gameEntities gravity
-   where
-      gameEntities = L.map toEntity entities
+toLayer (FD.Layer entities gravity) = LY.Layer (L.map toEntity entities) gravity
 
 
 toEntity :: FD.Entity -> E.Entity

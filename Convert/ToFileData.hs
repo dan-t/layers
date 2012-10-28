@@ -25,7 +25,7 @@ toLevel l@LV.Level {LV.entities = entities} =
 
 
 toLayer :: LY.Layer -> FD.Layer
-toLayer LY.Layer {LY.layerId = id, LY.entities = entities, LY.gravity = g} = FD.Layer id fileEntities g
+toLayer LY.Layer {LY.entities = entities, LY.gravity = g} = FD.Layer fileEntities g
    where
       fileEntities = L.map toEntity entities
 

@@ -16,7 +16,7 @@ type Layers   = [Layer]
 type Gravity  = Double
 
 data Level = Level Entities Layers  deriving (Show, Read)
-data Layer = Layer Id Entities Gravity deriving (Show, Read)
+data Layer = Layer Entities Gravity deriving (Show, Read)
 
 type Vector        = (Double, Double, Double)
 type Box           = (Vector, Vector)
