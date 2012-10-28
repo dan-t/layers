@@ -14,6 +14,7 @@ import qualified Entity.Velocity as EV
 import qualified Event as EV
 import qualified Rendering.Renderer as RR
 import qualified AppData as AP
+import qualified Defaults as DF
 IMPORT_LENS
 
 
@@ -88,11 +89,9 @@ resolveIntersection isect@(e1, e2, isects) =
                where
                   velo v           []       = v
                   velo (vx:.vy:._) (ip:ips)
-                     | ip == E.Top    = velo (V.v3 vx (-gravity * 5) 0) ips
+                     | ip == E.Top    = velo (V.v3 vx (-DF.gravity * 5) 0) ips
                      | ip == E.Bottom = velo (V.v3 vx 0 0) ips
                      | otherwise      = velo (V.v3 vx vy 0) ips
-                     where
-                        gravity = 4.17e-3
 
 
             onBottom' = onBottom || E.playerOnBottom player

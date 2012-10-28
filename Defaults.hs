@@ -18,3 +18,6 @@ maxFrameSkip = 10
 
 orthoScale :: Double
 orthoScale = 45
+
+gravity :: Double
+gravity = 4.17e-3
