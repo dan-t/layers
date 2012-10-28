@@ -17,37 +17,25 @@ LENS(levels)
 currentLevelL    = currentLevelLens
 currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
    where
-      getCurrentLevel dat       = LZ.cursor . levels $ dat
-      setCurrentLevel level dat = LE.modL levelsL (LZ.replace level) dat
+      getCurrentLevel       = LZ.cursor . levels
+      setCurrentLevel level = LE.modL levelsL $ LZ.replace level
 
 
 newData :: [LV.Level] -> Data
-newData levels = Data $ LZ.fromList levels
+newData = Data . LZ.fromList
 
 
 allLevels :: Data -> [LV.Level]
-allLevels dat = LZ.toList . levels $ dat
+allLevels = LZ.toList . levels
 
 
 toNextLevel :: Data -> Data
-toNextLevel d@Data {levels = lvs}
-   | not . atLastLevel $ d = d {levels = LZ.right lvs}
-   | otherwise             = d
+toNextLevel = LE.modL levelsL $ \lvs -> applyIf LZ.endp LZ.left $ LZ.right lvs
 
 
 toPreviousLevel :: Data -> Data
-toPreviousLevel d@Data {levels = lvs}
-   | not . atFirstLevel $ d = d {levels = LZ.left lvs}
-   | otherwise              = d
+toPreviousLevel = LE.modL levelsL $ applyIf (not . LZ.beginp) LZ.left
 
 
 addEmptyLevel :: Data -> Data
 addEmptyLevel = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.end
-
-
-atFirstLevel :: Data -> Bool
-atFirstLevel Data {levels = levels} = (not . LZ.emptyp $ levels) && LZ.beginp levels
-
-
-atLastLevel :: Data -> Bool
-atLastLevel Data {levels = levels} = (not . LZ.emptyp $ levels) && (LZ.endp $ LZ.right levels)
