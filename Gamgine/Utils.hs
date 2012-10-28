@@ -14,6 +14,11 @@ import Foreign.Ptr
 import Gamgine.System
 import Debug.Trace
 
+-- | apply f on a if p is true, otherwise just return a
+applyIf :: (a -> Bool) -> (a -> a) -> a -> a
+applyIf p f a | p a       = f a
+              | otherwise = a
+
 count :: Eq a => a -> [a] -> Int
 count x ys = go x 0 ys
    where

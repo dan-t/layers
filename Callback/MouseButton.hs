@@ -7,6 +7,7 @@ import qualified Data.IORef as R
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
+import Gamgine.Utils as GU
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.IORef as GR
@@ -109,8 +110,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
       modL                 = GR.modL appDataRef
       getL                 = GR.getL appDataRef
 
-      ifEntityId id f entity | id == EI.entityId entity = f entity
-                             | otherwise                = entity
+      ifEntityId id        = GU.applyIf ((== id) . EI.entityId)
 
       just (Just e) f      = f e
       just _        _      = return ()
