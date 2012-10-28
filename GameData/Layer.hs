@@ -2,6 +2,7 @@
 module GameData.Layer where
 #include "Gamgine/Utils.cpp"
 import qualified GameData.Entity as E
+import qualified Defaults as DF
 IMPORT_LENS
 
 
@@ -12,6 +13,10 @@ data Layer = Layer {
 
 LENS(entities)
 LENS(gravity)
+
+
+newEmptyLayer :: Layer
+newEmptyLayer = Layer [] DF.gravity
 
 
 instance E.ApplyToEntity Layer where

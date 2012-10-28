@@ -3,6 +3,10 @@ module GameData.Level where
 #include "Gamgine/Utils.cpp"
 import Data.Function (on)
 import qualified Data.List as L
+import qualified Data.List.Zipper as LZ
+import qualified Gamgine.Utils as GU
+import qualified Gamgine.Zipper as GZ
+import Gamgine.Utils (applyIf)
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
@@ -11,56 +15,61 @@ import qualified Entity.Id as EI
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 import qualified GameData.Player as PL
-import qualified Defaults as DF
 IMPORT_LENS
 
 
 data Level = Level {
-   entities       :: [E.Entity],
-   activeLayer    :: LY.Layer,
-   inactiveLayers :: [LY.Layer]
+   entities :: [E.Entity],
+   layers   :: LZ.Zipper LY.Layer
    } deriving Show
 
 LENS(entities)
-LENS(activeLayer)
-LENS(inactiveLayers)
+LENS(layers)
 
 
 instance E.ApplyToEntity Level where
-   eMap f level = level {entities       = E.eMap f $ entities level,
-                         activeLayer    = E.eMap f $ activeLayer level,
-                         inactiveLayers = L.map (E.eMap f) $ inactiveLayers level}
+   eMap f level = level {entities = E.eMap f $ entities level,
+                         layers   = GZ.map (E.eMap f) $ layers level}
 
-   eFilter p level = level {entities       = E.eFilter p $ entities level,
-                            activeLayer    = E.eFilter p $ activeLayer level,
-                            inactiveLayers = L.map (E.eFilter p) $ inactiveLayers level}
+   eFilter p level = level {entities = E.eFilter p $ entities level,
+                            layers   = GZ.map (E.eFilter p) $ layers level}
+
+
+activeLayerL    = activeLayerLens
+activeLayerLens = LE.lens getActiveLayer setActiveLayer
+   where
+      getActiveLayer       = LZ.cursor . layers
+      setActiveLayer layer = LE.modL layersL $ LZ.replace layer
+
+
+inactiveLayers :: Level -> [LY.Layer]
+inactiveLayers level = before ++ after
+   where
+      (before, _, after) = GZ.split . layers $ level
 
 
 newLevel :: [E.Entity] -> [LY.Layer] -> Level
-newLevel entites (actLay : inactLays) = Level entites actLay inactLays
+newLevel entites layers = Level entites $ LZ.fromList layers
 
 
 newEmptyLevel :: Level
 newEmptyLevel =
-   Level {entities       = [PL.newPlayer 0 (V.v3 1 1 0)],
-          activeLayer    = (LY.Layer [] DF.gravity),
-          inactiveLayers = [LY.Layer [] DF.gravity]}
+   Level {entities = [PL.newPlayer 0 (V.v3 1 1 0)],
+          layers   = LZ.fromList [LY.newEmptyLayer, LY.newEmptyLayer]}
 
 
 allLayers :: Level -> [LY.Layer]
-allLayers Level {activeLayer = actLay, inactiveLayers = inactLays} =
-   actLay : inactLays
+allLayers = LZ.toList . layers
 
 
 switchToNextLayer :: Level -> Level
-switchToNextLayer l@Level {activeLayer = actLay, inactiveLayers = inactLays} =
-   l {activeLayer = L.head inactLays, inactiveLayers = L.tail inactLays ++ [actLay]}
+switchToNextLayer = LE.modL layersL $ \lays -> applyIf LZ.endp LZ.start $ LZ.right lays
 
 
 -- | the entities of the level and all its layers
 allEntities :: Level -> [E.Entity]
-allEntities Level {entities = entities, activeLayer = actLay, inactiveLayers = inactLays} =
-   entities ++ (L.concat $ L.map LY.entities (actLay : inactLays))
+allEntities Level {entities = entities, layers = layers} =
+   entities ++ (L.concat $ L.map LY.entities $ LZ.toList layers)
 
 
 findEntity :: (E.Entity -> Bool) -> Level -> Maybe E.Entity
@@ -73,8 +82,8 @@ findEntityAt pos = findEntity $ \e -> (BT.asBox . EB.bound $ e) `B.contains` pos
 data AddEntityTo = ToLevel | ToActiveLayer
 
 addEntity :: E.Entity -> AddEntityTo -> Level -> Level
-addEntity entity ToLevel       level = LE.modL entitiesL (entity :) level
-addEntity entity ToActiveLayer level = LE.modL (LY.entitiesL . activeLayerL) (entity :) level
+addEntity entity ToLevel       = LE.modL entitiesL (entity :)
+addEntity entity ToActiveLayer = LE.modL (LY.entitiesL . activeLayerL) (entity :)
 
 
 freeEntityId :: Level -> Int

@@ -3,7 +3,7 @@ module GameData.Data where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Data.List.Zipper as LZ
-import Gamgine.Utils (mapz, applyIf)
+import Gamgine.Utils (applyIf)
 import qualified GameData.Level as LV
 IMPORT_LENS
 

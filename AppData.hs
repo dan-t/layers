@@ -42,9 +42,9 @@ LENS(gameData)
 data AppMode = GameMode | EditMode deriving Eq
 
 
-currentLevelL   = GD.currentLevelL . gameDataL
-activeLayerL    = LV.activeLayerL . currentLevelL
-inactiveLayersL = LV.inactiveLayersL . currentLevelL
+currentLevelL  = GD.currentLevelL . gameDataL
+activeLayerL   = LV.activeLayerL . currentLevelL
+inactiveLayers = LV.inactiveLayers . LE.getL currentLevelL
 
 
 newAppData :: GD.Data -> AppData
