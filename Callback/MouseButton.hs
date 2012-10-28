@@ -44,7 +44,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
       moveEntity = do
          mousePos <- mousePosition
          entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
-         just entity $ \e -> do
+         GU.just entity $ \e -> do
             let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
             addUpdater $ moving (mousePos, EP.currentPosition e, finished, EI.entityId e)
             where
@@ -111,9 +111,6 @@ newMouseButtonCallback appDataRef AP.EditMode = callback
       getL                 = GR.getL appDataRef
 
       ifEntityId id        = GU.applyIf ((== id) . EI.entityId)
-
-      just (Just e) f      = f e
-      just _        _      = return ()
 
       justPlatform (Just p@E.Platform {}) f = f p
       justPlatform _                      _ = return ()

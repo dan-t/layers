@@ -68,11 +68,13 @@ LENS(platformBound)
 
 
 class ApplyToEntity a where
-   eMap :: (Entity -> Entity) -> a -> a
+   eMap    :: (Entity -> Entity) -> a -> a
+   eFilter :: (Entity -> Bool)   -> a -> a
 
 
 instance ApplyToEntity [Entity] where
-   eMap f es = L.map f es
+   eMap    f es = L.map f es
+   eFilter p es = L.filter p es
 
 
 isPlayer :: Entity -> Bool

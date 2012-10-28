@@ -14,10 +14,20 @@ import Foreign.Ptr
 import Gamgine.System
 import Debug.Trace
 
+-- | if a is just than apply f, otherwise 'return ()'
+just :: Monad m => Maybe a -> (a -> m ()) -> m ()
+just (Just a) f = f a
+just _        _ = return ()
+
 -- | apply f on a if p is true, otherwise just return a
 applyIf :: (a -> Bool) -> (a -> a) -> a -> a
 applyIf p f a | p a       = f a
               | otherwise = a
+
+-- | apply f on a if p is true, otherwise 'return ()'
+applyIfM :: Monad m => (a -> Bool) -> (a -> m ()) -> a -> m ()
+applyIfM p f a | p a       = f a
+               | otherwise = return ()
 
 count :: Eq a => a -> [a] -> Int
 count x ys = go x 0 ys

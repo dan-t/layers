@@ -30,6 +30,10 @@ instance E.ApplyToEntity Level where
                          activeLayer    = E.eMap f $ activeLayer level,
                          inactiveLayers = L.map (E.eMap f) $ inactiveLayers level}
 
+   eFilter p level = level {entities       = E.eFilter p $ entities level,
+                            activeLayer    = E.eFilter p $ activeLayer level,
+                            inactiveLayers = L.map (E.eFilter p) $ inactiveLayers level}
+
 
 newLevel :: Int -> [E.Entity] -> [LY.Layer] -> Level
 newLevel id entites (actLay : inactLays) = Level id entites actLay inactLays

@@ -15,6 +15,7 @@ import qualified GameData.Player as PL
 import qualified GameData.Star as S
 import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
+import qualified Entity.Id as EI
 IMPORT_LENS
 
 type Pressed     = Bool
@@ -37,6 +38,8 @@ newKeyCallback appDataRef _ = callback
 
       callback (GLFW.CharKey 'P') True = placeStar
 
+      callback (GLFW.CharKey 'R') True = removeEntity
+
       callback _ _                     = return ()
 
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
@@ -54,6 +57,13 @@ newKeyCallback appDataRef _ = callback
          starId      <- LV.freeEntityId <$> getL AP.currentLevelL
          let starPos = V.v3 (mx - (fst S.starSize * 0.5)) (my - (snd S.starSize * 0.5)) 0
          modL (LV.entitiesL . AP.currentLevelL) $ (S.newStar starId starPos :)
+
+
+      removeEntity = do
+         mousePos <- mousePosition
+         entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
+         GU.just entity $ GU.applyIfM (not . E.isPlayer) $ \e ->
+            modL AP.currentLevelL (E.eFilter ((/= EI.entityId e) . EI.entityId))
 
 
       updatePlayerVelocity f = updateEntity (GU.applyIf E.isPlayer $ LE.modL E.playerVelocityL f)

@@ -26,4 +26,5 @@ empty = Layer 0 [] 0
 
 
 instance E.ApplyToEntity Layer where
-   eMap f layer = layer {entities = E.eMap f $ entities layer}
+   eMap    f layer = layer {entities = E.eMap f $ entities layer}
+   eFilter p layer = layer {entities = E.eFilter p $ entities layer}
