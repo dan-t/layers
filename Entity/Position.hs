@@ -30,6 +30,8 @@ position entity                                      = currentPosition entity
 
 
 setPosition :: E.Entity -> V.Vect -> E.Entity
+setPosition p@E.Player {} newPos = p {E.playerInitialPos = newPos, E.playerPosition = newPos}
+
 setPosition p@E.Platform {E.platformPosition = Right ani} newPos =
    let (basePt : path) = A.path ani
        diffPath        = L.map ((-) basePt) path
