@@ -16,13 +16,11 @@ IMPORT_LENS
 
 
 data Level = Level {
-   levelId        :: Int,
    entities       :: [E.Entity],
    activeLayer    :: LY.Layer,
    inactiveLayers :: [LY.Layer]
    } deriving Show
 
-LENS(levelId)
 LENS(entities)
 LENS(activeLayer)
 LENS(inactiveLayers)
@@ -38,14 +36,13 @@ instance E.ApplyToEntity Level where
                             inactiveLayers = L.map (E.eFilter p) $ inactiveLayers level}
 
 
-newLevel :: Int -> [E.Entity] -> [LY.Layer] -> Level
-newLevel id entites (actLay : inactLays) = Level id entites actLay inactLays
+newLevel :: [E.Entity] -> [LY.Layer] -> Level
+newLevel entites (actLay : inactLays) = Level entites actLay inactLays
 
 
-newEmptyLevel :: Int -> Level
-newEmptyLevel id =
-   Level {levelId        = id,
-          entities       = [PL.newPlayer 0 (V.v3 1 1 0)],
+newEmptyLevel :: Level
+newEmptyLevel =
+   Level {entities       = [PL.newPlayer 0 (V.v3 1 1 0)],
           activeLayer    = (LY.Layer 1 [] DF.gravity),
           inactiveLayers = [LY.Layer 2 [] DF.gravity]}
 
@@ -58,10 +55,6 @@ allLayers Level {activeLayer = actLay, inactiveLayers = inactLays} =
 switchToNextLayer :: Level -> Level
 switchToNextLayer l@Level {activeLayer = actLay, inactiveLayers = inactLays} =
    l {activeLayer = L.head inactLays, inactiveLayers = L.tail inactLays ++ [actLay]}
-
-
-sortById :: [Level] -> [Level]
-sortById levels = L.sortBy (compare `on` levelId) levels
 
 
 -- | the entities of the level and all its layers

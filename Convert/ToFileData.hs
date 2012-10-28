@@ -17,8 +17,8 @@ toFileData dat =
 
 
 toLevel :: LV.Level -> FD.Level
-toLevel l@LV.Level {LV.levelId = id, LV.entities = entities} =
-   FD.Level id fileEntities fileLayers
+toLevel l@LV.Level {LV.entities = entities} =
+   FD.Level fileEntities fileLayers
    where
       fileEntities = L.map toEntity entities
       fileLayers   = L.map toLayer $ LV.allLayers l

@@ -16,14 +16,12 @@ import qualified GameData.Data as GD
 
 toGameData :: FD.Data -> GD.Data
 toGameData (FD.Data _ [])     = error $ "Invalid game data: missing levels!"
-toGameData (FD.Data _ levels) = GD.newData gameLevels
-   where
-      gameLevels = LV.sortById $ L.map toLevel levels
+toGameData (FD.Data _ levels) = GD.newData $ L.map toLevel levels
 
 
 toLevel :: FD.Level -> LV.Level
-toLevel (FD.Level _  _        [])     = error $ "Invalid level data: missing layers!"
-toLevel (FD.Level id entities layers) = LV.newLevel id gameEntities gameLayers
+toLevel (FD.Level _        [])     = error $ "Invalid level data: missing layers!"
+toLevel (FD.Level entities layers) = LV.newLevel gameEntities gameLayers
    where
       gameEntities = L.map toEntity entities
       gameLayers   = LY.sortById $ L.map toLayer layers

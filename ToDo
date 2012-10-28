@@ -1,2 +1,5 @@
 
-- editor, über eine entsprechende Datenstruktur, ähnlich wie vorher
+- remove layerId
+- use list zipper for layers
+- define animation interactive
+- save file

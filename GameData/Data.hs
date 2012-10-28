@@ -26,7 +26,7 @@ newData levels = Data $ LZ.fromList levels
 
 
 allLevels :: Data -> [LV.Level]
-allLevels dat = LV.sortById . LZ.toList . levels $ dat
+allLevels dat = LZ.toList . levels $ dat
 
 
 toNextLevel :: Data -> Data
@@ -42,13 +42,7 @@ toPreviousLevel d@Data {levels = lvs}
 
 
 addEmptyLevel :: Data -> Data
-addEmptyLevel dat = LE.modL levelsL (\levels ->
-   if LZ.emptyp levels
-      then LZ.insert (LV.newEmptyLevel 1) levels
-      else LZ.insert (LV.newEmptyLevel $ lastLevelId + 1) $ LZ.end levels)
-   dat
-   where
-      lastLevelId = LV.levelId . LZ.cursor . LZ.left . LZ.end . levels $ dat
+addEmptyLevel = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.end
 
 
 atFirstLevel :: Data -> Bool

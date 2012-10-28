@@ -14,7 +14,7 @@ convert data1 =
    D2.Data D2.dataVersion (map convertLevel $ D1.levels data1)
 
 convertLevel :: D1.Level -> D2.Level
-convertLevel level = D2.Level levelId entities layers
+convertLevel level = D2.Level entities layers
    where
       levelId  = D1.levelId level
       entities = player : stars
