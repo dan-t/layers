@@ -3,6 +3,7 @@ module Callback.Key where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Data.IORef as R
+import System.Exit (exitSuccess)
 import Control.Monad (liftM2)
 import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
@@ -48,6 +49,9 @@ newKeyCallback appDataRef _ = callback
 
       callback (GLFW.CharKey 'L') True  = reloadCurrentLevel
 
+      callback (GLFW.CharKey 'Q') True  = quit
+      callback GLFW.KeyEsc        True  = quit
+
       callback _                  _     = return ()
 
 
@@ -80,6 +84,8 @@ newKeyCallback appDataRef _ = callback
       toPreviousLevel = modL AP.gameDataL GD.toPreviousLevel
 
       reloadCurrentLevel = modL AP.currentLevelL $ TG.toLevel . TF.toLevel
+
+      quit = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
 
 
       updatePlayerVelocity f = updateEntity (applyIf E.isPlayer $ LE.modL E.playerVelocityL f)
