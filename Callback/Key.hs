@@ -36,7 +36,7 @@ newKeyCallback appDataRef _ = callback
       callback (GLFW.CharKey ' ') True  = jump
       callback GLFW.KeyUp         True  = jump
       callback GLFW.KeySpace      True  = jump
-      callback GLFW.KeyTab        True  = switchToNextLayer
+      callback GLFW.KeyTab        True  = toNextLayer
       callback (GLFW.CharKey 'P') True  = placeStar
       callback (GLFW.CharKey 'R') True  = removeEntity
       callback (GLFW.CharKey 'A') True  = addEmptyLevel
@@ -63,7 +63,7 @@ newKeyCallback appDataRef _ = callback
             E.playerOnBottom = False})
 
 
-      switchToNextLayer = modL AP.currentLevelL LV.switchToNextLayer
+      toNextLayer = modL AP.currentLevelL LV.toNextLayer
 
       placeStar = do
          (mx:.my:._) <- mousePosition

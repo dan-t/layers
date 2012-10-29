@@ -62,8 +62,8 @@ allLayers :: Level -> [LY.Layer]
 allLayers = LZ.toList . layers
 
 
-switchToNextLayer :: Level -> Level
-switchToNextLayer = LE.modL layersL $ \lays -> applyIf LZ.endp LZ.start $ LZ.right lays
+toNextLayer :: Level -> Level
+toNextLayer = LE.modL layersL $ \lays -> applyIf LZ.endp LZ.start $ LZ.right lays
 
 
 -- | the entities of the level and all its layers
