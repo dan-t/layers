@@ -5,7 +5,7 @@ import qualified Data.List as L
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
-import Gamgine.Utils
+import Gamgine.Control ((?))
 import qualified GameData.Entity as E
 import qualified Entity.Intersect as EI
 import qualified Entity.Bound as EB

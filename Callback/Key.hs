@@ -9,7 +9,7 @@ import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import Gamgine.IORef as GR
-import Gamgine.Utils (ifJust, applyIf, applyIfM)
+import Gamgine.Control (ifJust, applyIf, applyIfM)
 import qualified Utils as LU
 import qualified AppData as AP
 import qualified GameData.Entity as E

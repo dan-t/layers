@@ -1,5 +1,6 @@
 module Gamgine.Utils where
 #include "Gamgine/Utils.cpp"
+import Gamgine.Control ((?))
 import Prelude hiding (catch)
 import qualified Data.ByteString.Lazy   as BL
 import qualified Data.ByteString.Unsafe as BU
@@ -8,27 +9,11 @@ import System.IO (hPutStrLn, stderr)
 import Control.Exception (catch, SomeException)
 import Data.Array.Storable
 import Data.List
-import Data.Bool.HT (if')
 import Data.Bits ((.|.), shiftL)
 import Data.Word
 import Foreign.Ptr
 import Gamgine.System
 import Debug.Trace
-
--- | if a is just than apply f, otherwise 'return ()'
-ifJust :: Monad m => Maybe a -> (a -> m ()) -> m ()
-ifJust (Just a) f = f a
-ifJust _        _ = return ()
-
--- | apply f on a if p is true, otherwise just return a
-applyIf :: (a -> Bool) -> (a -> a) -> a -> a
-applyIf p f a | p a       = f a
-              | otherwise = a
-
--- | apply f on a if p is true, otherwise 'return ()'
-applyIfM :: Monad m => (a -> Bool) -> (a -> m ()) -> a -> m ()
-applyIfM p f a | p a       = f a
-               | otherwise = return ()
 
 count :: Eq a => a -> [a] -> Int
 count x ys = go x 0 ys
@@ -51,10 +36,6 @@ showValue name value = name ++ ": " ++ (show value) ++ "\n"
 
 sv :: Show a => String -> a -> String
 sv = showValue
-
-infixl 1 ?
-(?) :: Bool -> a -> a -> a
-(?) = if'
 
 for_ :: [a] -> (a -> b) -> [b]
 for_ as f = map f as

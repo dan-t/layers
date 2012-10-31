@@ -2,7 +2,7 @@
 module Entity.Render where
 import Control.Monad (when, forM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
-import Gamgine.Utils ((?))
+import Gamgine.Control ((?))
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V

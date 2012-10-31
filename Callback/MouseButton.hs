@@ -7,7 +7,7 @@ import qualified Data.IORef as R
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
-import Gamgine.Utils (ifJust, applyIf, applyIfM)
+import Gamgine.Control (ifJust, applyIf, applyIfM)
 import Gamgine.Utils as GU
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT

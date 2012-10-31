@@ -12,7 +12,7 @@ import Gamgine.Image.PNG
 import Gamgine.Math.Box
 import Gamgine.Math.Vect
 import Gamgine.Math.BoxTree as BT
-import Gamgine.Utils
+import Gamgine.Control ((?))
 #include "Gamgine/Utils.cpp"
 
 type RGB  = (Double, Double, Double)

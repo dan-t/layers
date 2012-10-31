@@ -1,7 +1,7 @@
 
 module Entity.Update where
 import qualified Gamgine.Math.Vect as V
-import Gamgine.Utils
+import Gamgine.Control ((?))
 import qualified GameData.Entity as E
 import qualified GameData.Animation as A
 

@@ -1,12 +1,13 @@
 
 module GameData.Level where
 #include "Gamgine/Utils.cpp"
+import Control.Applicative ((<$>))
 import Data.Function (on)
 import qualified Data.List as L
 import qualified Data.List.Zipper as LZ
 import qualified Gamgine.Utils as GU
 import qualified Gamgine.Zipper as GZ
-import Gamgine.Utils (applyIf)
+import Gamgine.Control (applyIf)
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
