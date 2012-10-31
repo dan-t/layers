@@ -3,13 +3,13 @@ module Gamgine.Zipper where
 import qualified Data.List as L
 import qualified Data.List.Zipper as LZ
 
--- | splits the zipper into the elements before the current element,
---   the current element and the elements after the current element
-split :: LZ.Zipper a -> ([a], Maybe a, [a])
-split (LZ.Zip ls     []) = (L.reverse ls, Nothing, [])
-split (LZ.Zip ls (a:rs)) = (L.reverse ls, Just  a, rs)
 
+-- | get the elements before the current one
+before :: LZ.Zipper a -> LZ.Zipper a
+before (LZ.Zip     [] _) = LZ.empty
+before (LZ.Zip (a:ls) _) = LZ.Zip ls [a]
 
--- | map f on the elements of the zipper
-map :: (a -> b) -> LZ.Zipper a -> LZ.Zipper b
-map f (LZ.Zip ls rs) = LZ.Zip (L.map f ls) (L.map f rs)
+-- | get the elements after the current one
+after :: LZ.Zipper a -> LZ.Zipper a
+after (LZ.Zip _     []) = LZ.empty
+after (LZ.Zip _ (a:rs)) = LZ.Zip [] rs

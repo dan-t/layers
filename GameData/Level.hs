@@ -46,7 +46,8 @@ activeLayerLens = LE.lens getActiveLayer setActiveLayer
 inactiveLayers :: Level -> [LY.Layer]
 inactiveLayers level = before ++ after
    where
-      (before, _, after) = GZ.split . layers $ level
+      before = LZ.toList . GZ.before . layers $ level
+      after  = LZ.toList . GZ.after  . layers $ level
 
 
 newLevel :: [E.Entity] -> [LY.Layer] -> Level
