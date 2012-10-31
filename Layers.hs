@@ -17,7 +17,6 @@ import qualified Gamgine.Coroutine as CO
 import qualified Gamgine.IORef as GR
 import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
-import qualified Gamgine.Zipper as GZ
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
 import Defaults as DF
@@ -86,7 +85,7 @@ update = do
    where
       updateEntities levelGravity level =
          level {LV.entities = L.map (EU.update $ EU.UpdateState levelGravity) $ LV.entities level,
-                LV.layers   = GZ.map updateLayerEntities $ LV.layers level}
+                LV.layers   = updateLayerEntities <$> LV.layers level}
 
       updateLayerEntities layer@LY.Layer {LY.gravity = g} =
          layer {LY.entities = L.map (EU.update $ EU.UpdateState g) $ LY.entities layer}

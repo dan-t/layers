@@ -30,10 +30,10 @@ LENS(layers)
 
 instance E.ApplyToEntity Level where
    eMap f level = level {entities = E.eMap f $ entities level,
-                         layers   = GZ.map (E.eMap f) $ layers level}
+                         layers   = E.eMap f <$> layers level}
 
    eFilter p level = level {entities = E.eFilter p $ entities level,
-                            layers   = GZ.map (E.eFilter p) $ layers level}
+                            layers   = E.eFilter p <$> layers level}
 
 
 activeLayerL    = activeLayerLens
