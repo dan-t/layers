@@ -7,6 +7,8 @@ import Data.Maybe (catMaybes)
 import qualified Event as EV
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
+import qualified GameData.Boundary as BD
+import qualified GameData.Entity as E
 import qualified Entity.Update as EU
 import qualified Entity.Intersect as EI
 import qualified Level.ResolveIntersection as LR
@@ -18,7 +20,7 @@ update level = (events, level')
    where
       events = catMaybes $ L.map LR.resolveIntersection isects
       isects = intersections level'
-      level' = updateEntities level
+      level' = keepEntitiesInsideBoundary . updateEntities $ level
 
 
 updateEntities :: LV.Level -> LV.Level
@@ -32,6 +34,12 @@ updateEntities level = updateEntities_ levelGravity level
 
       updateLayerEntities layer@LY.Layer {LY.gravity = g} =
          layer {LY.entities = L.map (EU.update $ EU.UpdateState g) $ LY.entities layer}
+
+
+keepEntitiesInsideBoundary :: LV.Level -> LV.Level
+keepEntitiesInsideBoundary level = E.eMap (`BD.keepInside` boundary) level
+   where
+      boundary = LV.boundary level
 
 
 intersections :: LV.Level -> [EI.Intersection]

@@ -16,14 +16,17 @@ import qualified Entity.Id as EI
 import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 import qualified GameData.Player as PL
+import qualified GameData.Boundary as BD
 IMPORT_LENS
 
 
 data Level = Level {
+   boundary :: BD.Boundary,
    entities :: [E.Entity],
    layers   :: LZ.Zipper LY.Layer
    } deriving Show
 
+LENS(boundary)
 LENS(entities)
 LENS(layers)
 
@@ -51,12 +54,16 @@ inactiveLayers level = before ++ after
 
 
 newLevel :: [E.Entity] -> [LY.Layer] -> Level
-newLevel entites layers = Level entites $ LZ.fromList layers
+newLevel entities layers = Level boundary entities $ LZ.fromList layers
+   where
+      boundary    = BD.newBoundary allEntities
+      allEntities = entities ++ (L.concat $ L.map LY.entities $ layers)
 
 
 newEmptyLevel :: Level
 newEmptyLevel =
-   Level {entities = [PL.newPlayer 0 (V.v3 1 1 0)],
+   Level {boundary = BD.Boundary $ B.Box V.nullVec (V.v3 1000 1000 0),
+          entities = [PL.newPlayer 0 (V.v3 1 1 0)],
           layers   = LZ.fromList [LY.newEmptyLayer, LY.newEmptyLayer]}
 
 

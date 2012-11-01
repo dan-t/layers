@@ -24,7 +24,6 @@ import qualified Utils as LU
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
 import qualified Background as BG
-import qualified Boundary as BD
 import qualified AppData as AP
 import qualified Callback.Key as KC
 import qualified Callback.MouseButton as MC
@@ -79,7 +78,6 @@ update = do
    runUpdaters
    (events, level') <- LU.update <$> GR.getsL AP.currentLevelL
    GR.putL AP.currentLevelL level'
-   keepInsideBoundary
    mapM_ EV.handleEventST events
 
 
@@ -94,12 +92,6 @@ runUpdaters = do
          else return $ (app', up' : ups)) (app, []) ups
 
    GR.put $ app' {AP.updaters = ups'}
-
-
-keepInsideBoundary :: AP.AppST ()
-keepInsideBoundary = do
-   boundary <- GR.gets AP.boundary
-   GR.modifyL AP.currentLevelL $ E.eMap (`BD.keepInside` boundary)
 
 
 render :: Double -> AP.AppST ()

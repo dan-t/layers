@@ -5,7 +5,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Matrix as M
 import qualified AppData as AP
-import qualified Boundary as BD
+import qualified GameData.Boundary as BD
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
 IMPORT_LENS
@@ -24,7 +24,7 @@ levelScrolling nextFrameFraction appData =
        in (V.minVec scroll maxScroll) * (-1)
    where
       playerPos   = interpolatePos nextFrameFraction $ LE.getL (LV.playerL . AP.currentLevelL) appData
-      (ax:.ay:._) = BD.boundaryArea . AP.boundary $ appData
+      (ax:.ay:._) = BD.boundaryArea $ LE.getL (LV.boundaryL . AP.currentLevelL) appData
       (fx, fy)    = AP.frustumSize appData
 
       interpolatePos factor player =

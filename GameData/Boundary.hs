@@ -1,11 +1,9 @@
 
-module Boundary where
+module GameData.Boundary where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified GameData.Entity as E
 import qualified Entity.Bound as EB
-import qualified GameData.Level as LV
-import qualified GameData.Layer as LY
 import qualified GameData.Player as PL
 import qualified GameData.Animation as A
 import qualified Gamgine.Math.Box as B
@@ -16,15 +14,15 @@ import qualified Entity.Bound as EB
 
 
 -- | the boundary of the whole level
-data Boundary = Boundary B.Box
+data Boundary = Boundary B.Box deriving Show
 
 
-newBoundary :: LV.Level -> Boundary
-newBoundary level = Boundary boundary
+newBoundary :: [E.Entity] -> Boundary
+newBoundary entities = Boundary boundary
    where
-      boundary         = B.Box (V.v3 0 0 0) $ maxLevel + V.v3 minBorderDist minBorderDist 0
-      B.Box _ maxLevel = levelArea level
-      minBorderDist    = (max (fst PL.playerSize) (snd PL.playerSize)) * 6
+      boundary        = B.Box (V.v3 0 0 0) $ maxArea + V.v3 minBorderDist minBorderDist 0
+      B.Box _ maxArea = entitiesArea entities
+      minBorderDist   = (max (fst PL.playerSize) (snd PL.playerSize)) * 6
 
 
 boundaryArea :: Boundary -> V.Vect
@@ -55,8 +53,8 @@ player@E.Player {} `keepInside` Boundary bBound@(B.Box minBd@(_:.minY:._) maxBd)
 keepInside entity _ = entity
 
 
-levelArea :: LV.Level -> B.Box
-levelArea level = B.bound $ L.map bound $ LV.allEntities level
+entitiesArea :: [E.Entity] -> B.Box
+entitiesArea entities = B.bound $ L.map bound entities
    where
       bound E.Platform {E.platformPosition = Right ani, E.platformBound = bound} = pathBound
          where
