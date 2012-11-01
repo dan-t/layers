@@ -1,5 +1,5 @@
 
-module ResolveIntersection where
+module Level.ResolveIntersection where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
 import qualified Gamgine.Math.BoxTree as BT

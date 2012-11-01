@@ -28,7 +28,6 @@ import qualified Boundary as BD
 import qualified AppData as AP
 import qualified Callback.Key as KC
 import qualified Callback.MouseButton as MC
-import qualified ResolveIntersection as RI
 import qualified Event as EV
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
@@ -40,6 +39,7 @@ import qualified Updater as UP
 import qualified Entity.Render as ER
 import qualified Entity.Update as EU
 import qualified Entity.Intersect as EI
+import qualified Level.Update as LU
 IMPORT_LENS
 
 
@@ -77,18 +77,10 @@ gameLoop nextFrame = do
 update :: AP.AppST ()
 update = do
    runUpdaters
-   levelGravity <- GR.getsL (LY.gravityL . AP.activeLayerL)
-   GR.modifyL AP.currentLevelL $ updateEntities levelGravity
+   (events, level') <- LU.update <$> GR.getsL AP.currentLevelL
+   GR.putL AP.currentLevelL level'
    keepInsideBoundary
-   events <- handleIntersections
    mapM_ EV.handleEventST events
-   where
-      updateEntities levelGravity level =
-         level {LV.entities = L.map (EU.update $ EU.UpdateState levelGravity) $ LV.entities level,
-                LV.layers   = updateLayerEntities <$> LV.layers level}
-
-      updateLayerEntities layer@LY.Layer {LY.gravity = g} =
-         layer {LY.entities = L.map (EU.update $ EU.UpdateState g) $ LY.entities layer}
 
 
 runUpdaters :: AP.AppST ()
@@ -108,24 +100,6 @@ keepInsideBoundary :: AP.AppST ()
 keepInsideBoundary = do
    boundary <- GR.gets AP.boundary
    GR.modifyL AP.currentLevelL $ E.eMap (`BD.keepInside` boundary)
-
-
-handleIntersections :: AP.AppST [EV.Event]
-handleIntersections = do
-   curLevel    <- GR.getsL AP.currentLevelL
-   actLayer    <- GR.getsL AP.activeLayerL
-   inactLayers <- AP.inactiveLayers <$> GR.get
-   let levelEnts       = LV.entities curLevel
-       actLayerEnts    = LY.entities actLayer
-       inactLayersEnts = L.map LY.entities inactLayers
-
-       events  = L.foldl' (\evs es -> evs ++ handleIntersection es es) [] $ [levelEnts, actLayerEnts] ++ inactLayersEnts
-
-   return $ events ++ handleIntersection levelEnts actLayerEnts
-   where
-      handleIntersection es1 es2 = events
-         where
-            events = catMaybes [RI.resolveIntersection $ EI.intersect e1 e2 | e1 <- es1, e2 <- es2]
 
 
 render :: Double -> AP.AppST ()
