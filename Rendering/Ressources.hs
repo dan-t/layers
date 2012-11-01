@@ -6,8 +6,9 @@ import qualified Gamgine.Ressources as R
 
 -- | render ressources of entities
 data Ressources = Ressources {
-   playerTextureId :: GL.GLuint,
-   starTextureId   :: GL.GLuint
+   backgroundTextureId :: GL.GLuint,
+   playerTextureId     :: GL.GLuint,
+   starTextureId       :: GL.GLuint
    } deriving Show
 
 
@@ -19,8 +20,11 @@ data RenderState = RenderState {
 
 newRessources :: IO Ressources
 newRessources = do
-   playTex   <- R.getImageFilePath "Player.png"
-   starTex   <- R.getImageFilePath "Star.png"
-   playTexId <- G.makeTexture2d playTex GL.gl_REPEAT
-   starTexId <- G.makeTexture2d starTex GL.gl_REPEAT
-   return $ Ressources playTexId starTexId
+   backId    <- mkTexture "Background.png"
+   playTexId <- mkTexture "Player.png"
+   starTexId <- mkTexture "Star.png"
+   return $ Ressources backId playTexId starTexId
+   where
+      mkTexture file = do
+         tex <- R.getImageFilePath file
+         G.makeTexture2d tex GL.gl_REPEAT

@@ -13,32 +13,23 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.Ressources as RS
-import qualified Gamgine.Coroutine as CO
 import qualified Gamgine.IORef as GR
 import Gamgine.Gfx as G
 import qualified Gamgine.Utils as GU
-import qualified Gamgine.Math.Box as B
-import Gamgine.Math.Vect as V
 import Defaults as DF
-import qualified Utils as LU
+import qualified Utils as U
 import qualified FileData.Data2 as FD
 import qualified Convert.ToGameData as TGD
-import qualified Background as BG
 import qualified AppData as AP
 import qualified Callback.Key as KC
 import qualified Callback.MouseButton as MC
 import qualified Event as EV
-import qualified GameData.Data as GD
-import qualified GameData.Level as LV
-import qualified GameData.Layer as LY
 import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
 import qualified Rendering.Renderer as RD
 import qualified Updater as UP
-import qualified Entity.Render as ER
-import qualified Entity.Update as EU
-import qualified Entity.Intersect as EI
 import qualified Level.Update as LU
+import qualified Level.Render as LR
 IMPORT_LENS
 
 
@@ -96,23 +87,13 @@ runUpdaters = do
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   renderRes   <- GR.getsL AP.renderRessourcesL
-   background  <- GR.getsL AP.backgroundL
-   curLevel    <- GR.getsL AP.currentLevelL
-   actLayer    <- GR.getsL AP.activeLayerL
-   inactLayers <- AP.inactiveLayers <$> GR.get
-   scrolling   <- GR.gets $ LU.levelScrolling nextFrameFraction
-   let renderState              = RR.RenderState nextFrameFraction renderRes
-       renderInactLayerEntities = forM_ inactLayers $ (mapM_ $ ER.render E.InactiveLayerScope renderState) . LY.entities
-       renderActLayerEntities   = mapM_ (ER.render E.ActiveLayerScope renderState) $ LY.entities actLayer
-       renderLevelEntities      = mapM_ (ER.render E.LevelScope renderState) $ LV.entities curLevel
-
+   renderRes <- GR.getsL AP.renderRessourcesL
+   currLevel <- GR.getsL AP.currentLevelL
+   scrolling <- GR.gets $ U.levelScrolling nextFrameFraction
+   let renderState = RR.RenderState nextFrameFraction renderRes
    io $ do
       GL.glTranslatef <<< scrolling
-      BG.render background
-      renderInactLayerEntities
-      renderActLayerEntities
-      renderLevelEntities
+      LR.render renderState currLevel
 
    runRenderers renderState
    io GLFW.swapBuffers
@@ -193,6 +174,5 @@ initGL = do
 
 initRessources :: AP.AppDataRef -> IO ()
 initRessources appDataRef = do
-   bg  <- BG.newBackground
    res <- RR.newRessources
-   modifyIORef appDataRef $ \app -> app {AP.background = bg, AP.renderRessources = res}
+   modifyIORef appDataRef $ \app -> app {AP.renderRessources = res}

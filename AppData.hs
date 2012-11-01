@@ -6,7 +6,6 @@ import qualified Data.List as L
 import Data.Maybe (fromMaybe)
 import qualified Control.Monad.State as ST
 import qualified Gamgine.Utils as GU
-import qualified Background as BG
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
@@ -20,7 +19,6 @@ data AppData = AppData {
    windowSize       :: (Int, Int),
    frustumSize      :: (Double, Double),
    orthoScale       :: Double,
-   background       :: BG.Background,
    renderRessources :: RR.Ressources,
    renderers        :: [RD.Renderer],
    updaters         :: [UP.Updater AppData],
@@ -30,7 +28,6 @@ data AppData = AppData {
 LENS(windowSize)
 LENS(frustumSize)
 LENS(orthoScale)
-LENS(background)
 LENS(renderRessources)
 LENS(renderers)
 LENS(updaters)
@@ -49,8 +46,7 @@ newAppData gameData = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
-   background       = BG.empty,
-   renderRessources = RR.Ressources (-1) (-1),
+   renderRessources = RR.Ressources (-1) (-1) (-1),
    renderers        = [],
    updaters         = [],
    gameData         = gameData

@@ -62,7 +62,7 @@ newLevel entities layers = Level boundary entities $ LZ.fromList layers
 
 newEmptyLevel :: Level
 newEmptyLevel =
-   Level {boundary = BD.Boundary $ B.Box V.nullVec (V.v3 1000 1000 0),
+   Level {boundary = BD.Boundary $ B.Box V.nullVec (V.v3 2000 1000 0),
           entities = [PL.newPlayer 0 (V.v3 1 1 0)],
           layers   = LZ.fromList [LY.newEmptyLayer, LY.newEmptyLayer]}
 
