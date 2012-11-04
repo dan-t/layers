@@ -1,6 +1,6 @@
 
 module GameData.Player where
-import qualified Gamgine.Math.Vect as V
+import Gamgine.Math.Vect as V
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
 import qualified Defaults as DF
@@ -17,6 +17,14 @@ newPlayer id initPos = E.Player {
    E.playerBound      = playerBound playerSize,
    E.playerWalkCycle  = (0, 4)
    }
+
+
+jump :: E.Entity -> E.Entity
+jump p@E.Player {E.playerVelocity = (vx:.vy:.vz:.()), E.playerOnBottom = True} =
+   p {E.playerVelocity = V.v3 vx (vy + jumpAcceleration) vz,
+      E.playerOnBottom = False}
+
+jump e = e
 
 
 playerVelocity :: Double

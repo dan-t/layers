@@ -58,9 +58,7 @@ newKeyCallback appDataRef _ = callback
       accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
       accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
 
-      jump = updateEntity (applyIf (\e -> E.isPlayer e && E.playerOnBottom e) $ \e ->
-         e {E.playerVelocity = V.setElem 1 PL.jumpAcceleration $ E.playerVelocity e,
-            E.playerOnBottom = False})
+      jump = updateEntity PL.jump
 
 
       toNextLayer = modL AP.currentLevelL LV.toNextLayer
