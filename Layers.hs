@@ -26,7 +26,6 @@ import qualified Callback.MouseButton as MC
 import qualified Event as EV
 import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
-import qualified Rendering.Renderer as RD
 import qualified Updater as UP
 import qualified Level.Update as LU
 import qualified Level.Render as LR
@@ -91,24 +90,11 @@ render nextFrameFraction = do
    currLevel <- GR.getsL AP.currentLevelL
    scrolling <- GR.gets $ U.levelScrolling nextFrameFraction
    let renderState = RR.RenderState nextFrameFraction renderRes
-   io $ do
-      GL.glTranslatef <<< scrolling
-      LR.render renderState currLevel
+   io $ GL.glTranslatef <<< scrolling
+   level' <- io $ LR.render renderState currLevel
+   GR.putL AP.currentLevelL level'
 
-   runRenderers renderState
    io GLFW.swapBuffers
-
-
-runRenderers :: RR.RenderState -> AP.AppST ()
-runRenderers renderState = do
-   rs  <- GR.gets AP.renderers
-   rs' <- foldrM (\r rs -> io $ do
-                    (finished, r') <- RD.runRenderer r renderState
-                    if finished
-                       then return rs
-                       else return $ r' : rs) [] rs
-
-   GR.putL AP.renderersL rs'
 
 
 clearGLState :: AP.AppST ()

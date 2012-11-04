@@ -7,6 +7,7 @@ import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
 import qualified GameData.Entity as E
+import qualified GameData.Level as LV
 import qualified Entity.Intersect as EI
 import qualified Entity.Bound as EB
 import qualified Entity.Position as EP
@@ -41,7 +42,8 @@ resolveIntersection isect@(e1, e2, isects) =
                                         | otherwise     -> e
                  _ -> e,
 
-         mkUpdateAppEvent $ LE.modL AP.renderersL $ \rds -> RR.mkRenderer (RR.fadeOutStar pos 0) : rds ]
+         mkUpdateAppEvent $ LE.modL (LV.renderersL . AP.currentLevelL) $ \rds ->
+            RR.mkRenderer (RR.fadeOutStar pos 0) : rds ]
 
 
       resolvePlayerWithPlatformIsect (player, isectPos) platform

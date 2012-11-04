@@ -10,7 +10,7 @@ IMPORT_LENS
 
 data Data = Data {
    levels :: LZ.Zipper LV.Level
-   } deriving Show
+   }
 
 LENS(levels)
 

@@ -25,6 +25,11 @@ handleEventST event = GR.modify (handleEvent event)
 handleEventIO :: Event -> AP.AppDataRef -> IO ()
 handleEventIO event appRef = modifyIORef appRef (handleEvent event)
 
+handleEvents :: [Event] -> AP.AppData -> AP.AppData
+handleEvents events app =
+   L.foldl' (flip handleEvent) app events
+
+
 
 handleEvent :: Event -> AP.AppData -> AP.AppData
 handleEvent (MkAppEvent (UpdateApp f)) app = f app

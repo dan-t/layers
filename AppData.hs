@@ -10,7 +10,6 @@ import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified Rendering.Ressources as RR
-import qualified Rendering.Renderer as RD
 import qualified Updater as UP
 import qualified Defaults as DF
 IMPORT_LENS
@@ -20,7 +19,6 @@ data AppData = AppData {
    frustumSize      :: (Double, Double),
    orthoScale       :: Double,
    renderRessources :: RR.Ressources,
-   renderers        :: [RD.Renderer],
    updaters         :: [UP.Updater AppData],
    gameData         :: GD.Data
    }
@@ -29,7 +27,6 @@ LENS(windowSize)
 LENS(frustumSize)
 LENS(orthoScale)
 LENS(renderRessources)
-LENS(renderers)
 LENS(updaters)
 LENS(gameData)
 
@@ -47,7 +44,6 @@ newAppData gameData = AppData {
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
    renderRessources = RR.Ressources (-1) (-1) (-1),
-   renderers        = [],
    updaters         = [],
    gameData         = gameData
    }

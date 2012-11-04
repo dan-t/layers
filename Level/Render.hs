@@ -1,6 +1,7 @@
 
 module Level.Render where
 #include "Gamgine/Utils.cpp"
+import Data.Foldable (foldrM)
 import Control.Monad (forM_, mapM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Ressources as R
@@ -10,18 +11,21 @@ import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified GameData.Boundary as BD
 import qualified GameData.Entity as E
+import qualified Rendering.Renderer as RD
 import qualified Rendering.Ressources as RR
 import qualified Entity.Render as ER
 import Gamgine.Gfx ((<<<*), (<<*))
 IMPORT_LENS
 
 
-render :: RR.RenderState -> LV.Level -> IO ()
+render :: RR.RenderState -> LV.Level -> IO LV.Level
 render rstate level = do
    renderBackground (bgx, bgy) bgTexId
    renderInactLayer
    renderActLayer
    renderEntities
+   rs' <- runRenderers rstate $ LV.renderers level
+   return level {LV.renderers = rs'}
    where
       renderInactLayer = forM_ inactLays $ (mapM_ $ ER.render E.InactiveLayerScope rstate) . LY.entities
       renderActLayer   = mapM_ (ER.render E.ActiveLayerScope rstate) $ LY.entities actLayer
@@ -42,3 +46,12 @@ renderBackground (sizeX, sizeY) texId  = do
          forM_ (zip coords vertices) (\(c,v) -> do
             GL.glTexCoord2f <<* c
             GL.glVertex2f <<* v)
+
+
+runRenderers :: RR.RenderState -> [RD.Renderer] -> IO [RD.Renderer]
+runRenderers renderState rs = do
+   foldrM (\r rs -> do
+      (finished, r') <- RD.runRenderer r renderState
+      if finished
+         then return rs
+         else return $ r' : rs) [] rs
