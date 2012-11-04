@@ -27,6 +27,13 @@ jump p@E.Player {E.playerVelocity = (vx:.vy:.vz:.()), E.playerOnBottom = True} =
 jump e = e
 
 
+accelerate :: V.Vect -> E.Entity -> E.Entity
+accelerate a p@E.Player {E.playerVelocity = v} =
+   p {E.playerVelocity = v + a}
+
+accelerate _ e = e
+
+
 playerVelocity :: Double
 playerVelocity = 10 / DF.ticksPerSecond
 

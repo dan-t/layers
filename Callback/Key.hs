@@ -55,8 +55,8 @@ newKeyCallback appDataRef _ = callback
       callback _                  _     = return ()
 
 
-      accelerateToTheLeft  = updatePlayerVelocity ((+) $ V.v3 (-PL.playerVelocity) 0 0)
-      accelerateToTheRight = updatePlayerVelocity ((+) $ V.v3 PL.playerVelocity 0 0)
+      accelerateToTheLeft  = updateEntity $ PL.accelerate (V.v3 (-PL.playerVelocity) 0 0)
+      accelerateToTheRight = updateEntity $ PL.accelerate (V.v3 PL.playerVelocity 0 0)
 
       jump = updateEntity PL.jump
 
