@@ -11,15 +11,19 @@ import qualified GameData.Entity as E
 import qualified GameData.Player as P
 import qualified GameData.Star as S
 import qualified GameData.Animation as A
-import qualified Utils as LU
 import qualified Rendering.Ressources as RR
+
+
+interpolateFrame :: Double -> V.Vect -> V.Vect -> V.Vect
+interpolateFrame nextFrameFraction position velocity =
+   position + (velocity * (V.v3 nextFrameFraction nextFrameFraction nextFrameFraction))
 
 
 interpolatePlaformPos :: Double -> E.PositionOrAnimation -> V.Vect
 interpolatePlaformPos _ (Left pos) = pos
 
 interpolatePlaformPos nextFrameFraction (Right ani) =
-   LU.interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentVelocity ani)
+   interpolateFrame nextFrameFraction (A.currentPosition ani) (A.currentVelocity ani)
 
 
 render :: E.Scope ->

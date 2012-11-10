@@ -7,6 +7,7 @@ import Data.Foldable (foldrM)
 import qualified Data.List as L
 import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
+import Control.Arrow ((&&&))
 import qualified Control.Monad.State as ST
 import Control.Monad (forM_, mapM_)
 import qualified Graphics.UI.GLFW as GLFW
@@ -26,9 +27,6 @@ import qualified Callback.MouseButton as MC
 import qualified Event as EV
 import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
-import qualified Updater as UP
-import qualified Level.Update as LU
-import qualified Level.Render as LR
 IMPORT_LENS
 
 
@@ -64,36 +62,15 @@ gameLoop nextFrame = do
 
 
 update :: AP.AppST ()
-update = do
-   runUpdaters
-   (events, level') <- LU.update <$> GR.getsL AP.currentLevelL
-   GR.putL AP.currentLevelL level'
-   mapM_ EV.handleEventST events
-
-
-runUpdaters :: AP.AppST ()
-runUpdaters = do
-   app          <- GR.get
-   ups          <- GR.gets AP.updaters
-   (app', ups') <- foldrM (\up (app, ups) -> io $ do
-      ((app', finished), up') <- UP.runUpdater up app
-      if finished
-         then return (app', ups)
-         else return $ (app', up' : ups)) (app, []) ups
-
-   GR.put $ app' {AP.updaters = ups'}
+update = GR.modify AP.update
 
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   renderRes <- GR.getsL AP.renderRessourcesL
-   currLevel <- GR.getsL AP.currentLevelL
-   scrolling <- GR.gets $ U.levelScrolling nextFrameFraction
-   let renderState = RR.RenderState nextFrameFraction renderRes
-   io $ GL.glTranslatef <<< scrolling
-   level' <- io $ LR.render renderState currLevel
-   GR.putL AP.currentLevelL level'
-
+   app  <- GR.get
+   io $ GL.glTranslatef <<< U.levelScrolling nextFrameFraction app
+   app' <- io $ AP.render nextFrameFraction app
+   GR.put app'
    io GLFW.swapBuffers
 
 

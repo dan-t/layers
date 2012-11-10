@@ -7,35 +7,25 @@ import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.IORef as GR
 import qualified GameData.Entity as E
-import qualified AppData as AP
+import qualified GameData.Data as GD
 
-data Event = MkAppEvent AppEvent
+data Event = MkGameEvent GameEvent
              | MkEntityEvent EntityEvent
              | MkMultiEvent [Event]
 
-data AppEvent = UpdateApp (AP.AppData -> AP.AppData)
+data GameEvent = UpdateGame (GD.Data -> GD.Data)
 
 data EntityEvent = UpdateEntity (E.Entity -> E.Entity)
 
+handleEvents :: [Event] -> GD.Data -> GD.Data
+handleEvents events gd =
+   L.foldl' (flip handleEvent) gd events
 
-handleEventST :: Event -> AP.AppST ()
-handleEventST event = GR.modify (handleEvent event)
+handleEvent :: Event -> GD.Data -> GD.Data
+handleEvent (MkGameEvent (UpdateGame f)) gd = f gd
 
+handleEvent (MkEntityEvent (UpdateEntity f)) gd =
+   LE.modL GD.currentLevelL (E.eMap f) gd
 
-handleEventIO :: Event -> AP.AppDataRef -> IO ()
-handleEventIO event appRef = modifyIORef appRef (handleEvent event)
-
-handleEvents :: [Event] -> AP.AppData -> AP.AppData
-handleEvents events app =
-   L.foldl' (flip handleEvent) app events
-
-
-
-handleEvent :: Event -> AP.AppData -> AP.AppData
-handleEvent (MkAppEvent (UpdateApp f)) app = f app
-
-handleEvent (MkEntityEvent (UpdateEntity f)) app =
-   LE.modL AP.currentLevelL (E.eMap f) app
-
-handleEvent (MkMultiEvent es) app =
-   L.foldl' (flip handleEvent) app es
+handleEvent (MkMultiEvent es) gd =
+   L.foldl' (flip handleEvent) gd es

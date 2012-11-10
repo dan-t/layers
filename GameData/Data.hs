@@ -5,6 +5,7 @@ import qualified Data.List as L
 import qualified Data.List.Zipper as LZ
 import Gamgine.Control (applyIf)
 import qualified GameData.Level as LV
+import qualified GameData.Entity as E
 IMPORT_LENS
 
 
@@ -13,6 +14,11 @@ data Data = Data {
    }
 
 LENS(levels)
+
+instance E.ApplyToEntity Data where
+   eMap f = LE.modL currentLevelL (E.eMap f)
+   eFilter p = LE.modL currentLevelL (E.eFilter p)
+
 
 currentLevelL    = currentLevelLens
 currentLevelLens = LE.lens getCurrentLevel setCurrentLevel
