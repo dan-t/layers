@@ -32,7 +32,6 @@ data AppData = AppData {
    frustumSize      :: (Double, Double),
    orthoScale       :: Double,
    renderRessources :: RR.Ressources,
-   updaters         :: [UP.Updater AppData],
    gameData         :: GD.Data,
    stateTree        :: SZ.Zipper GD.Data
    }
@@ -41,7 +40,6 @@ LENS(windowSize)
 LENS(frustumSize)
 LENS(orthoScale)
 LENS(renderRessources)
-LENS(updaters)
 LENS(gameData)
 LENS(stateTree)
 
@@ -51,7 +49,6 @@ newAppData gameData = AppData {
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
    renderRessources = RR.Ressources (-1) (-1) (-1),
-   updaters         = [],
    gameData         = gameData,
    stateTree        = SZ.zipper $ SS.root GR.mkGameRunningState
       [Branch {state     = ME.mkMovingEntityState,
