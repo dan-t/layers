@@ -25,6 +25,8 @@ import qualified Convert.ToGameData as TG
 IMPORT_LENS
 
 
+-- | the default input handling state when the
+--   game is normally running a level
 mkGameRunningState :: ST.State GD.Data
 mkGameRunningState = ST.State {
    ST.enter      = \_ gd -> (gd, mkGameRunningState),

@@ -21,6 +21,7 @@ data MovingEntity = MovingEntity {
    basePos  :: V.Vect
    }
 
+-- | the state for moving an entity during edit mode
 mkMovingEntityState :: ST.State GD.Data
 mkMovingEntityState =
    mkState $ MovingEntity Nothing V.nullVec V.nullVec
@@ -36,7 +37,7 @@ mkMovingEntityState =
 
          ST.leave = (, mkState (me {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec})),
 
-         ST.update = (, mkState me),
+         ST.update = (, mkState me) . GR.update,
 
          ST.render = ((, mkState me) <$>) .: GR.render,
 
