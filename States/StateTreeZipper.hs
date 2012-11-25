@@ -19,7 +19,8 @@ data Zipper a = Zipper {
 -- | represents a step walking the state tree
 data Step a = Step {
    parent   :: (S.State a, ST.EnterWhen, ST.LeaveWhen),
-   siblings :: [ST.StateTree a]
+   -- (beforeSiblings, afterSiblings)
+   siblings :: ([ST.StateTree a], [ST.StateTree a])
    }
 
 
@@ -57,8 +58,8 @@ handleMouseEvent mi a z@(Zipper ps c)
 -- | leave the current state and enter the parent state
 goUp :: II.MousePos -> a -> Zipper a -> (a, Zipper a)
 goUp mp a z@(Zipper [] _) = (a, z)
-goUp mp a (Zipper (Step (p,e,l) sibs:ps) c) =
-   (a'', Zipper ps $ ST.Branch p' e l (c':sibs))
+goUp mp a (Zipper (Step (p,e,l) (beforeSibs, afterSibs):ps) c) =
+   (a'', Zipper ps $ ST.Branch p' e l (beforeSibs ++ (c' : afterSibs)))
    where
       (a'', p') = (S.enter p) mp a'
       (a' , c') = ST.leaveState a c
@@ -69,12 +70,13 @@ goUp mp a (Zipper (Step (p,e,l) sibs:ps) c) =
 goDown :: Int -> II.MousePos -> a -> Zipper a -> (a, Zipper a)
 goDown adjIdx mp a z@(Zipper ps (Branch c e l as))
    | adjIdx >= L.length as = (a, z)
-   | otherwise = (a'', Zipper ((Step (c',e,l) as'):ps) s')
+   | otherwise = (a'', Zipper ((Step (c',e,l) (beforeSibs, afterSibs)):ps) s')
    where
-      (a'', s') = ST.enterState mp a' s
-      (a' , c') = (S.leave c) a
-      s         = as !! adjIdx
-      as'       = L.take adjIdx as ++ L.drop (adjIdx + 1) as
+      (a'', s')  = ST.enterState mp a' s
+      (a' , c')  = (S.leave c) a
+      s          = as !! adjIdx
+      beforeSibs = L.take adjIdx as
+      afterSibs  = L.drop (adjIdx + 1) as
 
 
 -- | replace the current state
