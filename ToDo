@@ -1,4 +1,6 @@
 
-- replace updaters by special states
 - define animation interactive
 - save file
+- remove AppMode from callbacks and give it to newAppData
+  and create an appropriate stateTree
+- replace renderers by specialized entity rendering
