@@ -34,15 +34,10 @@ mkMovingEntityState =
                                              basePos  = EP.position e}))
                  _      -> (gd, mkState me),
 
-
-         ST.leave = (, mkState (me {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec})),
-
-         ST.update = (, mkState me) . GR.update,
-
-         ST.render = ((, mkState me) <$>) .: GR.render,
-
-         ST.keyEvent = (, mkState me) .: flip const,
-
+         ST.leave      = (, mkState (me {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec})),
+         ST.update     = (, mkState me) . GR.update,
+         ST.render     = ((, mkState me) <$>) .: GR.render,
+         ST.keyEvent   = (, mkState me) .: flip const,
          ST.mouseEvent = (, mkState me) .: flip const,
 
          ST.mouseMoved = \mp gd ->

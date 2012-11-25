@@ -1,8 +1,10 @@
+{-# LANGUAGE TupleSections #-}
 
 module States.GameRunning where
 #include "Gamgine/Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.Foldable (foldrM)
+import Data.Composition ((.:))
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import qualified Data.List as L
@@ -29,17 +31,13 @@ IMPORT_LENS
 --   game is normally running a level
 mkGameRunningState :: ST.State GD.Data
 mkGameRunningState = ST.State {
-   ST.enter      = \_ gd -> (gd, mkGameRunningState),
-   ST.leave      = \gd -> (gd, mkGameRunningState),
-   ST.update     = \gd -> (update gd, mkGameRunningState),
-
-   ST.render     = \rs gd -> do
-      gd' <- render rs gd
-      return (gd', mkGameRunningState),
-
-   ST.keyEvent   = \ki gd -> (keyEvent ki gd, mkGameRunningState),
-   ST.mouseEvent = \_ gd -> (gd, mkGameRunningState),
-   ST.mouseMoved = \_ gd -> (gd, mkGameRunningState)
+   ST.enter      = (, mkGameRunningState) .: flip const,
+   ST.leave      = (, mkGameRunningState),
+   ST.update     = (, mkGameRunningState) . update,
+   ST.render     = ((, mkGameRunningState) <$>) .: render,
+   ST.keyEvent   = (, mkGameRunningState) .: keyEvent,
+   ST.mouseEvent = (, mkGameRunningState) .: flip const,
+   ST.mouseMoved = (, mkGameRunningState) .: flip const
    }
 
 
