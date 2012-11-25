@@ -12,10 +12,6 @@ data MouseInfo = MouseInfo {
    status    :: II.InputState,
    -- the current mouse position in world coordinates
    mousePos  :: II.MousePos,
-   -- if a control key is additionally pressed
-   withCtrl  :: Bool,
-   -- if a shift key is additionally pressed
-   withShift :: Bool,
-   -- if the alt key is additionally pressed
-   withAlt   :: Bool
+   -- if a modifier key is additionally pressed
+   modifiers :: [II.Modifier]
    }

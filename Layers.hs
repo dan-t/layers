@@ -9,7 +9,7 @@ import System.Exit (exitSuccess)
 import Control.Applicative ((<$>))
 import Control.Arrow ((&&&))
 import qualified Control.Monad.State as ST
-import Control.Monad (forM_, mapM_)
+import Control.Monad (forM_, mapM_, liftM2)
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Engine as EG
@@ -24,6 +24,7 @@ import qualified Convert.ToGameData as TGD
 import qualified AppData as AP
 import qualified Callback.Key as KC
 import qualified Callback.MouseButton as MC
+import qualified Callback.MouseMove as MM
 import qualified Event as EV
 import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
@@ -92,13 +93,12 @@ initGLFW appDataRef appMode = do
 
    GLFW.setWindowBufferSwapInterval 1
    GLFW.setWindowSizeCallback resize
-   GLFW.setWindowCloseCallback exitGame
+   GLFW.setWindowCloseCallback quit
    GLFW.setKeyCallback $ KC.newKeyCallback appDataRef appMode
    GLFW.setMouseButtonCallback $ MC.newMouseButtonCallback appDataRef appMode
+   GLFW.setMousePositionCallback $ MM.newMouseMoveCallback appDataRef appMode
    GLFW.setMouseWheelCallback $ if appMode == AP.EditMode then updateOrthoScale else \_ -> return ()
    where
-      exitGame = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
-
       resize width height = do
          setL AP.windowSizeL (width, height)
          updateFrustum
@@ -125,6 +125,7 @@ initGLFW appDataRef appMode = do
          updateFrustum
          updateCamera
 
+      quit   = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
       getL   = GR.getL appDataRef
       setL   = GR.setL appDataRef
       modify = modifyIORef appDataRef

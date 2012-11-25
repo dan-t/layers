@@ -33,15 +33,15 @@ levelScrolling nextFrameFraction appData =
 
 mousePosInWorldCoords :: AP.AppData -> IO V.Vect
 mousePosInWorldCoords appData = do
-   mp <- mousePosInScreenCoords appData
-   return $ V.setElem 2 0 $ mp - (levelScrolling 0 appData)
+   xy <- GLFW.getMousePosition
+   windowToWorldCoords xy appData
 
 
-mousePosInScreenCoords :: AP.AppData -> IO V.Vect
-mousePosInScreenCoords appData = do
-   (x, y) <- GLFW.getMousePosition
+windowToWorldCoords :: (Int, Int) -> AP.AppData -> IO V.Vect
+windowToWorldCoords (x, y) appData = do
    (w, h) <- GLFW.getWindowDimensions
-   let mat    = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (AP.orthoScale appData * (fromIntegral h / fromIntegral w))
-       invMat = M.inverseOrIdentity mat
-       vec    = V.fromVect4 (multmv invMat (v4 (fromIntegral x) (fromIntegral y) 0 1))
-   return $ V.setElem 2 0 vec
+   let mat        = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (AP.orthoScale appData * (fromIntegral h / fromIntegral w))
+       invMat     = M.inverseOrIdentity mat
+       worldCoord = V.fromVect4 (multmv invMat (v4 (fromIntegral x) (fromIntegral y) 0 1))
+
+   return $ V.setElem 2 0 $ worldCoord - (levelScrolling 0 appData)

@@ -9,6 +9,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
 import Gamgine.Control (ifJust, applyIf, applyIfM)
 import Gamgine.Utils as GU
+import Gamgine.Control ((?))
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.IORef as GR
@@ -23,6 +24,9 @@ import qualified GameData.Layer as LY
 import qualified GameData.Level as LV
 import qualified Utils as LU
 import qualified Updater as UP
+import qualified States.MouseInfo as MI
+import qualified States.InputInfo as II
+import qualified Callback.Common as CC
 IMPORT_LENS
 
 type Pressed             = Bool
@@ -31,8 +35,14 @@ type MouseButtonCallback = (GLFW.MouseButton -> Pressed -> IO ())
 newMouseButtonCallback :: AP.AppDataRef -> AP.AppMode -> MouseButtonCallback
 newMouseButtonCallback _ AP.GameMode = \_ _ -> return ()
 
-newMouseButtonCallback appDataRef AP.EditMode = callback
+newMouseButtonCallback appDataRef AP.EditMode = callback_
    where
+      callback_ button pressed = do
+         mpos <- CC.mousePosition appDataRef
+         mods <- CC.pressedModifiers
+         let mouseInfo = MI.MouseInfo button (pressed ? II.Pressed $ II.Released) mpos mods
+         R.modifyIORef appDataRef (AP.handleMouseEvent mouseInfo)
+
       callback GLFW.MouseButton0 True = do
          ctrlPressed  <- anyCtrlKeyPressed
          shiftPressed <- anyShiftKeyPressed

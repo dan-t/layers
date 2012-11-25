@@ -3,6 +3,7 @@
 module States.MovingEntity where
 #include "Gamgine/Utils.cpp"
 import Control.Applicative ((<$>))
+import Data.Composition ((.:))
 import qualified Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
 import qualified States.State as ST
@@ -20,20 +21,34 @@ data MovingEntity = MovingEntity {
    basePos  :: V.Vect
    }
 
-instance ST.State MovingEntity GD.Data where
-   enterWithMousePos me gd mp =
-      case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
-           Just e -> (me {entityId = Just $ EI.entityId e,
-                          startPos = mp,
-                          basePos  = EP.position e}, gd)
+mkMovingEntityState :: ST.State GD.Data
+mkMovingEntityState =
+   mkState $ MovingEntity Nothing V.nullVec V.nullVec
+   where
+      mkState me = ST.State {
+         ST.enter = \mp gd ->
+            case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
+                 Just e -> (gd, mkState (me {entityId = Just $ EI.entityId e,
+                                             startPos = mp,
+                                             basePos  = EP.position e}))
+                 _      -> (gd, mkState me),
 
-   leave me gd = (me {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec}, gd)
 
-   render me gd rs = (me,) <$> GR.render gd rs
+         ST.leave = (, mkState (me {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec})),
 
-   mouseMoved me@MovingEntity {entityId = Just id, startPos = sp, basePos = bp} gd mp =
-      (me, E.eMap (\e -> id == EI.entityId e ? EP.setPosition e newPos $ e) gd)
-      where
-         newPos = bp + (mp - sp)
+         ST.update = (, mkState me),
 
-   mouseMoved me gd _ = (me, gd)
+         ST.render = ((, mkState me) <$>) .: GR.render,
+
+         ST.keyEvent = (, mkState me) .: flip const,
+
+         ST.mouseEvent = (, mkState me) .: flip const,
+
+         ST.mouseMoved = \mp gd ->
+            case me of
+                 MovingEntity {entityId = Just id, startPos = sp, basePos = bp} ->
+                    (E.eMap (\e -> id == EI.entityId e ? EP.setPosition e (bp + (mp - sp)) $ e) gd,
+                     mkState me)
+
+                 _ -> (gd, mkState me)
+         }

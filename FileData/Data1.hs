@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeOperators #-}
 
 module FileData.Data1 where
 

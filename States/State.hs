@@ -1,4 +1,3 @@
-{-# LANGUAGE ExistentialQuantification, MultiParamTypeClasses #-}
 
 module States.State where
 import qualified Gamgine.Math.Vect as V
@@ -8,40 +7,25 @@ import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
 
 -- | an application state
-class State a b where
+data State a = State {
    -- | called once when the state is entered
-   enter :: a -> b -> (a, b)
-   enter a b = (a, b)
-
-   -- | alternative enter state function with the
-   --   current mouse position
-   enterWithMousePos :: a -> b -> II.MousePos -> (a, b)
-   enterWithMousePos a b _ = enter a b
+   enter :: II.MousePos -> a -> (a, State a),
 
    -- | called once when the state is leaved
-   leave :: a -> b -> (a, b)
-   leave a b = (a, b)
+   leave :: a -> (a, State a),
 
    -- | called for each application update cycle
-   update :: a -> b -> (a, b)
-   update a b = (a, b)
+   update :: a -> (a, State a),
 
    -- | called for each frame rendering
-   render :: a -> b -> RR.RenderState -> IO (a, b)
-   render a b _ = return (a, b)
+   render :: RR.RenderState -> a -> IO (a, State a),
 
    -- | called when a key was pressed/released
-   keyEvent :: a -> b -> KI.KeyInfo -> (a, b)
-   keyEvent a b _ = (a, b)
+   keyEvent :: KI.KeyInfo -> a -> (a, State a),
 
    -- | called when a mouse button was pressed/released
-   mouseEvent :: a -> b -> MI.MouseInfo -> (a, b)
-   mouseEvent a b _ = (a, b)
+   mouseEvent :: MI.MouseInfo -> a -> (a, State a),
 
    -- | called when a mouse was moved
-   mouseMoved :: a -> b -> II.MousePos -> (a, b)
-   mouseMoved a b _ = (a, b)
-
-
--- | wrapper for holding any state
-data AnyState a = forall s. State s a => AnyState s
+   mouseMoved :: II.MousePos -> a -> (a, State a)
+   }

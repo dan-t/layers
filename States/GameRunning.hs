@@ -1,4 +1,3 @@
-{-# LANGUAGE TupleSections, MultiParamTypeClasses #-}
 
 module States.GameRunning where
 #include "Gamgine/Utils.cpp"
@@ -25,29 +24,37 @@ import qualified Convert.ToFileData as TF
 import qualified Convert.ToGameData as TG
 IMPORT_LENS
 
-data GameRunning = GameRunning
 
--- | the default state for the running game
-instance ST.State GameRunning GD.Data where
-   update     gr gd     = (gr, update gd)
-   render     gr gd rs  = (gr,) <$> render gd rs
-   keyEvent   gr gd key = (gr, keyEvent gd key)
+mkGameRunningState :: ST.State GD.Data
+mkGameRunningState = ST.State {
+   ST.enter      = \_ gd -> (gd, mkGameRunningState),
+   ST.leave      = \gd -> (gd, mkGameRunningState),
+   ST.update     = \gd -> (update gd, mkGameRunningState),
+
+   ST.render     = \rs gd -> do
+      gd' <- render rs gd
+      return (gd', mkGameRunningState),
+
+   ST.keyEvent   = \ki gd -> (keyEvent ki gd, mkGameRunningState),
+   ST.mouseEvent = \_ gd -> (gd, mkGameRunningState),
+   ST.mouseMoved = \_ gd -> (gd, mkGameRunningState)
+   }
 
 
 update :: GD.Data -> GD.Data
-update gd = do
-   let (events, level') = LU.update $ LE.getL GD.currentLevelL gd
-   EV.handleEvents events (LE.setL GD.currentLevelL level' gd)
+update gd = EV.handleEvents events (LE.setL GD.currentLevelL level' gd)
+   where
+      (events, level') = LU.update $ LE.getL GD.currentLevelL gd
 
 
-render :: GD.Data -> RR.RenderState -> IO GD.Data
-render gd rs = do
+render :: RR.RenderState -> GD.Data -> IO GD.Data
+render rs gd = do
    level' <- LR.render rs $ LE.getL GD.currentLevelL gd
    return $ LE.setL GD.currentLevelL level' gd
 
 
-keyEvent :: GD.Data -> KI.KeyInfo -> GD.Data
-keyEvent gd ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:.mpy:.mpz:.())} =
+keyEvent :: KI.KeyInfo -> GD.Data -> GD.Data
+keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:.mpy:.mpz:.())} gd =
    case (key, status) of
         (GLFW.KeyLeft, KI.Pressed) ->
            E.eMap (PL.accelerate toTheLeft) gd
@@ -87,11 +94,13 @@ keyEvent gd ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(m
            GD.addEmptyLevel gd
 
         (GLFW.CharKey 'N', KI.Pressed)
-           | KI.withShift ki -> GD.toPreviousLevel gd
-           | otherwise       -> GD.toNextLevel gd
+           | L.any (== KI.Shift) (KI.modifiers ki) -> GD.toPreviousLevel gd
+           | otherwise                             -> GD.toNextLevel gd
 
         (GLFW.CharKey 'L', KI.Pressed) ->
            LE.modL GD.currentLevelL (TG.toLevel . TF.toLevel) gd
+
+        _ -> gd
            
    where
       toTheLeft  = V.v3 (-PL.playerVelocity) 0 0
