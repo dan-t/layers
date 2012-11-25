@@ -43,29 +43,7 @@ newMouseButtonCallback appDataRef AP.EditMode = callback_
          let mouseInfo = MI.MouseInfo button (pressed ? II.Pressed $ II.Released) mpos mods
          R.modifyIORef appDataRef (AP.handleMouseEvent mouseInfo)
 
-      callback GLFW.MouseButton0 True = do
-         ctrlPressed  <- anyCtrlKeyPressed
-         shiftPressed <- anyShiftKeyPressed
-         when ctrlPressed  moveEntity
-         when shiftPressed resizePlatform
-         when (not ctrlPressed && not shiftPressed) createPlatform
-
       callback _ _ = return ()
-
-      moveEntity = do
-         mousePos <- mousePosition
-         entity   <- LV.findEntityAt mousePos <$> getL AP.currentLevelL
-         ifJust entity $ \e -> do
-            let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
-            addUpdater $ moving (mousePos, EP.position e, finished, EI.entityId e)
-            where
-               moving args@(startPos, basePos, finished, id) app = do
-                  mousePos <- LU.mousePosInWorldCoords app
-                  let newBasePos = basePos + (mousePos - startPos)
-                      app'       = LE.modL AP.currentLevelL (E.eMap $ ifEntityId id $ \e ->
-                                      EP.setPosition e newBasePos) app
-                  fin <- finished
-                  return $ UP.contineUpdater (app', fin) $ moving args
 
 
       resizePlatform = do
@@ -84,30 +62,6 @@ newMouseButtonCallback appDataRef AP.EditMode = callback_
                                        in e {E.platformBound = bound'}) app
                   fin <- finished
                   return $ UP.contineUpdater (app', fin) $ resizing args
-
-
-      createPlatform = do
-         mousePos   <- mousePosition
-         platformId <- LV.freeEntityId <$> getL AP.currentLevelL
-         modL AP.currentLevelL $ \level ->
-            let bound  = B.Box V.nullVec V.nullVec
-                pos    = Left mousePos
-                in LV.addEntity (PF.newPlatform platformId pos bound) LV.ToActiveLayer level
-
-         let finished = not <$> GLFW.mouseButtonIsPressed GLFW.MouseButton0
-         addUpdater $ resizing (mousePos, finished, platformId)
-         where
-            resizing args@(startPos, finished, id) app = do
-               mousePos <- LU.mousePosInWorldCoords app
-               let app' = LE.modL AP.activeLayerL (E.eMap $ ifEntityId id $ \e ->
-                             let newMinPt = V.minVec startPos mousePos
-                                 newMaxPt = V.maxVec startPos mousePos
-                                 diffVec  = V.map abs $ newMaxPt - newMinPt
-                                 in e {E.platformPosition = Left newMinPt,
-                                       E.platformBound    = B.Box (V.v3 0 0 0) diffVec}) app
-               fin <- finished
-               return $ UP.contineUpdater (app', fin) $ resizing args
-
 
       mousePosition = do
          app <- R.readIORef appDataRef

@@ -19,6 +19,7 @@ import States.StateTree (enterWhen, leaveWhen, adjacents, StateTree(..), StateTr
 import States.StateTreeZipper as SZ
 import qualified States.GameRunning as GR
 import qualified States.MovingEntity as ME
+import qualified States.CreatingPlatform as CP
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
 import qualified States.InputInfo as II
@@ -54,6 +55,10 @@ newAppData gameData = AppData {
    stateTree        = SZ.zipper $ SS.root GR.mkGameRunningState
       [Branch {state     = ME.mkMovingEntityState,
                enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Ctrl,
+               leaveWhen = ByMouse GLFW.MouseButton0 Released,
+               adjacents = []},
+       Branch {state     = CP.mkCreatingPlatformState,
+               enterWhen = ByMouse GLFW.MouseButton0 Pressed,
                leaveWhen = ByMouse GLFW.MouseButton0 Released,
                adjacents = []}]
    }
