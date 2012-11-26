@@ -32,10 +32,10 @@ mkResizingPlatformState =
       mkState rp = ST.State {
          ST.enter = \mp gd ->
             case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
-                 Just e@E.Platform {} -> (gd, mkState (rp {entityId = Just $ EI.entityId e,
-                                              startPos = mp,
-                                              basePos  = B.maxPt . E.platformBound $ e}))
-                 _                    -> (gd, mkState rp),
+                 Just e@E.Platform {} -> Just (gd, mkState (rp {entityId = Just $ EI.entityId e,
+                                                                startPos = mp,
+                                                                basePos  = B.maxPt . E.platformBound $ e}))
+                 _                    -> Nothing,
 
          ST.leave      = (, mkState (rp {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec})),
          ST.update     = (, mkState rp) . GR.update,

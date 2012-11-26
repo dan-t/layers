@@ -29,10 +29,10 @@ mkMovingEntityState =
       mkState me = ST.State {
          ST.enter = \mp gd ->
             case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
-                 Just e -> (gd, mkState (me {entityId = Just $ EI.entityId e,
-                                             startPos = mp,
-                                             basePos  = EP.position e}))
-                 _      -> (gd, mkState me),
+                 Just e -> Just (gd, mkState (me {entityId = Just $ EI.entityId e,
+                                                  startPos = mp,
+                                                  basePos  = EP.position e}))
+                 _      -> Nothing,
 
          ST.leave      = (, mkState (me {entityId = Nothing, startPos = V.nullVec, basePos = V.nullVec})),
          ST.update     = (, mkState me) . GR.update,

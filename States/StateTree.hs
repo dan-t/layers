@@ -33,9 +33,11 @@ root :: S.State a -> [StateTree a] -> StateTree a
 root s as = Branch s NoTransition NoTransition as
 
 
-enterState :: II.MousePos -> a -> StateTree a -> (a, StateTree a)
-enterState mp a (Branch s e l as) =
-   let (a', s') = (S.enter s) mp a in (a', Branch s' e l as)
+enterState :: II.MousePos -> a -> StateTree a -> Maybe (a, StateTree a)
+enterState mp a st@(Branch s e l as) =
+   case (S.enter s) mp a of
+        Just (a', s') -> Just (a', Branch s' e l as)
+        _             -> Nothing
 
 
 leaveState :: a -> StateTree a -> (a, StateTree a)

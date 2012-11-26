@@ -8,10 +8,12 @@ import qualified States.MouseInfo as MI
 
 -- | an application state
 data State a = State {
-   -- | called once when the state is entered
-   enter :: II.MousePos -> a -> (a, State a),
+   -- | called when the state is entered,
+   --   when Nothing is returned, than the state
+   --   couldn't be entered
+   enter :: II.MousePos -> a -> Maybe (a, State a),
 
-   -- | called once when the state is leaved
+   -- | called when the state is leaved
    leave :: a -> (a, State a),
 
    -- | called for each application update cycle

@@ -32,7 +32,7 @@ mkCreatingPlatformState =
             let id    = LV.freeEntityId . LE.getL GD.currentLevelL $ gd
                 bound = B.Box V.nullVec V.nullVec
                 gd'   = LE.modL GD.currentLevelL (LV.addEntity (PF.newPlatform id (Left mp) bound) LV.ToActiveLayer) gd
-                in (gd', mkState cp {entityId = Just id, startPos = mp}),
+                in Just (gd', mkState cp {entityId = Just id, startPos = mp}),
 
          ST.leave      = (, mkState cp {entityId = Nothing, startPos = V.nullVec}),
          ST.update     = (, mkState cp) . GR.update,

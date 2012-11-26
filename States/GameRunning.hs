@@ -31,7 +31,7 @@ IMPORT_LENS
 --   game is normally running a level
 mkGameRunningState :: ST.State GD.Data
 mkGameRunningState = ST.State {
-   ST.enter      = (, mkGameRunningState) .: flip const,
+   ST.enter      = (Just . (, mkGameRunningState)) .: flip const,
    ST.leave      = (, mkGameRunningState),
    ST.update     = (, mkGameRunningState) . update,
    ST.render     = ((, mkGameRunningState) <$>) .: render,
