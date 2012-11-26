@@ -21,6 +21,7 @@ import qualified States.GameRunning as GR
 import qualified States.MovingEntity as ME
 import qualified States.CreatingPlatform as CP
 import qualified States.ResizingPlatform as RP
+import qualified States.DefiningAnimation as DA
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
 import qualified States.InputInfo as II
@@ -62,6 +63,10 @@ newAppData gameData = AppData {
        Branch {state     = CP.mkCreatingPlatformState,
                enterWhen = ByMouse GLFW.MouseButton0 Pressed,
                leaveWhen = ByMouse GLFW.MouseButton0 Released,
+               adjacents = []},
+       Branch {state     = DA.mkDefiningAnimationState,
+               enterWhen = ByKey (GLFW.CharKey 'U') Pressed,
+               leaveWhen = ByKey (GLFW.CharKey 'U') Pressed,
                adjacents = []}]
    }
 
