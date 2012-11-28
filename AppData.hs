@@ -11,7 +11,6 @@ import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
-import qualified Updater as UP
 import qualified Defaults as DF
 import qualified States.State as S
 import qualified States.StateTree as SS
