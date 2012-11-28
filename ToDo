@@ -1,6 +1,4 @@
 
-- save file
-- command line arguments
 - replace renderers by specialized entity rendering
 - add enemies
 - add rendering of fonts
