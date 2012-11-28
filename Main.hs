@@ -1,4 +1,5 @@
 
+module Main where
 #include "Gamgine/Utils.cpp"
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import qualified Data.List as L

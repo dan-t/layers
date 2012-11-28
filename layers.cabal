@@ -8,7 +8,7 @@ data-files:    Ressources/Images/*.png
                Ressources/*.hs
 
 Executable layers
-  Main-is:       Layers.hs
+  Main-is:       Main.hs
   ghc-options:   -O -pgmPcpphs -optP--cpp
   extensions:    CPP
   cpp-options:   -I. -DCABAL
