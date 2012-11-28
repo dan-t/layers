@@ -1,22 +1,15 @@
 
 #include "Gamgine/Utils.cpp"
 import Data.IORef (newIORef, readIORef, modifyIORef)
-import Data.StateVar (($=))
-import Data.Maybe (catMaybes)
-import Data.Foldable (foldrM)
 import qualified Data.List as L
 import System.Exit (exitSuccess)
-import Control.Applicative ((<$>))
-import Control.Arrow ((&&&))
 import qualified Control.Monad.State as ST
-import Control.Monad (forM_, mapM_, liftM2)
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
+import Gamgine.Control ((?))
 import qualified Gamgine.Engine as EG
-import qualified Gamgine.Ressources as RS
 import qualified Gamgine.IORef as GR
 import Gamgine.Gfx as G
-import qualified Gamgine.Utils as GU
 import Defaults as DF
 import qualified Utils as U
 import qualified FileData.Data2 as FD
@@ -25,9 +18,8 @@ import qualified AppData as AP
 import qualified Callback.Key as KC
 import qualified Callback.MouseButton as MC
 import qualified Callback.MouseMove as MM
-import qualified Event as EV
-import qualified GameData.Entity as E
 import qualified Rendering.Ressources as RR
+import qualified LayersArgs as LA
 IMPORT_LENS
 
 
@@ -38,13 +30,13 @@ io = ST.liftIO
 
 main :: IO ()
 main = do
-   filePath <- RS.getDataFileName "Ressources/Levels2.hs"
-   file     <- readFile filePath
+   args <- LA.getLayersArgs
+   file <- readFile . LA.loadLevelsFrom $ args
    let fileData = read file :: FD.Data
        gameData = TGD.toGameData fileData
-       editMode = AP.EditMode
+       editMode = LA.editMode args ? AP.EditMode $ AP.GameMode
 
-   appDataRef <- newIORef $ AP.newAppData gameData editMode
+   appDataRef <- newIORef $ AP.newAppData gameData (LA.loadLevelsFrom args) (LA.saveLevelsTo args) editMode
    initGLFW appDataRef editMode
    initGL
    initRessources appDataRef

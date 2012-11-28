@@ -34,6 +34,9 @@ data AppData = AppData {
    frustumSize      :: (Double, Double),
    orthoScale       :: Double,
    renderRessources :: RR.Ressources,
+   levelsLoadedFrom :: FilePath,
+   saveLevelsTo     :: FilePath,
+   appMode          :: AppMode,
    gameData         :: GD.Data,
    stateTree        :: SZ.Zipper GD.Data
    }
@@ -42,15 +45,21 @@ LENS(windowSize)
 LENS(frustumSize)
 LENS(orthoScale)
 LENS(renderRessources)
+LENS(levelsLoadedFrom)
+LENS(saveLevelsTo)
+LENS(appMode)
 LENS(gameData)
 LENS(stateTree)
 
-newAppData :: GD.Data -> AppMode -> AppData
-newAppData gameData appMode = AppData {
+newAppData :: GD.Data -> FilePath -> FilePath -> AppMode -> AppData
+newAppData gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
    renderRessources = RR.Ressources (-1) (-1) (-1),
+   levelsLoadedFrom = levelsLoadedFrom,
+   saveLevelsTo     = saveLevelsTo,
+   appMode          = appMode,
    gameData         = gameData,
    stateTree        = SZ.zipper $
       if appMode == EditMode

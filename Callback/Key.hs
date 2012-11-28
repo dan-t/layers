@@ -1,6 +1,9 @@
 
 module Callback.Key where
 #include "Gamgine/Utils.cpp"
+import Control.Arrow ((&&&))
+import Control.Monad (when)
+import Control.Applicative ((<$>))
 import qualified Data.IORef as R
 import System.Exit (exitSuccess)
 import qualified Graphics.UI.GLFW as GLFW
@@ -8,6 +11,7 @@ import Gamgine.Control ((?))
 import qualified AppData as AP
 import qualified States.KeyInfo as KI
 import qualified Callback.Common as CC
+import qualified Convert.ToFileData as TF
 IMPORT_LENS
 
 type Pressed     = Bool
@@ -18,6 +22,14 @@ newKeyCallback appDataRef = callback
    where
       callback GLFW.KeyEsc        True = quit
       callback (GLFW.CharKey 'Q') True = quit
+
+      callback (GLFW.CharKey 'S') True = do
+         appMode <- AP.appMode <$> R.readIORef appDataRef
+         when (appMode == AP.EditMode) $ do
+            (gdata, saveTo) <- (AP.gameData &&& AP.saveLevelsTo) <$> R.readIORef appDataRef
+            writeFile saveTo (show . TF.toFileData $ gdata)
+            putStrLn $ "layers: Levels data written to file '" ++ saveTo ++ "'"
+
       callback key pressed             = do
          mpos <- CC.mousePosition appDataRef
          mods <- CC.pressedModifiers
