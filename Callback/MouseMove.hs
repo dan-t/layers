@@ -9,8 +9,8 @@ type X                 = Int
 type Y                 = Int
 type MouseMoveCallback = (X -> Y -> IO ())
 
-newMouseMoveCallback :: AP.AppDataRef -> AP.AppMode -> MouseMoveCallback
-newMouseMoveCallback appRef _ = callback
+newMouseMoveCallback :: AP.AppDataRef -> MouseMoveCallback
+newMouseMoveCallback appRef = callback
    where
       callback x y = do
          mp <- R.readIORef appRef >>= LU.windowToWorldCoords (x, y)

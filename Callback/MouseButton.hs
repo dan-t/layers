@@ -13,10 +13,8 @@ IMPORT_LENS
 type Pressed             = Bool
 type MouseButtonCallback = (GLFW.MouseButton -> Pressed -> IO ())
 
-newMouseButtonCallback :: AP.AppDataRef -> AP.AppMode -> MouseButtonCallback
-newMouseButtonCallback _ AP.GameMode = \_ _ -> return ()
-
-newMouseButtonCallback appDataRef AP.EditMode = callback
+newMouseButtonCallback :: AP.AppDataRef -> MouseButtonCallback
+newMouseButtonCallback appDataRef = callback
    where
       callback button pressed = do
          mpos <- CC.mousePosition appDataRef

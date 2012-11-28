@@ -13,8 +13,8 @@ IMPORT_LENS
 type Pressed     = Bool
 type KeyCallback = (GLFW.Key -> Pressed -> IO ())
 
-newKeyCallback :: AP.AppDataRef -> AP.AppMode -> KeyCallback
-newKeyCallback appDataRef _ = callback
+newKeyCallback :: AP.AppDataRef -> KeyCallback
+newKeyCallback appDataRef = callback
    where
       callback GLFW.KeyEsc        True = quit
       callback (GLFW.CharKey 'Q') True = quit

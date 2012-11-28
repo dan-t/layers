@@ -18,6 +18,7 @@ import qualified States.StateTree as SS
 import States.StateTree (enterWhen, leaveWhen, adjacents, StateTree(..), StateTransition(..))
 import States.StateTreeZipper as SZ
 import qualified States.GameRunning as GR
+import qualified States.EditModeRunning as EM
 import qualified States.MovingEntity as ME
 import qualified States.CreatingPlatform as CP
 import qualified States.ResizingPlatform as RP
@@ -44,30 +45,33 @@ LENS(renderRessources)
 LENS(gameData)
 LENS(stateTree)
 
-newAppData :: GD.Data -> AppData
-newAppData gameData = AppData {
+newAppData :: GD.Data -> AppMode -> AppData
+newAppData gameData appMode = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
    renderRessources = RR.Ressources (-1) (-1) (-1),
    gameData         = gameData,
-   stateTree        = SZ.zipper $ SS.root GR.mkGameRunningState
-      [Branch {state     = ME.mkMovingEntityState,
-               enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Ctrl,
-               leaveWhen = ByMouse GLFW.MouseButton0 Released,
-               adjacents = []},
-       Branch {state     = RP.mkResizingPlatformState,
-               enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Shift,
-               leaveWhen = ByMouse GLFW.MouseButton0 Released,
-               adjacents = []},
-       Branch {state     = CP.mkCreatingPlatformState,
-               enterWhen = ByMouse GLFW.MouseButton0 Pressed,
-               leaveWhen = ByMouse GLFW.MouseButton0 Released,
-               adjacents = []},
-       Branch {state     = DA.mkDefiningAnimationState,
-               enterWhen = ByKey (GLFW.CharKey 'U') Pressed,
-               leaveWhen = ByKey (GLFW.CharKey 'U') Pressed,
-               adjacents = []}]
+   stateTree        = SZ.zipper $
+      if appMode == EditMode
+         then SS.root EM.mkEditModeRunningState
+                 [Branch {state     = ME.mkMovingEntityState,
+                          enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Ctrl,
+                          leaveWhen = ByMouse GLFW.MouseButton0 Released,
+                          adjacents = []},
+                  Branch {state     = RP.mkResizingPlatformState,
+                          enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Shift,
+                          leaveWhen = ByMouse GLFW.MouseButton0 Released,
+                          adjacents = []},
+                  Branch {state     = CP.mkCreatingPlatformState,
+                          enterWhen = ByMouse GLFW.MouseButton0 Pressed,
+                          leaveWhen = ByMouse GLFW.MouseButton0 Released,
+                          adjacents = []},
+                  Branch {state     = DA.mkDefiningAnimationState,
+                          enterWhen = ByKey (GLFW.CharKey 'U') Pressed,
+                          leaveWhen = ByKey (GLFW.CharKey 'U') Pressed,
+                          adjacents = []}]
+         else SS.root GR.mkGameRunningState []
    }
 
 data AppMode = GameMode | EditMode deriving Eq

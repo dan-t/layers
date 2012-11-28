@@ -1,6 +1,6 @@
 
-- define animation interactive
 - save file
-- remove AppMode from callbacks and give it to newAppData
-  and create an appropriate stateTree
+- command line arguments
 - replace renderers by specialized entity rendering
+- add enemies
+- add rendering of fonts

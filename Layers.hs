@@ -42,9 +42,10 @@ main = do
    file     <- readFile filePath
    let fileData = read file :: FD.Data
        gameData = TGD.toGameData fileData
+       editMode = AP.EditMode
 
-   appDataRef <- newIORef $ AP.newAppData gameData
-   initGLFW appDataRef AP.EditMode
+   appDataRef <- newIORef $ AP.newAppData gameData editMode
+   initGLFW appDataRef editMode
    initGL
    initRessources appDataRef
 
@@ -94,9 +95,9 @@ initGLFW appDataRef appMode = do
    GLFW.setWindowBufferSwapInterval 1
    GLFW.setWindowSizeCallback resize
    GLFW.setWindowCloseCallback quit
-   GLFW.setKeyCallback $ KC.newKeyCallback appDataRef appMode
-   GLFW.setMouseButtonCallback $ MC.newMouseButtonCallback appDataRef appMode
-   GLFW.setMousePositionCallback $ MM.newMouseMoveCallback appDataRef appMode
+   GLFW.setKeyCallback $ KC.newKeyCallback appDataRef
+   GLFW.setMouseButtonCallback $ MC.newMouseButtonCallback appDataRef
+   GLFW.setMousePositionCallback $ MM.newMouseMoveCallback appDataRef
    GLFW.setMouseWheelCallback $ if appMode == AP.EditMode then updateOrthoScale else \_ -> return ()
    where
       resize width height = do

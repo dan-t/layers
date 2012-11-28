@@ -16,14 +16,11 @@ import qualified GameData.Data as GD
 import qualified Entity.Id as EI
 import qualified Rendering.Ressources as RR
 import qualified Event as EV
-import qualified Updater as UP
 import qualified States.State as ST
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
 import qualified Level.Update as LU
 import qualified Level.Render as LR
-import qualified Convert.ToFileData as TF
-import qualified Convert.ToGameData as TG
 IMPORT_LENS
 
 
@@ -79,26 +76,6 @@ keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:
 
         (GLFW.KeyTab, KI.Pressed) ->
            LE.modL GD.currentLevelL LV.toNextLayer gd
-
-        (GLFW.CharKey 'P', KI.Pressed) ->
-           let starId  = LV.freeEntityId $ LE.getL GD.currentLevelL gd
-               starPos = V.v3 (mpx - (fst S.starSize * 0.5)) (mpy - (snd S.starSize * 0.5)) 0
-               in LE.modL (LV.entitiesL . GD.currentLevelL) (S.newStar starId starPos :) gd
-
-        (GLFW.CharKey 'R', KI.Pressed) ->
-           case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
-                Just e -> E.eFilter ((/= EI.entityId e) . EI.entityId) gd
-                _      -> gd
-
-        (GLFW.CharKey 'A', KI.Pressed) ->
-           GD.addEmptyLevel gd
-
-        (GLFW.CharKey 'N', KI.Pressed)
-           | L.any (== KI.Shift) (KI.modifiers ki) -> GD.toPreviousLevel gd
-           | otherwise                             -> GD.toNextLevel gd
-
-        (GLFW.CharKey 'L', KI.Pressed) ->
-           LE.modL GD.currentLevelL (TG.toLevel . TF.toLevel) gd
 
         _ -> gd
            
