@@ -1,4 +1,6 @@
 
+- minimal level size based on window size
+- change handling of player accleration
 - replace renderers by specialized entity rendering
 - add enemies
 - add rendering of fonts
