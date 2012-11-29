@@ -5,6 +5,7 @@ import Data.IORef (newIORef, readIORef, modifyIORef)
 import qualified Data.List as L
 import System.Exit (exitSuccess)
 import qualified Control.Monad.State as ST
+import Control.Monad (when, void)
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import Gamgine.Control ((?))
@@ -21,6 +22,7 @@ import qualified Callback.MouseButton as MC
 import qualified Callback.MouseMove as MM
 import qualified Rendering.Ressources as RR
 import qualified LayersArgs as LA
+import qualified GameData.Data as GD
 IMPORT_LENS
 
 
@@ -57,7 +59,15 @@ gameLoop nextFrame = do
 
 
 update :: AP.AppST ()
-update = GR.modify AP.update
+update =  do
+   GR.modify AP.update
+   appMode <- GR.gets AP.appMode
+   when (appMode == AP.GameMode) $ do
+      gdata <- GR.getsL AP.gameDataL
+      when (GD.levelFinished gdata) $ do
+         if (GD.atLastLevel gdata)
+            then io $ (putStrLn $ "You've WON the game!") >> void quit
+            else GR.modifyL AP.gameDataL GD.toNextLevel
 
 
 render :: Double -> AP.AppST ()
@@ -119,7 +129,6 @@ initGLFW appDataRef appMode = do
          updateFrustum
          updateCamera
 
-      quit   = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
       getL   = GR.getL appDataRef
       setL   = GR.setL appDataRef
       modify = modifyIORef appDataRef
@@ -134,3 +143,7 @@ initRessources :: AP.AppDataRef -> IO ()
 initRessources appDataRef = do
    res <- RR.newRessources
    modifyIORef appDataRef $ \app -> app {AP.renderRessources = res}
+
+
+quit :: IO Bool
+quit = GLFW.closeWindow >> GLFW.terminate >> exitSuccess
