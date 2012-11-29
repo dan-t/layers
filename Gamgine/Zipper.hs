@@ -13,3 +13,24 @@ before (LZ.Zip (a:ls) _) = LZ.Zip ls [a]
 after :: LZ.Zipper a -> LZ.Zipper a
 after (LZ.Zip _     []) = LZ.empty
 after (LZ.Zip _ (a:rs)) = LZ.Zip [] rs
+
+
+-- | if the current element is the last valid one
+atLast :: LZ.Zipper a -> Bool
+atLast (LZ.Zip _     []) = False
+atLast (LZ.Zip _ (a:[])) = True
+atLast _                 = False
+
+
+-- | swap the current element with the left one
+swapWithLeft :: LZ.Zipper a -> LZ.Zipper a
+swapWithLeft z@(LZ.Zip     []      _) = z
+swapWithLeft z@(LZ.Zip      _     []) = z
+swapWithLeft   (LZ.Zip (l:ls) (c:rs)) = LZ.Zip (c:ls) (l:rs)
+
+
+-- | swap the current element with the right one
+swapWithRight :: LZ.Zipper a -> LZ.Zipper a
+swapWithRight z@(LZ.Zip  _       []) = z
+swapWithRight z@(LZ.Zip  _   (c:[])) = z
+swapWithRight   (LZ.Zip ls (c:r:rs)) = LZ.Zip ls (r:c:rs)

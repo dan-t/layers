@@ -6,6 +6,7 @@ import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
 import Data.Composition ((.:))
 import Gamgine.Math.Vect as V
+import Gamgine.Control ((?))
 import qualified Data.List as L
 import qualified GameData.Player as PL
 import qualified GameData.Entity as E
@@ -48,13 +49,19 @@ keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:
                 _      -> gd
 
         (GLFW.CharKey 'A', KI.Pressed) ->
-           GD.addEmptyLevel gd
+           GD.addEmptyLevel (shiftPressed ? GD.BeforeCurrent $ GD.AfterCurrent) gd
+
+        (GLFW.CharKey 'M', KI.Pressed) ->
+           GD.moveCurrentLevel (shiftPressed ? GD.Forward $ GD.Backward) gd
 
         (GLFW.CharKey 'N', KI.Pressed)
-           | L.any (== KI.Shift) (KI.modifiers ki) -> GD.toPreviousLevel gd
-           | otherwise                             -> GD.toNextLevel gd
+           | shiftPressed -> GD.toPreviousLevel gd
+           | otherwise    -> GD.toNextLevel gd
 
         (GLFW.CharKey 'L', KI.Pressed) ->
            LE.modL GD.currentLevelL (TG.toLevel . TF.toLevel) gd
 
         _ -> GR.keyEvent ki gd
+
+   where
+      shiftPressed = L.any (== KI.Shift) (KI.modifiers ki)

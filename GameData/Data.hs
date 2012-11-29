@@ -4,6 +4,7 @@ module GameData.Data where
 import qualified Data.List as L
 import qualified Data.List.Zipper as LZ
 import Gamgine.Control (applyIf)
+import qualified Gamgine.Zipper as GZ
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
 IMPORT_LENS
@@ -43,5 +44,16 @@ toPreviousLevel :: Data -> Data
 toPreviousLevel = LE.modL levelsL $ applyIf (not . LZ.beginp) LZ.left
 
 
-addEmptyLevel :: Data -> Data
-addEmptyLevel = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.end
+data AddLevel = BeforeCurrent | AfterCurrent | AfterLast
+
+addEmptyLevel :: AddLevel -> Data -> Data
+addEmptyLevel BeforeCurrent = LE.modL levelsL $ LZ.insert LV.newEmptyLevel
+addEmptyLevel AfterCurrent  = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.right
+addEmptyLevel AfterLast     = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.end
+
+
+data MoveLevel = Forward | Backward
+
+moveCurrentLevel :: MoveLevel -> Data -> Data
+moveCurrentLevel Forward  = LE.modL levelsL $ (applyIf (not . LZ.beginp) LZ.left) . GZ.swapWithLeft
+moveCurrentLevel Backward = LE.modL levelsL $ (applyIf (not . GZ.atLast) LZ.right) . GZ.swapWithRight
