@@ -61,6 +61,9 @@ keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:
         (GLFW.CharKey 'L', KI.Pressed) ->
            LE.modL GD.currentLevelL (TG.toLevel . TF.toLevel) gd
 
+        (GLFW.KeyDel, KI.Pressed) ->
+           GD.removeCurrentLevel gd
+
         _ -> GR.keyEvent ki gd
 
    where

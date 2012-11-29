@@ -36,6 +36,18 @@ allLevels :: Data -> [LV.Level]
 allLevels = LZ.toList . levels
 
 
+atLastLevel :: Data -> Bool
+atLastLevel = GZ.atLast . levels
+
+
+atFirstLevel :: Data -> Bool
+atFirstLevel = GZ.atFirst . levels
+
+
+levelFinished :: Data -> Bool
+levelFinished = LV.allStarsCollected . LE.getL currentLevelL
+
+
 toNextLevel :: Data -> Data
 toNextLevel = LE.modL levelsL $ \lvs -> applyIf LZ.endp LZ.left $ LZ.right lvs
 
@@ -57,3 +69,9 @@ data MoveLevel = Forward | Backward
 moveCurrentLevel :: MoveLevel -> Data -> Data
 moveCurrentLevel Forward  = LE.modL levelsL $ (applyIf (not . LZ.beginp) LZ.left) . GZ.swapWithLeft
 moveCurrentLevel Backward = LE.modL levelsL $ (applyIf (not . GZ.atLast) LZ.right) . GZ.swapWithRight
+
+
+removeCurrentLevel :: Data -> Data
+removeCurrentLevel d
+   | atFirstLevel d && atLastLevel d = LE.modL levelsL (LZ.replace LV.newEmptyLevel) d
+   | otherwise                       = LE.modL levelsL ((applyIf LZ.endp LZ.left) . LZ.delete) d

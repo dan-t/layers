@@ -108,6 +108,10 @@ freeEntityId level = maxId + 1
       allIds = L.map EI.entityId (allEntities level)
 
 
+allStarsCollected :: Level -> Bool
+allStarsCollected = L.all (== True) . L.map E.starCollected . L.filter E.isStar . allEntities
+
+
 -- | a lens for the player entity
 playerL    = playerLens
 playerLens = LE.lens getPlayer setPlayer

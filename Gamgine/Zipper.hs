@@ -17,9 +17,14 @@ after (LZ.Zip _ (a:rs)) = LZ.Zip [] rs
 
 -- | if the current element is the last valid one
 atLast :: LZ.Zipper a -> Bool
-atLast (LZ.Zip _     []) = False
 atLast (LZ.Zip _ (a:[])) = True
 atLast _                 = False
+
+
+-- | if the current element is the first valid one
+atFirst :: LZ.Zipper a -> Bool
+atFirst (LZ.Zip [] (a:ls)) = True
+atFirst _                  = False
 
 
 -- | swap the current element with the left one
