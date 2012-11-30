@@ -7,25 +7,25 @@ import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.IORef as GR
 import qualified GameData.Entity as E
-import qualified GameData.Data as GD
+import qualified GameData.Level as LV
 
-data Event = MkGameEvent GameEvent
+data Event = MkLevelEvent LevelEvent
              | MkEntityEvent EntityEvent
              | MkMultiEvent [Event]
 
-data GameEvent = UpdateGame (GD.Data -> GD.Data)
+data LevelEvent = UpdateLevel (LV.Level -> LV.Level)
 
 data EntityEvent = UpdateEntity (E.Entity -> E.Entity)
 
-handleEvents :: [Event] -> GD.Data -> GD.Data
-handleEvents events gd =
-   L.foldl' (flip handleEvent) gd events
+handleEvents :: [Event] -> LV.Level -> LV.Level
+handleEvents events lv =
+   L.foldl' (flip handleEvent) lv events
 
-handleEvent :: Event -> GD.Data -> GD.Data
-handleEvent (MkGameEvent (UpdateGame f)) gd = f gd
+handleEvent :: Event -> LV.Level -> LV.Level
+handleEvent (MkLevelEvent (UpdateLevel f)) lv = f lv
 
-handleEvent (MkEntityEvent (UpdateEntity f)) gd =
-   LE.modL GD.currentLevelL (E.eMap f) gd
+handleEvent (MkEntityEvent (UpdateEntity f)) lv =
+   E.eMap f lv
 
-handleEvent (MkMultiEvent es) gd =
-   L.foldl' (flip handleEvent) gd es
+handleEvent (MkMultiEvent es) lv =
+   L.foldl' (flip handleEvent) lv es

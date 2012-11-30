@@ -39,8 +39,9 @@ mkGameRunningState = ST.State {
 
 
 update :: GD.Data -> GD.Data
-update gd = EV.handleEvents events (LE.setL GD.currentLevelL level' gd)
+update gd = LE.setL GD.currentLevelL level'' gd
    where
+      level''          = EV.handleEvents events level'
       (events, level') = LU.update $ LE.getL GD.currentLevelL gd
 
 

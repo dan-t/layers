@@ -8,7 +8,6 @@ import Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
 import qualified GameData.Entity as E
 import qualified GameData.Level as LV
-import qualified GameData.Data as GD
 import qualified Entity.Intersect as EI
 import qualified Entity.Bound as EB
 import qualified Entity.Position as EP
@@ -42,7 +41,7 @@ resolveIntersection isect@(e1, e2, isects) =
                                         | otherwise     -> e
                  _ -> e,
 
-         mkUpdateGameEvent $ LE.modL (LV.renderersL . GD.currentLevelL) $ \rds ->
+         mkUpdateLevelEvent $ LE.modL LV.renderersL $ \rds ->
             RR.mkRenderer (RR.fadeOutStar pos 0) : rds ]
 
 
@@ -121,5 +120,5 @@ resolveIntersection isect@(e1, e2, isects) =
             isAnimated E.Platform {E.platformPosition = Left  _} = False
 
       mkMultiEvent        = EV.MkMultiEvent
-      mkUpdateGameEvent   = EV.MkGameEvent   . EV.UpdateGame
+      mkUpdateLevelEvent  = EV.MkLevelEvent  . EV.UpdateLevel
       mkUpdateEntityEvent = EV.MkEntityEvent . EV.UpdateEntity
