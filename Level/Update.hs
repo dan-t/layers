@@ -15,10 +15,13 @@ import qualified Level.ResolveIntersection as LR
 IMPORT_LENS
 
 
-update :: LV.Level -> ([EV.Event], LV.Level)
-update level = (events, level')
+update :: LV.Level -> LV.Level
+update level = L.foldl' (\level isect ->
+   case LR.resolveIntersection isect level of
+        Just event -> EV.handleEvent event level
+        _          -> level)
+   level' isects
    where
-      events = catMaybes $ L.map LR.resolveIntersection isects
       isects = intersections level'
       level' = keepEntitiesInsideBoundary . updateEntities $ level
 

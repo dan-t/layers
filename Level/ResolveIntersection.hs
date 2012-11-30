@@ -18,21 +18,28 @@ import qualified Defaults as DF
 IMPORT_LENS
 
 
-resolveIntersection :: EI.Intersection -> Maybe EV.Event
-resolveIntersection isect@(e1, e2, isects) =
-   case isect of
-        (_, _, []) -> Nothing
-
-        (E.Player   {}, E.Platform {}, isects) -> resolvePlayerWithPlatformIsect (e1, isectPositions BT.leaf1) e2
-        (E.Platform {}, E.Player   {}, isects) -> resolvePlayerWithPlatformIsect (e2, isectPositions BT.leaf2) e1
-
-        (E.Player {}, E.Star   {}, _) -> resolvePlayerWithStarIsect e1 e2
-        (E.Star   {}, E.Player {}, _) -> resolvePlayerWithStarIsect e2 e1
-
-        _ -> Nothing
-
+resolveIntersection :: EI.Intersection -> LV.Level -> Maybe EV.Event
+resolveIntersection isect@(e1, e2, isects) level =
+   resolve (LV.findEntityById e1 level) (LV.findEntityById e2 level) isects
    where
-      isectPositions leaf = L.map (\i -> snd . leaf $ i) isects
+      resolve Nothing _ _ = ERROR("Couldn't find entity with id " ++ show e1)
+      resolve _ Nothing _ = ERROR("Couldn't find entity with id " ++ show e2)
+      resolve _ _ []      = Nothing
+
+      resolve (Just e1) (Just e2) isects =
+         case (e1, e2, isects) of
+              (_, _, []) -> Nothing
+
+              (E.Player   {}, E.Platform {}, isects) -> resolvePlayerWithPlatformIsect (e1, isectPositions BT.leaf1) e2
+              (E.Platform {}, E.Player   {}, isects) -> resolvePlayerWithPlatformIsect (e2, isectPositions BT.leaf2) e1
+
+              (E.Player {}, E.Star   {}, _) -> resolvePlayerWithStarIsect e1 e2
+              (E.Star   {}, E.Player {}, _) -> resolvePlayerWithStarIsect e2 e1
+
+              _ -> Nothing
+         where
+            isectPositions leaf = L.map (\i -> snd . leaf $ i) isects
+
 
       resolvePlayerWithStarIsect _ E.Star {E.starId = isectId, E.starPosition = pos} = Just . mkMultiEvent $ [
          mkUpdateEntityEvent $ \e ->

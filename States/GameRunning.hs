@@ -39,10 +39,7 @@ mkGameRunningState = ST.State {
 
 
 update :: GD.Data -> GD.Data
-update gd = LE.setL GD.currentLevelL level'' gd
-   where
-      level''          = EV.handleEvents events level'
-      (events, level') = LU.update $ LE.getL GD.currentLevelL gd
+update = LE.modL GD.currentLevelL LU.update
 
 
 render :: RR.RenderState -> GD.Data -> IO GD.Data

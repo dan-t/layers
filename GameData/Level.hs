@@ -88,6 +88,7 @@ allEntities Level {entities = entities, layers = layers} =
 findEntity :: (E.Entity -> Bool) -> Level -> Maybe E.Entity
 findEntity f level = L.find f $ allEntities level
 
+findEntityById id = findEntity $ (== id) . EI.entityId
 
 findEntityAt pos = findEntity $ \e -> (BT.asBox . EB.bound $ e) `B.contains` pos
 
