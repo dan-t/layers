@@ -11,10 +11,13 @@ import qualified Gamgine.Math.Vect as V
 import Gamgine.Math.Vect
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Entity.Bound as EB
+IMPORT_LENS
 
 
 -- | the boundary of the whole level
-data Boundary = Boundary B.Box deriving Show
+data Boundary = Boundary {box :: B.Box} deriving Show
+
+LENS(box)
 
 
 newBoundary :: [E.Entity] -> Boundary

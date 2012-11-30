@@ -2,11 +2,14 @@
 module Utils where
 #include "Gamgine/Utils.cpp"
 import qualified Graphics.UI.GLFW as GLFW
+import Control.Applicative ((<$>))
 import Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Matrix as M
+import qualified Gamgine.Math.Box as B
 import qualified AppData as AP
-import qualified GameData.Boundary as BD
+import qualified GameData.Data as GD
 import qualified GameData.Level as LV
+import qualified GameData.Boundary as BD
 import qualified GameData.Entity as E
 IMPORT_LENS
 
@@ -31,17 +34,29 @@ levelScrolling nextFrameFraction appData =
          interpolateFrame factor (E.playerPosition player) (E.playerVelocity player)
 
 
-mousePosInWorldCoords :: AP.AppData -> IO V.Vect
-mousePosInWorldCoords appData = do
+mousePosInLevelCoords :: AP.AppData -> IO V.Vect
+mousePosInLevelCoords appData = do
    xy <- GLFW.getMousePosition
-   windowToWorldCoords xy appData
+   return $ windowToLevelCoords xy appData
 
 
-windowToWorldCoords :: (Int, Int) -> AP.AppData -> IO V.Vect
-windowToWorldCoords (x, y) appData = do
-   (w, h) <- GLFW.getWindowDimensions
-   let mat        = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (AP.orthoScale appData * (fromIntegral h / fromIntegral w))
+windowToLevelCoords :: (Int, Int) -> AP.AppData -> V.Vect
+windowToLevelCoords xy appData =
+   V.setElem 2 0 $ (windowToWorldCoords xy appData) - (levelScrolling 0 appData)
+
+
+windowToWorldCoords :: (Int, Int) -> AP.AppData -> V.Vect
+windowToWorldCoords (x, y) appData =
+   let (w, h)     = AP.windowSize appData
+       mat        = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (AP.orthoScale appData * (fromIntegral h / fromIntegral w))
        invMat     = M.inverseOrIdentity mat
        worldCoord = V.fromVect4 (multmv invMat (v4 (fromIntegral x) (fromIntegral y) 0 1))
+       in worldCoord
 
-   return $ V.setElem 2 0 $ worldCoord - (levelScrolling 0 appData)
+
+-- | ensure that the boundary size of all levels is at least of the size of the window
+updateBoundarySize :: AP.AppData -> AP.AppData
+updateBoundarySize app@AP.AppData {AP.windowSize = (width, height)} =
+   let wcoord     = windowToWorldCoords (width, -height) app
+       boundMaxPt = B.maxPtL . BD.boxL . LV.boundaryL
+       in LE.modL (GD.levelsL . AP.gameDataL) (LE.modL boundMaxPt (V.maxVec wcoord) <$>) app

@@ -8,7 +8,7 @@ import qualified Utils as LU
 import qualified States.InputInfo as II
 
 
-mousePosition appRef = R.readIORef appRef >>= LU.mousePosInWorldCoords
+mousePosition appRef = R.readIORef appRef >>= LU.mousePosInLevelCoords
 
 
 pressedModifiers = do

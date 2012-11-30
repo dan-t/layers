@@ -1,10 +1,12 @@
 
 module Gamgine.Math.Box where
+#include "Gamgine/Utils.cpp"
 import Data.Maybe
 import qualified Data.List as L
 import Gamgine.Math.Vect as V
 import Gamgine.Math.Utils
 import Gamgine.Utils
+IMPORT_LENS
 
 
 -- axis aligned bounding box
@@ -12,6 +14,9 @@ data Box = Box {
    minPt :: Vect,
    maxPt :: Vect
    } deriving (Show, Read)
+
+LENS(minPt)
+LENS(maxPt)
 
 center :: Box -> Vect
 center b = minPt b + halfs b

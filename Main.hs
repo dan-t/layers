@@ -105,6 +105,7 @@ initGLFW appDataRef appMode = do
    where
       resize width height = do
          setL AP.windowSizeL (width, height)
+         modify U.updateBoundarySize
          updateFrustum
          updateCamera
 
@@ -126,11 +127,14 @@ initGLFW appDataRef appMode = do
 
       updateOrthoScale mouseWheelPos = do
          setL AP.orthoScaleL (DF.orthoScale + fromIntegral mouseWheelPos)
+         modify U.updateBoundarySize
          updateFrustum
          updateCamera
 
       getL   = GR.getL appDataRef
       setL   = GR.setL appDataRef
+      modL   = GR.modL appDataRef
+      read   = readIORef appDataRef
       modify = modifyIORef appDataRef
 
 
