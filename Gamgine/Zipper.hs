@@ -15,6 +15,12 @@ after (LZ.Zip _     []) = LZ.empty
 after (LZ.Zip _ (a:rs)) = LZ.Zip [] rs
 
 
+-- | split the zipper in a zipper of the before elements,
+--   the current element and a zipper of the after elements
+split :: LZ.Zipper a -> (LZ.Zipper a, a, LZ.Zipper a)
+split z = (before z, LZ.cursor z, after z)
+
+
 -- | if the current element is the last valid one
 atLast :: LZ.Zipper a -> Bool
 atLast (LZ.Zip _ (a:[])) = True
@@ -28,14 +34,14 @@ atFirst _                  = False
 
 
 -- | swap the current element with the left one
-swapWithLeft :: LZ.Zipper a -> LZ.Zipper a
-swapWithLeft z@(LZ.Zip     []      _) = z
-swapWithLeft z@(LZ.Zip      _     []) = z
-swapWithLeft   (LZ.Zip (l:ls) (c:rs)) = LZ.Zip (c:ls) (l:rs)
+swapLeft :: LZ.Zipper a -> LZ.Zipper a
+swapLeft z@(LZ.Zip     []      _) = z
+swapLeft z@(LZ.Zip      _     []) = z
+swapLeft   (LZ.Zip (l:ls) (c:rs)) = LZ.Zip (c:ls) (l:rs)
 
 
 -- | swap the current element with the right one
-swapWithRight :: LZ.Zipper a -> LZ.Zipper a
-swapWithRight z@(LZ.Zip  _       []) = z
-swapWithRight z@(LZ.Zip  _   (c:[])) = z
-swapWithRight   (LZ.Zip ls (c:r:rs)) = LZ.Zip ls (r:c:rs)
+swapRight :: LZ.Zipper a -> LZ.Zipper a
+swapRight z@(LZ.Zip  _       []) = z
+swapRight z@(LZ.Zip  _   (c:[])) = z
+swapRight   (LZ.Zip ls (c:r:rs)) = LZ.Zip ls (r:c:rs)

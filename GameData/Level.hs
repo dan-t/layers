@@ -9,6 +9,7 @@ import qualified Gamgine.Utils as GU
 import qualified Gamgine.Zipper as GZ
 import Gamgine.Control (applyIf)
 import qualified Gamgine.Math.Vect as V
+import Gamgine.Math.Vect
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Entity.Bound as EB
@@ -69,6 +70,15 @@ newEmptyLevel =
           renderers = [],
           entities  = [PL.newPlayer 0 (V.v3 1 1 0)],
           layers    = LZ.fromList [LY.newEmptyLayer, LY.newEmptyLayer]}
+
+
+changeLevels :: Level -> Level -> (Level, Level)
+changeLevels fromLevel toLevel =
+   case findEntity E.isPlayer fromLevel of
+        Just E.Player {E.playerVelocity = (vx:._)} ->
+           (fromLevel, E.eMap (applyIf E.isPlayer $ \p -> p {E.playerVelocity = (vx:.0:.0)}) toLevel)
+
+        _ -> (fromLevel, toLevel)
 
 
 allLayers :: Level -> [LY.Layer]
