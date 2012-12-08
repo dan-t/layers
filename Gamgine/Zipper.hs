@@ -9,39 +9,35 @@ before :: LZ.Zipper a -> LZ.Zipper a
 before (LZ.Zip     [] _) = LZ.empty
 before (LZ.Zip (a:ls) _) = LZ.Zip ls [a]
 
+
 -- | get the elements after the current one
 after :: LZ.Zipper a -> LZ.Zipper a
 after (LZ.Zip _     []) = LZ.empty
 after (LZ.Zip _ (a:rs)) = LZ.Zip [] rs
 
 
--- | split the zipper in a zipper of the before elements,
---   the current element and a zipper of the after elements
-split :: LZ.Zipper a -> (LZ.Zipper a, a, LZ.Zipper a)
-split z = (before z, LZ.cursor z, after z)
+-- | get the current element, might fail
+current :: LZ.Zipper a -> a
+current = LZ.cursor
 
 
--- | if the current element is the last valid one
+-- | get the previous element, might fail
+previous :: LZ.Zipper a -> a
+previous (LZ.Zip (p:ls) _) = p
+
+
+-- | get the next element, might fail
+next :: LZ.Zipper a -> a
+next (LZ.Zip _ (c:n:_)) = n
+
+
+-- | if the current element is the last of the list
 atLast :: LZ.Zipper a -> Bool
 atLast (LZ.Zip _ (a:[])) = True
 atLast _                 = False
 
 
--- | if the current element is the first valid one
+-- | if the current element is the first of the list
 atFirst :: LZ.Zipper a -> Bool
 atFirst (LZ.Zip [] (a:ls)) = True
 atFirst _                  = False
-
-
--- | swap the current element with the left one
-swapLeft :: LZ.Zipper a -> LZ.Zipper a
-swapLeft z@(LZ.Zip     []      _) = z
-swapLeft z@(LZ.Zip      _     []) = z
-swapLeft   (LZ.Zip (l:ls) (c:rs)) = LZ.Zip (c:ls) (l:rs)
-
-
--- | swap the current element with the right one
-swapRight :: LZ.Zipper a -> LZ.Zipper a
-swapRight z@(LZ.Zip  _       []) = z
-swapRight z@(LZ.Zip  _   (c:[])) = z
-swapRight   (LZ.Zip ls (c:r:rs)) = LZ.Zip ls (r:c:rs)

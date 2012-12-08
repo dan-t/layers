@@ -49,39 +49,58 @@ levelFinished = LV.allStarsCollected . LE.getL currentLevelL
 
 
 toNextLevel :: Data -> Data
-toNextLevel d
-   | (LZ.emptyp . levels $ d) || atLastLevel d = d
+toNextLevel d@Data {levels = lvs}
+   | LZ.emptyp lvs || GZ.atLast lvs = d
    | otherwise =
-      let (LZ.Zip ls brs, c, LZ.Zip [] (n:ars)) = GZ.split . levels $ d
-          (c', n') = LV.changeLevels c n
-          in d {levels = LZ.Zip (c':(brs ++ ls)) (n':ars)}
+      let lvs      = levels d
+          (c', n') = LV.changeLevels (GZ.current lvs) (GZ.next lvs)
+          in d {levels = LZ.replace n' . LZ.right . LZ.replace c' $ lvs}
 
 
 toPreviousLevel :: Data -> Data
-toPreviousLevel d
-   | (LZ.emptyp . levels $ d) || atFirstLevel d = d
+toPreviousLevel d@Data {levels = lvs}
+   | LZ.emptyp lvs || GZ.atFirst lvs = d
    | otherwise =
-      let (LZ.Zip ls [p], c, LZ.Zip [] rs) = GZ.split . levels $ d
-          (c', p') = LV.changeLevels c p
-          in d {levels = LZ.Zip ls (p':c':rs)}
+      let (c', p') = LV.changeLevels (GZ.current lvs) (GZ.previous lvs)
+          in d {levels = LZ.replace p' . LZ.left . LZ.replace c' $ lvs}
 
 
 data AddLevel = BeforeCurrent | AfterCurrent | AfterLast
 
 addEmptyLevel :: AddLevel -> Data -> Data
-addEmptyLevel BeforeCurrent = LE.modL levelsL $ LZ.insert LV.newEmptyLevel
-addEmptyLevel AfterCurrent  = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.right
-addEmptyLevel AfterLast     = LE.modL levelsL $ (LZ.insert LV.newEmptyLevel) . LZ.end
+addEmptyLevel BeforeCurrent d@Data {levels = lvs} =
+   let (c', nlv') = LV.changeLevels (GZ.current lvs) LV.newEmptyLevel
+       in d {levels = LZ.insert nlv' . LZ.replace c' $ lvs}
+
+addEmptyLevel AfterCurrent d@Data {levels = lvs} =
+   let (c', nlv') = LV.changeLevels (GZ.current lvs) LV.newEmptyLevel
+       in d {levels = LZ.insert nlv' . LZ.right . LZ.replace c' $ lvs}
+
+addEmptyLevel AfterLast d@Data {levels = lvs} =
+   let (c', nlv') = LV.changeLevels (GZ.current lvs) LV.newEmptyLevel
+       in d {levels = LZ.insert nlv' . LZ.end . LZ.replace c' $ lvs}
 
 
 data MoveLevel = Forward | Backward
 
 moveCurrentLevel :: MoveLevel -> Data -> Data
-moveCurrentLevel Forward  = LE.modL levelsL $ (applyIf (not . LZ.beginp) LZ.left) . GZ.swapLeft
-moveCurrentLevel Backward = LE.modL levelsL $ (applyIf (not . GZ.atLast) LZ.right) . GZ.swapRight
+moveCurrentLevel Forward d@Data {levels = lvs}
+   | LZ.beginp lvs = d
+   | otherwise     =
+      let (p, c) = (GZ.previous lvs, GZ.current lvs)
+          in d {levels = LZ.replace c . LZ.left . LZ.replace p $ lvs}
+
+moveCurrentLevel Backward d@Data {levels = lvs}
+   | GZ.atLast lvs = d
+   | otherwise     =
+      let (c, n) = (GZ.current lvs, GZ.next lvs)
+          in d {levels = LZ.replace c . LZ.right . LZ.replace n $ lvs}
 
 
 removeCurrentLevel :: Data -> Data
-removeCurrentLevel d
-   | atFirstLevel d && atLastLevel d = LE.modL levelsL (LZ.replace LV.newEmptyLevel) d
-   | otherwise                       = LE.modL levelsL ((applyIf LZ.endp LZ.left) . LZ.delete) d
+removeCurrentLevel d@Data {levels = lvs}
+   | GZ.atFirst lvs && GZ.atLast lvs =
+      let (_, nlv') = LV.changeLevels (GZ.current lvs) LV.newEmptyLevel
+          in d {levels = LZ.replace nlv' lvs}
+
+   | otherwise = d {levels = applyIf LZ.endp LZ.left . LZ.delete $ lvs}
