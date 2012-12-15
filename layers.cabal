@@ -6,6 +6,10 @@ Build-Type:    Simple
 Cabal-Version: >=1.6
 data-files:    Ressources/Images/*.png
                Ressources/*.hs
+               Ressources/Fonts/*.glf
+
+Extra-source-files: c_libraries/glf/glf.h
+                    c_libraries/glf/glf.c
 
 Executable layers
   Main-is:       Main.hs
@@ -14,3 +18,8 @@ Executable layers
   cpp-options:   -I. -DCABAL
   other-modules: Paths_layers
   Build-Depends: base > 3 && < 5, GLFW-b, OpenGLRaw, mtl, time, Vec >= 0.9.9, utility-ht, directory, StateVar, array, bytestring, unordered-containers, data-lens, pretty-show, cmdargs, cpphs, filepath, parsec, zlib, ListZipper, composition
+
+  Include-dirs: c_libraries/glf
+  Includes:     glf.h
+  C-sources:    c_libraries/glf/glf.c
+  CC-Options:   -Wno-unused-result
