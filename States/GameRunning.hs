@@ -15,7 +15,6 @@ import qualified GameData.Level as LV
 import qualified GameData.Data as GD
 import qualified Entity.Id as EI
 import qualified Rendering.Ressources as RR
-import qualified Event as EV
 import qualified States.State as ST
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI

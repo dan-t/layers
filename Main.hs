@@ -11,6 +11,7 @@ import qualified Graphics.Rendering.OpenGL.Raw as GL
 import Gamgine.Control ((?))
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.IORef as GR
+import qualified Gamgine.Ressources as RES
 import Gamgine.Gfx as G
 import Defaults as DF
 import qualified Utils as U
@@ -23,6 +24,7 @@ import qualified Callback.MouseMove as MM
 import qualified Rendering.Ressources as RR
 import qualified LayersArgs as LA
 import qualified GameData.Data as GD
+import qualified GLF
 IMPORT_LENS
 
 
@@ -40,8 +42,9 @@ main = do
        editMode = LA.editMode args ? AP.EditMode $ AP.GameMode
 
    appDataRef <- newIORef $ AP.newAppData gameData (LA.loadLevelsFrom args) (LA.saveLevelsTo args) editMode
-   initGLFW appDataRef editMode
    initGL
+   initGLFW appDataRef editMode
+   GLF.init
    initRessources appDataRef
 
    time <- GLFW.getTime
@@ -55,6 +58,7 @@ gameLoop nextFrame = do
 
    clearGLState
    render nextFrameFraction
+   io GLFW.swapBuffers
    gameLoop nextFrame'
 
 
@@ -65,18 +69,33 @@ update =  do
    when (appMode == AP.GameMode) $ do
       gdata <- GR.getsL AP.gameDataL
       when (GD.levelFinished gdata) $ do
-         if (GD.atLastLevel gdata)
-            then io $ (putStrLn $ "You've WON the game!") >> void quit
-            else GR.modifyL AP.gameDataL GD.toNextLevel
+         GR.modifyL AP.gameDataL GD.toNextLevel
 
 
 render :: Double -> AP.AppST ()
 render nextFrameFraction = do
-   app  <- GR.get
-   io $ GL.glTranslatef <<< U.levelScrolling nextFrameFraction app
-   app' <- io $ AP.render nextFrameFraction app
-   GR.put app'
-   io GLFW.swapBuffers
+   gdata <- GR.getsL AP.gameDataL
+   if GD.gameFinished gdata
+      then renderEndScreen
+      else do
+         app  <- GR.get
+         io $ GL.glTranslatef <<< U.levelScrolling nextFrameFraction app
+         app' <- io $ AP.render nextFrameFraction app
+         GR.put app'
+
+
+renderEndScreen :: AP.AppST ()
+renderEndScreen = do
+   font     <- GR.getsL (RR.crystalFontIdL . AP.renderRessourcesL)
+   (fx, fy) <- GR.gets AP.frustumSize
+   io $ do
+      GLF.setCurrentFont font
+      GLF.Bounds (minx, miny) (maxx, maxy) <- GLF.getStringBounds endMsg
+      GL.glTranslatef <<<* (fx / 2 - ((minx + maxx) * 2) , fy / 2, 0)
+      GL.glScalef <<<* (3.75,3,3)
+      GLF.drawSolidString endMsg
+   where
+      endMsg = "END"
 
 
 clearGLState :: AP.AppST ()

@@ -54,7 +54,7 @@ detailsText = [
    "  mouse wheel               = change scale of orthographic projection"]
 
 defaultSaveTo = "LayersData.hs"
-defaultLoadFrom = unsafePerformIO $ RES.getDataFileName "Ressources/Levels2.hs"
+defaultLoadFrom = unsafePerformIO $ RES.getDataFileName "Ressources/Levels.hs"
 
 versionInfo = "layers version 0.2"
 summaryInfo = ""

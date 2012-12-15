@@ -22,6 +22,7 @@ import qualified States.MovingEntity as ME
 import qualified States.CreatingPlatform as CP
 import qualified States.ResizingPlatform as RP
 import qualified States.DefiningAnimation as DA
+import qualified States.IntroRunning as IR
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
 import qualified States.InputInfo as II
@@ -55,7 +56,7 @@ newAppData gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
-   renderRessources = RR.Ressources (-1) (-1) (-1),
+   renderRessources = RR.emptyRessources,
    levelsLoadedFrom = levelsLoadedFrom,
    saveLevelsTo     = saveLevelsTo,
    appMode          = appMode,
@@ -79,7 +80,11 @@ newAppData gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
                           enterWhen = ByKey (GLFW.CharKey 'U') Pressed,
                           leaveWhen = ByKey (GLFW.CharKey 'U') Pressed,
                           adjacents = []}]
-         else SS.root GR.mkGameRunningState []
+         else SS.root IR.mkIntroRunningState
+                 [Branch {state     = GR.mkGameRunningState,
+                          enterWhen = ByKey (GLFW.CharKey ' ') Pressed,
+                          leaveWhen = NoTransition,
+                          adjacents = []}]
    }
 
 data AppMode = GameMode | EditMode deriving Eq
@@ -102,7 +107,7 @@ render :: Double -> AppData -> IO AppData
 render nextFrameFraction app = applyToStateIO f app
    where
       f      = (S.render $ LE.getL currentStateL app) rstate
-      rstate = RR.RenderState nextFrameFraction (renderRessources app)
+      rstate = RR.RenderState nextFrameFraction (renderRessources app) (frustumSize app)
 
 
 handleKeyEvent :: KI.KeyInfo -> AppData -> AppData

@@ -20,3 +20,8 @@ getImageFilePath imageName = getDataFileName $ imageDir ++ imageName
    where
       imageDir = "Ressources/Images/"
 
+
+getFontFilePath :: String -> IO FilePath
+getFontFilePath fontName = getDataFileName $ fontDir ++ fontName
+   where
+      fontDir = "Ressources/Fonts/"

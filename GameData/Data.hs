@@ -48,6 +48,10 @@ levelFinished :: Data -> Bool
 levelFinished = LV.allStarsCollected . LE.getL currentLevelL
 
 
+gameFinished :: Data -> Bool
+gameFinished d = levelFinished d && atLastLevel d
+
+
 toNextLevel :: Data -> Data
 toNextLevel d@Data {levels = lvs}
    | LZ.emptyp lvs || GZ.atLast lvs = d
