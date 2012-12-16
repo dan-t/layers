@@ -9,7 +9,7 @@ Prerequisites:
 Common flags:
   -e --editmode             Start layers in edit mode
   -l --loadlevelsfrom=FILE  Load levels from file
-                            (default='/home/dan/.cabal/share/layers-0.2/Ressources/Levels.hs')
+                            (default='~/.cabal/share/layers-0.2/Ressources/Levels.hs')
   -s --savelevelsto=FILE    Save levels to file (default='LayersData.hs')
   -h --help                 Display help message
   -v --version              Print version information
