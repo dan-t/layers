@@ -12,9 +12,12 @@ import qualified Entity.Intersect as EI
 import qualified Entity.Bound as EB
 import qualified Entity.Position as EP
 import qualified Entity.Velocity as EV
+import qualified Level.Reload as LR
 import qualified Event as EV
 import qualified Rendering.Renderer as RR
 import qualified Defaults as DF
+import qualified Convert.ToFileData as TF
+import qualified Convert.ToGameData as TG
 IMPORT_LENS
 
 
@@ -33,6 +36,9 @@ resolveIntersection isect@(e1, e2, isects) level =
               (E.Player   {}, E.Platform {}, isects) -> resolvePlayerWithPlatformIsect (e1, isectPositions BT.leaf1) e2
               (E.Platform {}, E.Player   {}, isects) -> resolvePlayerWithPlatformIsect (e2, isectPositions BT.leaf2) e1
 
+              (E.Player {}, E.Enemy  {}, isects) -> resolvePlayerWithEnemyIsect (e1, isectPositions BT.leaf1) e2
+              (E.Enemy  {}, E.Player {}, isects) -> resolvePlayerWithEnemyIsect (e2, isectPositions BT.leaf2) e1
+
               (E.Player {}, E.Star   {}, _) -> resolvePlayerWithStarIsect e1 e2
               (E.Star   {}, E.Player {}, _) -> resolvePlayerWithStarIsect e2 e1
 
@@ -50,6 +56,18 @@ resolveIntersection isect@(e1, e2, isects) level =
 
          mkUpdateLevelEvent $ LE.modL LV.renderersL $ \rds ->
             RR.mkRenderer (RR.fadeOutStar pos 0) : rds ]
+
+
+      resolvePlayerWithEnemyIsect (player, isectPos) enemy
+         | playerKilled = Just . mkUpdateLevelEvent $ LR.reload
+         | otherwise    = Just . mkUpdateEntityEvent $ \e ->
+            case e of
+                 E.Enemy {E.enemyId = id} | id == enemyId -> e {E.enemyLiving = False}
+                                          | otherwise     -> e
+                 _ -> e 
+         where
+            playerKilled = L.any (/= E.Bottom) isectPos
+            enemyId      = E.enemyId enemy
 
 
       resolvePlayerWithPlatformIsect (player, isectPos) platform

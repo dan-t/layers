@@ -34,19 +34,23 @@ toEntity :: E.Entity -> FD.Entity
 toEntity E.Player {E.playerId = id, E.playerInitialPos = initPos} =
    FD.Player id (V.toTuple initPos)
 
+toEntity E.Enemy {E.enemyId = id, E.enemyPosition = pos} =
+   FD.Enemy id (toPosOrAnimation pos)
+
 toEntity E.Platform {E.platformId = id, E.platformPosition = pos, E.platformBound = bound} =
    FD.Platform id (toPosOrAnimation pos) (B.toTuples bound)
-   where
-      toPosOrAnimation :: E.PositionOrAnimation -> FD.PositionOrAnimation
-      toPosOrAnimation (Left  pos)  = Left $ V.toTuple pos
-      toPosOrAnimation (Right anim) = Right $ toAnimation anim
-      
-      toAnimation :: A.Animation -> FD.Animation
-      toAnimation anim = FD.Animation velo path bidir
-         where
-            velo  = A.velocity anim
-            path  = L.map V.toTuple (A.path anim)
-            bidir = A.bidirectional anim
 
 toEntity E.Star {E.starId = id, E.starPosition = pos} =
    FD.Star id (V.toTuple pos)
+
+
+toPosOrAnimation :: E.PositionOrAnimation -> FD.PositionOrAnimation
+toPosOrAnimation (Left  pos)  = Left $ V.toTuple pos
+toPosOrAnimation (Right anim) = Right $ toAnimation anim
+
+toAnimation :: A.Animation -> FD.Animation
+toAnimation anim = FD.Animation velo path bidir
+   where
+      velo  = A.velocity anim
+      path  = L.map V.toTuple (A.path anim)
+      bidir = A.bidirectional anim

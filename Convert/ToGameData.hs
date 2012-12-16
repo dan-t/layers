@@ -6,6 +6,7 @@ import qualified Gamgine.Math.Vect as V
 import qualified GameData.Entity as E
 import qualified FileData.Data2 as FD
 import qualified GameData.Player as P
+import qualified GameData.Enemy as E
 import qualified GameData.Star as S
 import qualified GameData.Platform as PF
 import qualified GameData.Animation as A
@@ -35,19 +36,23 @@ toEntity :: FD.Entity -> E.Entity
 toEntity (FD.Player id initPos) =
    P.newPlayer id (V.fromTuple initPos)
 
+toEntity (FD.Enemy id posOrAnim) =
+   E.newEnemy id (toPosOrAnimation posOrAnim)
+
 toEntity (FD.Platform id posOrAnim bound) =
    PF.newPlatform id (toPosOrAnimation posOrAnim) (B.fromTuples bound)
-   where
-      toPosOrAnimation :: FD.PositionOrAnimation -> E.PositionOrAnimation
-      toPosOrAnimation (Left  pos)  = Left $ V.fromTuple pos
-      toPosOrAnimation (Right anim) = Right $ toAnimation anim
-
-      toAnimation :: FD.Animation -> A.Animation
-      toAnimation (FD.Animation _    []         _    ) = error $ "Invalid animation data: missing path points!"
-      toAnimation (FD.Animation _    (pt : [])  _    ) = error $ "Invalid animation data: only one point in path!"
-      toAnimation (FD.Animation velo fpath      bidir) = A.newAnimation velo path bidir
-         where
-            path = L.map V.fromTuple fpath
 
 toEntity (FD.Star id pos) = 
    S.newStar id (V.fromTuple pos)
+
+
+toPosOrAnimation :: FD.PositionOrAnimation -> E.PositionOrAnimation
+toPosOrAnimation (Left  pos)  = Left $ V.fromTuple pos
+toPosOrAnimation (Right anim) = Right $ toAnimation anim
+
+toAnimation :: FD.Animation -> A.Animation
+toAnimation (FD.Animation _    []         _    ) = error $ "Invalid animation data: missing path points!"
+toAnimation (FD.Animation _    (pt : [])  _    ) = error $ "Invalid animation data: only one point in path!"
+toAnimation (FD.Animation velo fpath      bidir) = A.newAnimation velo path bidir
+   where
+      path = L.map V.fromTuple fpath

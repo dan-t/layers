@@ -22,6 +22,20 @@ newAnimation velocity path@(currPos : nextPos : _) bidirectional =
       currVelo = (V.normalize $ nextPos - currPos) * V.v3 velocity velocity velocity
 
 
+basePosition :: Animation -> V.Vect
+basePosition = L.head . path
+
+
+setBasePosition :: Animation -> V.Vect -> Animation
+setBasePosition ani newBase =
+   let (basePt : otherPts) = path ani
+       diffPath            = L.map ((-) basePt) otherPts
+       otherPts'           = L.map (newBase `plus`) diffPath
+       in newAnimation (velocity ani) (newBase : otherPts') (bidirectional ani)
+   where
+      plus = (+)
+
+
 update :: Animation -> Animation
 update ani@Animation {finished = True} = ani
 

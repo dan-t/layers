@@ -36,10 +36,5 @@ newKeyCallback appDataRef = callback
          mods <- CC.pressedModifiers
          let keyInfo = KI.KeyInfo key (pressed ? KI.Pressed $ KI.Released) mpos mods
          R.modifyIORef appDataRef (AP.handleKeyEvent keyInfo)
-         -- hack: ensure for the case of reloading levels, that the
-         --       boundary size is at least of the size of the window
-         appMode <- AP.appMode <$> R.readIORef appDataRef
-         when (appMode == AP.EditMode) $
-            R.modifyIORef appDataRef U.updateBoundarySize
 
       quit = GLFW.closeWindow >> GLFW.terminate >> exitSuccess

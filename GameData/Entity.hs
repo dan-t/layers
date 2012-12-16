@@ -38,6 +38,12 @@ data Entity = Player {playerId         :: Int,
                       playerBound      :: Bound,
                       playerWalkCycle  :: (Int, Double)}
 
+            | Enemy {enemyId        :: Int,
+                     enemyPosition  :: PositionOrAnimation,
+                     enemyBound     :: B.Box,
+                     enemyWalkCycle :: (Int, Double),
+                     enemyLiving    :: Bool}
+
             | Star {starId        :: Int,
                     starPosition  :: V.Vect,
                     starBound     :: B.Box,
@@ -56,6 +62,12 @@ LENS(playerVelocity)
 LENS(playerOnBottom)
 LENS(playerBound)
 LENS(playerWalkCycle)
+
+LENS(enemyId)
+LENS(enemyPosition)
+LENS(enemyBound)
+LENS(enemyWalkCycle)
+LENS(enemyLiving)
 
 LENS(starId)
 LENS(starPosition)
@@ -80,6 +92,10 @@ instance ApplyToEntity [Entity] where
 isPlayer :: Entity -> Bool
 isPlayer Player {} = True
 isPlayer _         = False
+
+isEnemy :: Entity -> Bool
+isEnemy Enemy {} = True
+isEnemy _        = False
 
 isStar :: Entity -> Bool
 isStar Star {} = True

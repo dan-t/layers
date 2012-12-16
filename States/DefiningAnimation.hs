@@ -16,6 +16,7 @@ import qualified States.State as ST
 import qualified States.GameRunning as GR
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
+import qualified GameData.Enemy as EN
 import qualified GameData.Data as GD
 import qualified GameData.Animation as A
 import qualified GameData.Platform as PF
@@ -40,10 +41,12 @@ mkDefiningAnimationState =
       mkState da = ST.State {
          ST.enter = \mp gd ->
             case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
-                 Just e@E.Platform {E.platformId = id} ->
-                    let pos = EP.position e
-                        gd' = E.eMap (\e -> id == EI.entityId e ? e {E.platformPosition = Left pos} $ e) gd
-                        vel = platformVelocity e
+                 Just e | (not $ E.isPlatform e) && (not $ E.isEnemy e) -> Nothing
+                        | otherwise ->
+                    let id  = EI.entityId e
+                        pos = EP.position e
+                        gd' = E.eMap (\e -> id == EI.entityId e ? setPosition e (Left pos) $ e) gd
+                        vel = getVelocity e
                         in Just (gd', mkState $ da {entityId = Just id, velocity = vel, mousePos = mp, path = [pos]})
                    
                  _ -> Nothing,
@@ -52,7 +55,7 @@ mkDefiningAnimationState =
             let id  = fromJust $ entityId da
                 pos | (L.length $ path da) > 1 = Right $ A.newAnimation (velocity da) (path da) True
                     | otherwise                = Left . L.head . path $ da
-                gd' = E.eMap (\e -> id == EI.entityId e ? e {E.platformPosition = pos} $ e) gd
+                gd' = E.eMap (\e -> id == EI.entityId e ? setPosition e pos $ e) gd
                 in (gd', mkState $ da {entityId = Nothing, velocity = 0, mousePos = V.nullVec, path = []}),
 
          ST.update = (, mkState da) . GR.update,
@@ -75,5 +78,11 @@ mkDefiningAnimationState =
          }
 
 
-      platformVelocity E.Platform {E.platformPosition = Right A.Animation {A.velocity = v}} = v
-      platformVelocity _ = PF.platformVelocity
+      setPosition p@E.Platform {} pos = p {E.platformPosition = pos}
+      setPosition e@E.Enemy    {} pos = e {E.enemyPosition    = pos}
+      setPosition e               _   = e
+
+      getVelocity E.Platform {E.platformPosition = Right ani} = A.velocity ani
+      getVelocity E.Platform {}                               = PF.platformVelocity
+      getVelocity E.Enemy    {E.enemyPosition    = Right ani} = A.velocity ani
+      getVelocity E.Enemy    {}                               = EN.enemyVelocity

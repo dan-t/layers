@@ -11,7 +11,10 @@ bound :: E.Entity -> E.Bound
 bound E.Player {E.playerPosition = pos, E.playerBound = bound} =
    bound `BT.moveBy` pos
 
-bound p@E.Platform {E.platformPosition = pos, E.platformBound = bound} =
+bound e@E.Enemy {E.enemyBound = bound} =
+   BT.Leaf (bound `B.moveBy` EP.currentPosition e) E.Whatever
+
+bound p@E.Platform {E.platformBound = bound} =
    BT.Leaf (bound `B.moveBy` EP.currentPosition p) E.Whatever
 
 bound E.Star {E.starPosition = pos, E.starBound = bound} =

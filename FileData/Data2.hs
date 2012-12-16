@@ -32,5 +32,6 @@ type PositionOrAnimation = Either Position Animation
 type Bound               = Box
 
 data Entity = Player   Id InitialPosition
+            | Enemy    Id PositionOrAnimation
             | Platform Id PositionOrAnimation Bound
             | Star     Id Position deriving (Show, Read)

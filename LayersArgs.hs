@@ -41,6 +41,7 @@ detailsText = [
    "  s key = save levels to file specified by '-s'",
    "  r key = remove game object under mouse cursor",
    "  p key = place a star at mouse cursor position",
+   "  e key = place an enemy at mouse cursor position",
    "  u key = start changing path of platform under mouse cursor,",
    "          define path points by moving the mouse and clicking",
    "          left mouse button, press 'u' again to end path definition",

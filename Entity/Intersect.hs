@@ -15,6 +15,9 @@ intersect e1 e2 =
         (E.Player   {}, E.Platform {}) -> intersectBounds
         (E.Platform {}, E.Player   {}) -> intersectBounds
 
+        (E.Player                     {}, E.Enemy {E.enemyLiving = True}) -> intersectBounds
+        (E.Enemy  {E.enemyLiving = True}, E.Player                    {}) -> intersectBounds
+
         (E.Player                        {}, E.Star   {E.starCollected = False}) -> intersectBounds
         (E.Star   {E.starCollected = False}, E.Player                        {}) -> intersectBounds
 
