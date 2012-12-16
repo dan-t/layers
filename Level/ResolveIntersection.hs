@@ -8,6 +8,7 @@ import Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
 import qualified GameData.Entity as E
 import qualified GameData.Level as LV
+import qualified GameData.Enemy as EN
 import qualified Entity.Intersect as EI
 import qualified Entity.Bound as EB
 import qualified Entity.Position as EP
@@ -60,14 +61,19 @@ resolveIntersection isect@(e1, e2, isects) level =
 
       resolvePlayerWithEnemyIsect (player, isectPos) enemy
          | playerKilled = Just . mkUpdateLevelEvent $ LR.reload
-         | otherwise    = Just . mkUpdateEntityEvent $ \e ->
-            case e of
-                 E.Enemy {E.enemyId = id} | id == enemyId -> e {E.enemyLiving = False}
-                                          | otherwise     -> e
-                 _ -> e 
+         | otherwise    = Just . mkMultiEvent $ [
+            mkUpdateEntityEvent $ \e ->
+               case e of
+                    E.Enemy {E.enemyId = id} | id == enemyId -> e {E.enemyLiving = False}
+                                             | otherwise     -> e
+                    _ -> e,
+
+            mkUpdateLevelEvent $ LE.modL LV.renderersL $ \rds ->
+               RR.mkRenderer (RR.fadeOutEnemy enemyPos EN.enemySize) : rds ]
          where
             playerKilled = L.any (/= E.Bottom) isectPos
             enemyId      = E.enemyId enemy
+            enemyPos     = EP.currentPosition enemy
 
 
       resolvePlayerWithPlatformIsect (player, isectPos) platform

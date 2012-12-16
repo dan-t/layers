@@ -3,7 +3,7 @@ module Rendering.Renderer where
 import Control.Monad (forM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as G
-import Gamgine.Gfx ((<<*), (<<<<*))
+import Gamgine.Gfx ((<<*), (<<<*), (<<<<*), (<<<))
 import qualified Gamgine.Coroutine as CO
 import Gamgine.Math.Vect
 import qualified GameData.Star as S
@@ -51,3 +51,25 @@ fadeOutStar pos factor rstate = do
                   forM_ (zip coords vertices) (\(c,v) -> do
                      GL.glTexCoord2f <<* c
                      GL.glVertex2f <<* v)
+
+
+fadeOutEnemy :: Vect -> (Double,Double) -> RR.RenderState -> IO (Finished, Renderer)
+fadeOutEnemy pos (sizeX, sizeY) rstate = do
+   let texId = RR.enemyTextureId . RR.ressources $ rstate
+   G.withPushedMatrix $ do
+      GL.glTranslatef <<<* (sizeX * 0.5, sizeY * 0.5, 0)
+      GL.glTranslatef <<< pos
+      G.withTexture2d texId $
+         G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
+            G.withPrimitive GL.gl_QUADS $ do
+               let coords   = G.quadTexCoords 1 1
+                   vertices = G.quad (sizeX * (-0.5), sizeY * (-0.5)) (sizeX * 0.5, sizeY * 0.5)
+               GL.glColor3f <<<* (1,1,1)
+               forM_ (zip coords vertices) (\(c,v) -> do
+                  GL.glTexCoord2f <<* c
+                  GL.glVertex2f <<* v)
+
+   let sizeY' = sizeY - 0.05
+   if sizeY' > 0
+      then return $ continueRenderer $ fadeOutEnemy pos (sizeX, sizeY')
+      else return finishRenderer
