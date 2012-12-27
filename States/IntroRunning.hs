@@ -52,4 +52,4 @@ render RR.RenderState {RR.ressources = res, RR.frustumSize = (fx, fy)} gd = do
    return gd
    where
       introStr = "LAYERS"
-      helpStr  = "<Press Enter>"
+      helpStr  = "<Press Space>"
