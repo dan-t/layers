@@ -1,6 +1,6 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
-module GLF where
+module Gamgine.Font.GLF where
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String

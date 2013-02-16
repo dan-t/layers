@@ -4,7 +4,7 @@ module Rendering.Ressources where
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Ressources as R
-import qualified GLF
+import qualified Gamgine.Font.GLF as GLF
 IMPORT_LENS
 
 -- | render ressources of entities

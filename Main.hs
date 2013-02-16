@@ -13,6 +13,7 @@ import qualified Gamgine.Engine as EG
 import qualified Gamgine.IORef as GR
 import qualified Gamgine.Ressources as RES
 import Gamgine.Gfx as G
+import qualified Gamgine.Font.GLF as GLF
 import Defaults as DF
 import qualified Utils as U
 import qualified FileData.Data2 as FD
@@ -24,7 +25,6 @@ import qualified Callback.MouseMove as MM
 import qualified Rendering.Ressources as RR
 import qualified LayersArgs as LA
 import qualified GameData.Data as GD
-import qualified GLF
 IMPORT_LENS
 
 

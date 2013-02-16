@@ -7,12 +7,12 @@ import Data.Composition ((.:))
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as G
 import Gamgine.Gfx ((<<<*))
+import qualified Gamgine.Font.GLF as GLF
 import qualified States.State as ST
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
 import qualified Rendering.Ressources as RR
 import qualified GameData.Data as GD
-import qualified GLF
 IMPORT_LENS
 
 
