@@ -12,7 +12,9 @@ import Gamgine.Control ((?))
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as Gfx
 import Gamgine.Gfx ((<<<*))
-import qualified States.State as ST
+import qualified Gamgine.State.State as ST
+import qualified Gamgine.State.MouseInfo as MI
+import qualified Gamgine.State.InputInfo as II
 import qualified States.GameRunning as GR
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
@@ -22,8 +24,6 @@ import qualified GameData.Animation as A
 import qualified GameData.Platform as PF
 import qualified Entity.Id as EI
 import qualified Entity.Position as EP
-import qualified States.MouseInfo as MI
-import qualified States.InputInfo as II
 IMPORT_LENS
 
 data DefiningAnimation = DefiningAnimation {

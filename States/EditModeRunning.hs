@@ -16,8 +16,8 @@ import qualified GameData.Level as LV
 import qualified GameData.Data as GD
 import qualified Entity.Id as EI
 import qualified Level.Reload as LR
-import qualified States.State as ST
-import qualified States.KeyInfo as KI
+import qualified Gamgine.State.State as ST
+import qualified Gamgine.State.KeyInfo as KI
 import qualified Convert.ToFileData as TF
 import qualified Convert.ToGameData as TG
 import qualified States.GameRunning as GR

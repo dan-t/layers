@@ -12,7 +12,7 @@ import qualified GameData.Data as GD
 import qualified GameData.Entity as E
 import qualified GameData.Platform as PF
 import qualified Entity.Id as EI
-import qualified States.State as ST
+import qualified Gamgine.State.State as ST
 import qualified States.GameRunning as GR
 IMPORT_LENS
 

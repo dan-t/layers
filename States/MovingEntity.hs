@@ -6,7 +6,7 @@ import Control.Applicative ((<$>))
 import Data.Composition ((.:))
 import qualified Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
-import qualified States.State as ST
+import qualified Gamgine.State.State as ST
 import qualified States.GameRunning as GR
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E

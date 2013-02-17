@@ -12,10 +12,14 @@ import qualified GameData.Level as LV
 import qualified GameData.Entity as E
 import qualified Defaults as DF
 import qualified Gamgine.State.RenderState as RS
-import qualified States.State as S
-import qualified States.StateTree as SS
-import States.StateTree (enterWhen, leaveWhen, adjacents, StateTree(..), StateTransition(..))
-import States.StateTreeZipper as SZ
+import qualified Gamgine.State.State as S
+import qualified Gamgine.State.StateTree as SS
+import Gamgine.State.StateTree (enterWhen, leaveWhen, adjacents, StateTree(..), StateTransition(..))
+import Gamgine.State.StateTreeZipper as SZ
+import qualified Gamgine.State.KeyInfo as KI
+import qualified Gamgine.State.MouseInfo as MI
+import qualified Gamgine.State.InputInfo as II
+import Gamgine.State.InputInfo (Modifier(..), InputState(..))
 import qualified States.GameRunning as GR
 import qualified States.EditModeRunning as EM
 import qualified States.MovingEntity as ME
@@ -23,10 +27,6 @@ import qualified States.CreatingPlatform as CP
 import qualified States.ResizingPlatform as RP
 import qualified States.DefiningAnimation as DA
 import qualified States.IntroRunning as IR
-import qualified States.KeyInfo as KI
-import qualified States.MouseInfo as MI
-import qualified States.InputInfo as II
-import States.InputInfo (Modifier(..), InputState(..))
 IMPORT_LENS
 
 data AppData = AppData {

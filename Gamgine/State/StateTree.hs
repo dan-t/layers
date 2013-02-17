@@ -1,11 +1,11 @@
 
-module States.StateTree where
+module Gamgine.State.StateTree where
 import qualified Data.List as L
 import qualified Graphics.UI.GLFW as GLFW
-import qualified States.State as S
-import qualified States.InputInfo as II
-import qualified States.MouseInfo as MI
-import qualified States.KeyInfo as KI
+import qualified Gamgine.State.State as S
+import qualified Gamgine.State.InputInfo as II
+import qualified Gamgine.State.MouseInfo as MI
+import qualified Gamgine.State.KeyInfo as KI
 
 -- | the tree of application states and how they entered and leaved
 data StateTree a = Branch {

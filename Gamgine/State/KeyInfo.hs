@@ -1,8 +1,8 @@
 
-module States.KeyInfo (module II, KeyInfo(..)) where
+module Gamgine.State.KeyInfo (module II, KeyInfo(..)) where
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Gamgine.Math.Vect as V
-import States.InputInfo as II
+import Gamgine.State.InputInfo as II
 
 -- | info for the pressed/released key
 data KeyInfo = KeyInfo {

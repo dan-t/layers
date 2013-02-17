@@ -1,10 +1,10 @@
 
-module States.State where
+module Gamgine.State.State where
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.State.RenderState as RS
-import qualified States.InputInfo as II
-import qualified States.KeyInfo as KI
-import qualified States.MouseInfo as MI
+import qualified Gamgine.State.InputInfo as II
+import qualified Gamgine.State.KeyInfo as KI
+import qualified Gamgine.State.MouseInfo as MI
 
 -- | an application state
 data State a = State {

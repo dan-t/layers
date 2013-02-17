@@ -9,9 +9,9 @@ import qualified Gamgine.Gfx as G
 import Gamgine.Gfx ((<<<*))
 import qualified Gamgine.Font.GLF as GLF
 import qualified Gamgine.State.RenderState as RS
-import qualified States.State as ST
-import qualified States.KeyInfo as KI
-import qualified States.MouseInfo as MI
+import qualified Gamgine.State.State as ST
+import qualified Gamgine.State.KeyInfo as KI
+import qualified Gamgine.State.MouseInfo as MI
 import qualified Rendering.Ressources as RR
 import qualified GameData.Data as GD
 IMPORT_LENS

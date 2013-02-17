@@ -1,13 +1,13 @@
 
-module States.StateTreeZipper where
+module Gamgine.State.StateTreeZipper where
 import qualified Data.List as L
 import Data.List ((!!))
-import qualified States.State as S
-import qualified States.StateTree as ST
-import States.StateTree (root, enterWhen, leaveWhen, adjacents, StateTree(..), StateTransition(..))
-import qualified States.KeyInfo as KI
-import qualified States.MouseInfo as MI
-import qualified States.InputInfo as II
+import qualified Gamgine.State.State as S
+import qualified Gamgine.State.StateTree as ST
+import Gamgine.State.StateTree (root, enterWhen, leaveWhen, adjacents, StateTree(..), StateTransition(..))
+import qualified Gamgine.State.KeyInfo as KI
+import qualified Gamgine.State.MouseInfo as MI
+import qualified Gamgine.State.InputInfo as II
 
 -- | a zipper for the state tree
 data Zipper a = Zipper {

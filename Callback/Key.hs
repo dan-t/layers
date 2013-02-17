@@ -9,7 +9,8 @@ import System.Exit (exitSuccess)
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Control ((?))
 import qualified AppData as AP
-import qualified States.KeyInfo as KI
+import qualified Gamgine.State.KeyInfo as KI
+import qualified Gamgine.State.InputInfo as II
 import qualified Callback.Common as CC
 import qualified Convert.ToFileData as TF
 import qualified Utils as U
@@ -33,7 +34,7 @@ newKeyCallback appDataRef = callback
 
       callback key pressed             = do
          mpos <- CC.mousePosition appDataRef
-         mods <- CC.pressedModifiers
+         mods <- II.pressedModifiers
          let keyInfo = KI.KeyInfo key (pressed ? KI.Pressed $ KI.Released) mpos mods
          R.modifyIORef appDataRef (AP.handleKeyEvent keyInfo)
 

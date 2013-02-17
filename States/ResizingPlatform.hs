@@ -7,13 +7,13 @@ import Data.Composition ((.:))
 import Gamgine.Control ((?))
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
+import qualified Gamgine.State.State as ST
 import qualified GameData.Level as LV
 import qualified GameData.Data as GD
 import qualified GameData.Entity as E
 import qualified GameData.Platform as PF
 import qualified Entity.Id as EI
 import qualified Entity.Position as EP
-import qualified States.State as ST
 import qualified States.GameRunning as GR
 import qualified States.CreatingPlatform as CP
 IMPORT_LENS

@@ -1,8 +1,8 @@
 
-module States.MouseInfo (module II, MouseInfo(..)) where
+module Gamgine.State.MouseInfo (module II, MouseInfo(..)) where
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Gamgine.Math.Vect as V
-import qualified States.InputInfo as II
+import qualified Gamgine.State.InputInfo as II
 
 -- | info for the pressed/released mouse button
 data MouseInfo = MouseInfo {

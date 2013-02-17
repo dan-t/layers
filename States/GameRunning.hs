@@ -15,9 +15,9 @@ import qualified GameData.Star as S
 import qualified GameData.Level as LV
 import qualified GameData.Data as GD
 import qualified Entity.Id as EI
-import qualified States.State as ST
-import qualified States.KeyInfo as KI
-import qualified States.MouseInfo as MI
+import qualified Gamgine.State.State as ST
+import qualified Gamgine.State.KeyInfo as KI
+import qualified Gamgine.State.MouseInfo as MI
 import qualified Level.Update as LU
 import qualified Level.Render as LR
 IMPORT_LENS
