@@ -7,6 +7,7 @@ import qualified Gamgine.Gfx as G
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
 import Gamgine.Gfx ((<<*), (<<<*), (<<<<*), (<<<))
+import qualified Gamgine.State.RenderState as RS
 import qualified GameData.Entity as E
 import qualified GameData.Player as P
 import qualified GameData.Enemy as EN
@@ -30,31 +31,31 @@ interpolateAnimationPos nextFrameFraction (Right ani) =
 
 
 render :: E.Scope ->
-          RR.RenderState ->
+          RS.RenderState ->
           E.Entity ->
           IO ()
 
 render _
-       RR.RenderState {RR.nextFrameFraction = frac, RR.ressources = res}
+       RS.RenderState {RS.nextFrameFraction = frac, RS.ressources = res}
        E.Player {E.playerPosition = pos, E.playerVelocity = velo@(vx:._),
                  E.playerOnBottom = onBot, E.playerWalkCycle = (_, angle)} =
-   renderWalk P.playerSize pos (onBot && vx /= 0 ? angle $ 0) (RR.playerTextureId res)
+   renderWalk P.playerSize pos (onBot && vx /= 0 ? angle $ 0) (RR.textureId RR.Player res)
 
 render _
-       RR.RenderState {RR.nextFrameFraction = frac, RR.ressources = res}
+       RS.RenderState {RS.nextFrameFraction = frac, RS.ressources = res}
        e@E.Enemy {E.enemyPosition = pos, E.enemyLiving = True, E.enemyWalkCycle = (_, angle)} = do
    let (vx:._) = EV.velocity e
-   renderWalk EN.enemySize (interpolateAnimationPos frac pos) (vx /= 0 ? angle $ 0) (RR.enemyTextureId res)
+   renderWalk EN.enemySize (interpolateAnimationPos frac pos) (vx /= 0 ? angle $ 0) (RR.textureId RR.Enemy res)
 
 render _
-       RR.RenderState {RR.ressources = res}
+       RS.RenderState {RS.ressources = res}
        E.Star {E.starPosition = pos, E.starCollected = False} =
    G.withPushedMatrix $ do
       GL.glTranslatef <<< pos
-      G.renderTexturedQuad S.starSize $ RR.starTextureId res
+      G.renderTexturedQuad S.starSize $ RR.textureId RR.Star res
 
 render E.ActiveLayerScope
-       RR.RenderState {RR.nextFrameFraction = frac}
+       RS.RenderState {RS.nextFrameFraction = frac}
        E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolateAnimationPos frac posOrAnim
@@ -63,7 +64,7 @@ render E.ActiveLayerScope
       G.withPolyMode GL.gl_LINE $ GL.glColor3f <<<* (0.4,0.4,0.4) >> G.drawBox bound
 
 render E.InactiveLayerScope
-       RR.RenderState {RR.nextFrameFraction = frac}
+       RS.RenderState {RS.nextFrameFraction = frac}
        E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolateAnimationPos frac posOrAnim

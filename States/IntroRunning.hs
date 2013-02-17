@@ -8,6 +8,7 @@ import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as G
 import Gamgine.Gfx ((<<<*))
 import qualified Gamgine.Font.GLF as GLF
+import qualified Gamgine.State.RenderState as RS
 import qualified States.State as ST
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
@@ -29,21 +30,21 @@ mkIntroRunningState = ST.State {
    }
 
 
-render :: RR.RenderState -> a -> IO a
-render RR.RenderState {RR.ressources = res, RR.frustumSize = (fx, fy)} gd = do
+render :: RS.RenderState -> a -> IO a
+render RS.RenderState {RS.ressources = res, RS.frustumSize = (fx, fy)} gd = do
    G.withPushedMatrix $ do
       GL.glMatrixMode GL.gl_MODELVIEW
       GL.glLoadIdentity
 
       G.withPushedMatrix $ do
-         GLF.setCurrentFont $ RR.crystalFontId res
+         GLF.setCurrentFont $ RR.fontId RR.Crystal res
          GLF.Bounds (minx, miny) (maxx, maxy) <- GLF.getStringBounds introStr
          GL.glTranslatef <<<* (fx / 2 - ((minx + maxx) * 2) , fy / 2, 0)
          GL.glScalef <<<* (3.75,3,3)
          GLF.drawSolidString introStr
 
       G.withPushedMatrix $ do
-         GLF.setCurrentFont $ RR.courierFontId res
+         GLF.setCurrentFont $ RR.fontId RR.Courier res
          GLF.Bounds (minx, miny) (maxx, maxy) <- GLF.getStringBounds helpStr
          GL.glTranslatef <<<* (fx / 2 - ((minx + maxx) / 2) , fy * 0.1, 0)
          GL.glScalef <<<* (1,1,1)

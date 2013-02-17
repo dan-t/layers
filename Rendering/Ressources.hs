@@ -1,51 +1,42 @@
+{-# LANGUAGE TupleSections #-}
 
 module Rendering.Ressources where
-#include "Gamgine/Utils.cpp"
+import Control.Applicative ((<$>))
+import Data.Maybe (fromJust)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
-import qualified Gamgine.Gfx as G
-import qualified Gamgine.Ressources as R
 import qualified Gamgine.Font.GLF as GLF
-IMPORT_LENS
+import qualified Gamgine.Gfx as G
+import qualified Gamgine.State.RenderState as RS
+import qualified Gamgine.Ressources as R
 
--- | render ressources of entities
-data Ressources = Ressources {
-   backgroundTextureId :: GL.GLuint,
-   playerTextureId     :: GL.GLuint,
-   enemyTextureId      :: GL.GLuint,
-   starTextureId       :: GL.GLuint,
-   crystalFontId       :: GLF.FontId,
-   courierFontId       :: GLF.FontId
-   } deriving Show
+data Texture = Background | Player | Enemy | Star deriving (Show, Eq, Enum)
+data Font    = Crystal | Courier deriving (Show, Eq, Enum)
 
-LENS(backgroundTextureId)
-LENS(playerTextureId)
-LENS(enemyTextureId)
-LENS(starTextureId)
-LENS(crystalFontId)
-LENS(courierFontId)
+textureId :: Texture -> RS.Ressources -> GL.GLuint
+textureId tex = fromJust . RS.textureId (textureName tex)
 
+fontId :: Font -> RS.Ressources -> GLF.FontId
+fontId font = fromJust . RS.fontId (fontName font)
 
-data RenderState = RenderState {
-   nextFrameFraction :: Double,    -- ^ value range 0-1
-   ressources        :: Ressources,
-   frustumSize       :: (Double, Double)
-   } deriving Show
+textureName :: Texture -> RS.TextureName
+textureName = RS.TextureName . fromEnum
 
-LENS(nextFrameFraction)
-LENS(ressources)
-LENS(frustumSize)
+fontName :: Font -> RS.FontName
+fontName = RS.FontName . fromEnum
 
-
-newRessources :: IO Ressources
+newRessources :: IO RS.Ressources
 newRessources = do
-   backId    <- mkTexture "Background.png"
-   playTexId <- mkTexture "Player.png"
-   eneTexId  <- mkTexture "Enemy.png"
-   starTexId <- mkTexture "Star.png"
-   crystalId <- mkFont "crystal1.glf"
-   courierId <- mkFont "courier1.glf"
-   return $ Ressources backId playTexId eneTexId starTexId crystalId courierId
+   texIds  <- mapM (\(tex, file) -> (textureName tex,) <$> mkTexture file) textures
+   fontIds <- mapM (\(font, file) -> (fontName font,) <$> mkFont file) fonts
+   return $ RS.Ressources texIds fontIds
    where
+      textures = [(Background, "Background.png"),
+                  (Player    , "Player.png"),
+                  (Enemy     , "Enemy.png"),
+                  (Star      , "Star.png")]
+
+      fonts = [(Crystal, "crystal1.glf"), (Courier, "courier1.glf")]
+
       mkTexture file = do
          tex <- R.getImageFilePath file
          G.makeTexture2d tex GL.gl_REPEAT
@@ -55,5 +46,5 @@ newRessources = do
          GLF.loadFont font
 
 
-emptyRessources :: Ressources
-emptyRessources = Ressources (-1) (-1) (-1) (-1) (GLF.FontId (-1)) (GLF.FontId (-1))
+emptyRessources :: RS.Ressources
+emptyRessources = RS.Ressources [] []

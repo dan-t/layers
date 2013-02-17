@@ -6,13 +6,14 @@ import qualified Gamgine.Gfx as G
 import Gamgine.Gfx ((<<*), (<<<*), (<<<<*), (<<<))
 import qualified Gamgine.Coroutine as CO
 import Gamgine.Math.Vect
+import qualified Gamgine.State.RenderState as RS
 import qualified GameData.Star as S
 import qualified Rendering.Ressources as RR
 
 type Finished = Bool
 -- | a render routine which is called/used until it returns Finished=True,
 --   used for temporary animations
-type Renderer = CO.CoroutineM IO RR.RenderState Finished
+type Renderer = CO.CoroutineM IO RS.RenderState Finished
 
 runRenderer = CO.runCoroutineM
 
@@ -25,9 +26,9 @@ continueRenderer f = (False, CO.CoroutineM $ f)
 mkRenderer rd = CO.CoroutineM rd
 
 
-fadeOutStar :: Vect -> Double -> RR.RenderState -> IO (Finished, Renderer)
+fadeOutStar :: Vect -> Double -> RS.RenderState -> IO (Finished, Renderer)
 fadeOutStar pos factor rstate = do
-   let texId   = RR.starTextureId . RR.ressources $ rstate
+   let texId   = RR.textureId RR.Star $ RS.ressources rstate
        (sx,sy) = S.starSize
        f'      = factor + 0.02
    if f' < 1
@@ -53,9 +54,9 @@ fadeOutStar pos factor rstate = do
                      GL.glVertex2f <<* v)
 
 
-fadeOutEnemy :: Vect -> (Double,Double) -> RR.RenderState -> IO (Finished, Renderer)
+fadeOutEnemy :: Vect -> (Double,Double) -> RS.RenderState -> IO (Finished, Renderer)
 fadeOutEnemy pos (sizeX, sizeY) rstate = do
-   let texId = RR.enemyTextureId . RR.ressources $ rstate
+   let texId = RR.textureId RR.Enemy $ RS.ressources rstate
    G.withPushedMatrix $ do
       GL.glTranslatef <<<* (sizeX * 0.5, sizeY * 0.5, 0)
       GL.glTranslatef <<< pos

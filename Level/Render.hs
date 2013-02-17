@@ -7,6 +7,7 @@ import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Ressources as R
 import qualified Gamgine.Gfx as G
 import Gamgine.Math.Vect as V
+import qualified Gamgine.State.RenderState as RS
 import qualified GameData.Level as LV
 import qualified GameData.Layer as LY
 import qualified GameData.Boundary as BD
@@ -18,7 +19,7 @@ import Gamgine.Gfx ((<<<*), (<<*))
 IMPORT_LENS
 
 
-render :: RR.RenderState -> LV.Level -> IO LV.Level
+render :: RS.RenderState -> LV.Level -> IO LV.Level
 render rstate level = do
    renderBackground (bgx, bgy) bgTexId
    renderInactLayer
@@ -33,7 +34,7 @@ render rstate level = do
       inactLays        = LV.inactiveLayers level
       actLayer         = LE.getL LV.activeLayerL level
       (bgx:.bgy:._)    = BD.boundaryArea . LV.boundary $ level
-      bgTexId          = RR.backgroundTextureId . RR.ressources $ rstate
+      bgTexId          = RR.textureId RR.Background $ RS.ressources rstate
 
 
 renderBackground :: (Double,Double) -> GL.GLuint -> IO ()
@@ -48,7 +49,7 @@ renderBackground (sizeX, sizeY) texId  = do
             GL.glVertex2f <<* v)
 
 
-runRenderers :: RR.RenderState -> [RD.Renderer] -> IO [RD.Renderer]
+runRenderers :: RS.RenderState -> [RD.Renderer] -> IO [RD.Renderer]
 runRenderers renderState rs = do
    foldrM (\r rs -> do
       (finished, r') <- RD.runRenderer r renderState

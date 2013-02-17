@@ -1,7 +1,7 @@
 
 module States.State where
 import qualified Gamgine.Math.Vect as V
-import qualified Rendering.Ressources as RR
+import qualified Gamgine.State.RenderState as RS
 import qualified States.InputInfo as II
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
@@ -20,7 +20,7 @@ data State a = State {
    update :: a -> (a, State a),
 
    -- | called for each frame rendering
-   render :: RR.RenderState -> a -> IO (a, State a),
+   render :: RS.RenderState -> a -> IO (a, State a),
 
    -- | called when a key was pressed/released
    keyEvent :: KI.KeyInfo -> a -> (a, State a),

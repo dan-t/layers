@@ -1,6 +1,7 @@
 
 module Main where
 #include "Gamgine/Utils.cpp"
+import Control.Applicative ((<$>))
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import qualified Data.List as L
 import System.Exit (exitSuccess)
@@ -12,6 +13,7 @@ import Gamgine.Control ((?))
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.IORef as GR
 import qualified Gamgine.Ressources as RES
+import qualified Gamgine.State.RenderState as RS
 import Gamgine.Gfx as G
 import qualified Gamgine.Font.GLF as GLF
 import Defaults as DF
@@ -86,7 +88,7 @@ render nextFrameFraction = do
 
 renderEndScreen :: AP.AppST ()
 renderEndScreen = do
-   font     <- GR.getsL (RR.crystalFontIdL . AP.renderRessourcesL)
+   font     <- RR.fontId RR.Crystal <$> GR.gets AP.renderRessources
    (fx, fy) <- GR.gets AP.frustumSize
    io $ do
       GLF.setCurrentFont font

@@ -7,6 +7,7 @@ import Data.Foldable (foldrM)
 import Data.Composition ((.:))
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Math.Vect as V
+import qualified Gamgine.State.RenderState as RS
 import qualified Data.List as L
 import qualified GameData.Player as PL
 import qualified GameData.Entity as E
@@ -14,7 +15,6 @@ import qualified GameData.Star as S
 import qualified GameData.Level as LV
 import qualified GameData.Data as GD
 import qualified Entity.Id as EI
-import qualified Rendering.Ressources as RR
 import qualified States.State as ST
 import qualified States.KeyInfo as KI
 import qualified States.MouseInfo as MI
@@ -41,7 +41,7 @@ update :: GD.Data -> GD.Data
 update = LE.modL GD.currentLevelL LU.update
 
 
-render :: RR.RenderState -> GD.Data -> IO GD.Data
+render :: RS.RenderState -> GD.Data -> IO GD.Data
 render rs gd = do
    level' <- LR.render rs $ LE.getL GD.currentLevelL gd
    return $ LE.setL GD.currentLevelL level' gd

@@ -10,8 +10,8 @@ import qualified Gamgine.Utils as GU
 import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Entity as E
-import qualified Rendering.Ressources as RR
 import qualified Defaults as DF
+import qualified Gamgine.State.RenderState as RS
 import qualified States.State as S
 import qualified States.StateTree as SS
 import States.StateTree (enterWhen, leaveWhen, adjacents, StateTree(..), StateTransition(..))
@@ -33,7 +33,7 @@ data AppData = AppData {
    windowSize       :: (Int, Int),
    frustumSize      :: (Double, Double),
    orthoScale       :: Double,
-   renderRessources :: RR.Ressources,
+   renderRessources :: RS.Ressources,
    levelsLoadedFrom :: FilePath,
    saveLevelsTo     :: FilePath,
    appMode          :: AppMode,
@@ -56,7 +56,7 @@ newAppData gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
    windowSize       = (0,0),
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
-   renderRessources = RR.emptyRessources,
+   renderRessources = RS.emptyRessources,
    levelsLoadedFrom = levelsLoadedFrom,
    saveLevelsTo     = saveLevelsTo,
    appMode          = appMode,
@@ -107,7 +107,7 @@ render :: Double -> AppData -> IO AppData
 render nextFrameFraction app = applyToStateIO f app
    where
       f      = (S.render $ LE.getL currentStateL app) rstate
-      rstate = RR.RenderState nextFrameFraction (renderRessources app) (frustumSize app)
+      rstate = RS.RenderState nextFrameFraction (renderRessources app) (frustumSize app)
 
 
 handleKeyEvent :: KI.KeyInfo -> AppData -> AppData
