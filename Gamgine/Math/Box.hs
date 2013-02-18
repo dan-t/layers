@@ -6,7 +6,7 @@ import qualified Data.List as L
 import Gamgine.Math.Vect as V
 import Gamgine.Math.Utils
 import Gamgine.Utils
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 -- axis aligned bounding box

@@ -9,7 +9,7 @@ import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V
 import qualified FileData.Data2 as FD
 import qualified GameData.Animation as A
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 -- | for classification of a box inside the box tree
 data Position = Top | Bottom | Left | Right | Center | Whatever deriving (Show, Eq)

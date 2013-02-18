@@ -16,7 +16,7 @@ import qualified Entity.Id as EI
 import qualified Entity.Position as EP
 import qualified States.GameRunning as GR
 import qualified States.CreatingPlatform as CP
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 data ResizingPlatform = ResizingPlatform {

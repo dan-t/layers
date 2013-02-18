@@ -20,7 +20,7 @@ import qualified Gamgine.State.KeyInfo as KI
 import qualified Gamgine.State.MouseInfo as MI
 import qualified Level.Update as LU
 import qualified Level.Render as LR
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 -- | the default input handling state when the

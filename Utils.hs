@@ -11,7 +11,7 @@ import qualified GameData.Data as GD
 import qualified GameData.Level as LV
 import qualified GameData.Boundary as BD
 import qualified GameData.Entity as E
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 interpolateFrame :: Double -> V.Vect -> V.Vect -> V.Vect

@@ -19,7 +19,7 @@ import qualified Rendering.Renderer as RR
 import qualified Defaults as DF
 import qualified Convert.ToFileData as TF
 import qualified Convert.ToGameData as TG
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 resolveIntersection :: EI.Intersection -> LV.Level -> Maybe EV.Event

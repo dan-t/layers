@@ -19,7 +19,7 @@ import qualified GameData.Entity as E
 import qualified GameData.Player as PL
 import qualified GameData.Boundary as BD
 import qualified Rendering.Renderer as RD
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 data Level = Level {

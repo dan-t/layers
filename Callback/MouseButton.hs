@@ -8,7 +8,7 @@ import qualified AppData as AP
 import qualified Gamgine.State.MouseInfo as MI
 import qualified Gamgine.State.InputInfo as II
 import qualified Callback.Common as CC
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 type Pressed             = Bool
 type MouseButtonCallback = (GLFW.MouseButton -> Pressed -> IO ())

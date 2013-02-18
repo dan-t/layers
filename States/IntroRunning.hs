@@ -14,7 +14,7 @@ import qualified Gamgine.State.KeyInfo as KI
 import qualified Gamgine.State.MouseInfo as MI
 import qualified Rendering.Ressources as RR
 import qualified GameData.Data as GD
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 -- | the intro state after starting the game

@@ -5,7 +5,7 @@ import Control.Applicative ((<$>))
 import qualified Data.List as L
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Font.GLF as GLF
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 newtype TextureName = TextureName Int deriving (Show, Eq)
 newtype FontName    = FontName Int deriving (Show, Eq)

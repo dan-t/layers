@@ -11,7 +11,7 @@ import qualified Gamgine.Math.Vect as V
 import Gamgine.Math.Vect
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Entity.Bound as EB
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 -- | the boundary of the whole level

@@ -27,7 +27,7 @@ import qualified Callback.MouseMove as MM
 import qualified Rendering.Ressources as RR
 import qualified LayersArgs as LA
 import qualified GameData.Data as GD
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 updateLoop = EG.updateLoop skipTicks maxFrameSkip update

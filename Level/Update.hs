@@ -12,7 +12,7 @@ import qualified GameData.Entity as E
 import qualified Entity.Update as EU
 import qualified Entity.Intersect as EI
 import qualified Level.ResolveIntersection as LR
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 update :: LV.Level -> LV.Level

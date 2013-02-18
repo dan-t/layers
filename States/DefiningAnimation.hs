@@ -24,7 +24,7 @@ import qualified GameData.Animation as A
 import qualified GameData.Platform as PF
 import qualified Entity.Id as EI
 import qualified Entity.Position as EP
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 data DefiningAnimation = DefiningAnimation {
    entityId :: Maybe Int,

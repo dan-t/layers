@@ -14,7 +14,7 @@ import qualified Gamgine.State.InputInfo as II
 import qualified Callback.Common as CC
 import qualified Convert.ToFileData as TF
 import qualified Utils as U
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 type Pressed     = Bool
 type KeyCallback = (GLFW.Key -> Pressed -> IO ())

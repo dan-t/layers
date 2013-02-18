@@ -13,7 +13,7 @@ import qualified GameData.Entity as E
 import qualified GameData.Data as GD
 import qualified Entity.Id as EI
 import qualified Entity.Position as EP
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 data MovingEntity = MovingEntity {
    entityId :: Maybe Int,

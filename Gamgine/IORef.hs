@@ -5,7 +5,7 @@ import Control.Applicative ((<$>))
 import Control.Monad (void)
 import qualified Control.Monad.State as ST
 import qualified Data.IORef as R
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 type StateIORef a = ST.StateT (R.IORef a) IO 
 

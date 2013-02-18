@@ -16,7 +16,7 @@ import qualified Rendering.Renderer as RD
 import qualified Rendering.Ressources as RR
 import qualified Entity.Render as ER
 import Gamgine.Gfx ((<<<*), (<<*))
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 render :: RS.RenderState -> LV.Level -> IO LV.Level

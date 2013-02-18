@@ -22,8 +22,8 @@
 
 #define SHOWLN(x)       (#x ++ "=" ++ (show (x)) ++ "\n")
 
-#define IMPORT_LENS     import qualified Data.Lens.Strict as LE; \
-                        import Control.Category ((.)); \
-                        import Prelude hiding ((.)); \
+#define IMPORT_LENS_AS_LE import qualified Data.Lens.Strict as LE; \
+                          import Control.Category ((.)); \
+                          import Prelude hiding ((.)); \
 
 #define LENS(field)    field##L = LE.lens field (\value record -> record {field=value})

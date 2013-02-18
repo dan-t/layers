@@ -27,7 +27,7 @@ import qualified States.CreatingPlatform as CP
 import qualified States.ResizingPlatform as RP
 import qualified States.DefiningAnimation as DA
 import qualified States.IntroRunning as IR
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 data AppData = AppData {
    windowSize       :: (Int, Int),

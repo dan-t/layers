@@ -14,7 +14,7 @@ import qualified GameData.Platform as PF
 import qualified Entity.Id as EI
 import qualified Gamgine.State.State as ST
 import qualified States.GameRunning as GR
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 data CreatingPlatform = CreatingPlatform {

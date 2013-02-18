@@ -21,7 +21,7 @@ import qualified Gamgine.State.KeyInfo as KI
 import qualified Convert.ToFileData as TF
 import qualified Convert.ToGameData as TG
 import qualified States.GameRunning as GR
-IMPORT_LENS
+IMPORT_LENS_AS_LE
 
 
 -- | the edit mode state
