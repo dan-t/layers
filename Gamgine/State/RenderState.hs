@@ -22,10 +22,10 @@ emptyRessources :: Ressources
 emptyRessources = Ressources [] []
 
 textureId :: TextureName -> Ressources -> Maybe GL.GLuint
-textureId name res = snd <$> L.find ((== name) . fst) (textureIds res)
+textureId name res = L.lookup name $ textureIds res
 
 fontId :: FontName -> Ressources -> Maybe GLF.FontId
-fontId name res = snd <$> L.find ((== name) . fst) (fontIds res)
+fontId name res = L.lookup name $ fontIds res
 
 LENS(textureIds)
 LENS(fontIds)
