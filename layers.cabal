@@ -1,25 +1,111 @@
 Name:          layers
 Version:       0.2
+License:       BSD3
+License-file:  LICENSE
 Author:        Daniel Trstenjak
 Maintainer:    daniel.trstenjak@gmail.com
 Build-Type:    Simple
+Category:      Game
 Cabal-Version: >=1.6
+Synopsis:      A prototypical 2d platform game.
+Description:   A prototypical 2d platform game.
+
 data-files:    Ressources/Images/*.png
                Ressources/*.hs
                Ressources/Fonts/*.glf
 
 Extra-source-files: Gamgine/c_libraries/glf/glf.h
                     Gamgine/c_libraries/glf/glf.c
+                    Gamgine/Utils.cpp
+
+source-repository head
+  type:     git
+  location: https://github.com/dan-t/layers
 
 Executable layers
   Main-is:       Main.hs
-  ghc-options:   -O -pgmPcpphs -optP--cpp
+  ghc-options:   -pgmPcpphs -optP--cpp
   extensions:    CPP
-  cpp-options:   -I. -DCABAL
+  cpp-options:   -DCABAL
   other-modules: Paths_layers
+                 AppData
+                 GameData.Entity
+                 GameData.Enemy
+                 GameData.Level
+                 GameData.Layer
+                 GameData.Star
+                 GameData.Animation
+                 GameData.Data
+                 GameData.Boundary
+                 GameData.Player
+                 GameData.Platform
+                 LayersData
+                 Defaults
+                 Rendering.Ressources
+                 Rendering.Renderer
+                 Entity.Velocity
+                 Entity.Intersect
+                 Entity.Render
+                 Entity.Update
+                 Entity.Bound
+                 Entity.Position
+                 Entity.Id
+                 States.EditModeRunning
+                 States.MovingEntity
+                 States.DefiningAnimation
+                 States.IntroRunning
+                 States.CreatingPlatform
+                 States.GameRunning
+                 States.ResizingPlatform
+                 Utils
+                 Convert.ToGameData
+                 Convert.ToFileData
+                 Level.ResolveIntersection
+                 Level.Reload
+                 Level.Render
+                 Level.Update
+                 LayersArgs
+                 FileData.Data2
+                 FileData.Data1ToData2
+                 FileData.ApplyToEntity
+                 FileData.Data1
+                 Callback.Common
+                 Callback.MouseMove
+                 Callback.Key
+                 Callback.MouseButton
+                 Event
+                 Gamgine.Coroutine
+                 Gamgine.Bool
+                 Gamgine.Math.Matrix
+                 Gamgine.Math.Utils
+                 Gamgine.Math.BoxTree
+                 Gamgine.Math.Vect
+                 Gamgine.Math.Box
+                 Gamgine.State.RenderState
+                 Gamgine.State.StateTreeZipper
+                 Gamgine.State.MouseInfo
+                 Gamgine.State.KeyInfo
+                 Gamgine.State.State
+                 Gamgine.State.StateTree
+                 Gamgine.State.InputInfo
+                 Gamgine.Font.GLF
+                 Gamgine.Ressources
+                 Gamgine.Control
+                 Gamgine.Utils
+                 Gamgine.Gfx
+                 Gamgine.Engine
+                 Gamgine.Image.PNG.Internal.Filters
+                 Gamgine.Image.PNG.Internal.Parser
+                 Gamgine.Image.PNG.Internal.CRC
+                 Gamgine.Image.PNG
+                 Gamgine.System
+                 Gamgine.Zipper
+                 Gamgine.IORef
+
   Build-Depends: base > 3 && < 5, GLFW-b, OpenGLRaw, mtl, time, Vec >= 0.9.9, utility-ht, directory, StateVar, array, bytestring, unordered-containers, data-lens, pretty-show, cmdargs, cpphs, filepath, parsec, zlib, ListZipper, composition
 
-  Include-dirs: Gamgine/c_libraries/glf
+  Include-dirs: .
+                Gamgine/c_libraries/glf
   Includes:     glf.h
   C-sources:    Gamgine/c_libraries/glf/glf.c
   CC-Options:   -Wno-unused-result
