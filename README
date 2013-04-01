@@ -1,9 +1,21 @@
-Make and Install:
-   cabal install layers.cabal
+A prototypical 2d platform game.
 
 
 Prerequisites:
    GLFW  installed -> www.glfw.org
+
+
+Make and Install:
+   Get Gamgine   -> https://github.com/dan-t/Gamgine
+   Get cabal-dev -> cabal install cabal-dev
+
+   cd layers
+   cabal-dev add-source ../Gamgine
+
+   (If the Gamgine directory isn't in the same directoy than the layers one,
+    than 'Include-dirs' in 'layers.cabal' has to be modified)
+
+   cabal-dev install
 
 
 Common flags:
