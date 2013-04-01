@@ -3,7 +3,7 @@
 module LayersArgs where
 import System.Console.CmdArgs
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Gamgine.Ressources as RES
+import qualified Ressources as RES
 
 data LayersArgs = LayersArgs {
    editMode       :: Bool,

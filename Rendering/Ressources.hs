@@ -7,7 +7,7 @@ import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Font.GLF as GLF
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.State.RenderState as RS
-import qualified Gamgine.Ressources as R
+import qualified Ressources as R
 
 data Texture = Background | Player | Enemy | Star deriving (Show, Eq, Enum)
 data Font    = Crystal | Courier deriving (Show, Eq, Enum)

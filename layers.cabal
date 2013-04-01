@@ -29,6 +29,7 @@ Executable layers
   cpp-options:   -DCABAL
   other-modules: Paths_layers
                  AppData
+                 Ressources
                  GameData.Entity
                  GameData.Enemy
                  GameData.Level
@@ -89,7 +90,6 @@ Executable layers
                  Gamgine.State.StateTree
                  Gamgine.State.InputInfo
                  Gamgine.Font.GLF
-                 Gamgine.Ressources
                  Gamgine.Control
                  Gamgine.Utils
                  Gamgine.Gfx

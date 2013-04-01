@@ -1,5 +1,5 @@
 
-module Gamgine.Ressources where
+module Ressources where
 
 #ifdef CABAL
 import qualified Paths_layers as PL

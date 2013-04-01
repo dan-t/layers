@@ -4,7 +4,7 @@ module Level.Render where
 import Data.Foldable (foldrM)
 import Control.Monad (forM_, mapM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL
-import qualified Gamgine.Ressources as R
+import qualified Ressources as R
 import qualified Gamgine.Gfx as G
 import Gamgine.Math.Vect as V
 import qualified Gamgine.State.RenderState as RS

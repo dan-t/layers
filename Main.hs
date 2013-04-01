@@ -12,7 +12,7 @@ import qualified Graphics.Rendering.OpenGL.Raw as GL
 import Gamgine.Control ((?))
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.IORef as GR
-import qualified Gamgine.Ressources as RES
+import qualified Ressources as RES
 import qualified Gamgine.State.RenderState as RS
 import Gamgine.Gfx as G
 import qualified Gamgine.Font.GLF as GLF
