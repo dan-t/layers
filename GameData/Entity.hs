@@ -3,7 +3,6 @@
 module GameData.Entity where
 #include "Gamgine/Utils.cpp"
 import qualified Data.List as L
-import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B
 import qualified Gamgine.Math.Vect as V

@@ -14,10 +14,6 @@ data-files:    Ressources/Images/*.png
                Ressources/*.hs
                Ressources/Fonts/*.glf
 
-Extra-source-files: Gamgine/c_libraries/glf/glf.h
-                    Gamgine/c_libraries/glf/glf.c
-                    Gamgine/Utils.cpp
-
 source-repository head
   type:     git
   location: https://github.com/dan-t/layers
@@ -75,37 +71,7 @@ Executable layers
                  Callback.Key
                  Callback.MouseButton
                  Event
-                 Gamgine.Coroutine
-                 Gamgine.Bool
-                 Gamgine.Math.Matrix
-                 Gamgine.Math.Utils
-                 Gamgine.Math.BoxTree
-                 Gamgine.Math.Vect
-                 Gamgine.Math.Box
-                 Gamgine.State.RenderState
-                 Gamgine.State.StateTreeZipper
-                 Gamgine.State.MouseInfo
-                 Gamgine.State.KeyInfo
-                 Gamgine.State.State
-                 Gamgine.State.StateTree
-                 Gamgine.State.InputInfo
-                 Gamgine.Font.GLF
-                 Gamgine.Control
-                 Gamgine.Utils
-                 Gamgine.Gfx
-                 Gamgine.Engine
-                 Gamgine.Image.PNG.Internal.Filters
-                 Gamgine.Image.PNG.Internal.Parser
-                 Gamgine.Image.PNG.Internal.CRC
-                 Gamgine.Image.PNG
-                 Gamgine.System
-                 Gamgine.Zipper
-                 Gamgine.IORef
 
-  Build-Depends: base > 3 && < 5, GLFW-b, OpenGLRaw, mtl, time, Vec >= 0.9.9, utility-ht, directory, StateVar, array, bytestring, unordered-containers, data-lens, pretty-show, cmdargs, cpphs, filepath, parsec, zlib, ListZipper, composition
-
-  Include-dirs: .
-                Gamgine/c_libraries/glf
-  Includes:     glf.h
-  C-sources:    Gamgine/c_libraries/glf/glf.c
+  Build-Depends: base > 3 && < 5, mtl, pretty-show, cmdargs, data-lens, OpenGLRaw, GLFW-b, ListZipper, composition, Gamgine
+  Include-dirs:  ../Gamgine
   CC-Options:   -Wno-unused-result

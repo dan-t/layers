@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-gcc -c -fPIC glf.c -o glf.o
-gcc -shared glf.o -o libglf.so
