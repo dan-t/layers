@@ -46,12 +46,14 @@ windowToLevelCoords xy appData =
 
 
 windowToWorldCoords :: (Int, Int) -> AP.AppData -> V.Vect
-windowToWorldCoords (x, y) appData =
-   let (w, h)     = AP.windowSize appData
-       mat        = M.worldToWinMatrix (fromIntegral w) (fromIntegral h) (AP.orthoScale appData * (fromIntegral h / fromIntegral w))
-       invMat     = M.inverseOrIdentity mat
-       worldCoord = V.fromVect4 (multmv invMat (v4 (fromIntegral x) (fromIntegral y) 0 1))
-       in worldCoord
+windowToWorldCoords winCoord appData =
+   let (width, height)   = AP.windowSize appData
+       (dWidth, dHeight) = (fromIntegral width, fromIntegral height) :: (Double, Double)
+       top               = AP.orthoScale appData * (dHeight / dWidth)
+       right             = top * (dWidth / dHeight)
+       frustum           = M.Frustum 0 right 0 top (-1) 1
+       winToWorldMtx     = M.mkWinToWorldMatrix (width, height) frustum
+       in M.winToWorld winToWorldMtx winCoord
 
 
 -- | ensure that the boundary size of all levels is at least of the size of the window
