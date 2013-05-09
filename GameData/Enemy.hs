@@ -27,4 +27,4 @@ enemyBound = B.Box V.nullVec (V.v3 x y 0)
 
 
 enemyVelocity :: Double
-enemyVelocity = 5 / DF.ticksPerSecond
+enemyVelocity = 5 / (fromIntegral DF.ticksPerSecond)

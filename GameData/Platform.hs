@@ -14,4 +14,4 @@ newPlatform id posOrAnim bound = E.Platform {
 
 
 platformVelocity :: Double
-platformVelocity = 2.5 / DF.ticksPerSecond
+platformVelocity = 2.5 / (fromIntegral DF.ticksPerSecond)

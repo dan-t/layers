@@ -35,11 +35,11 @@ accelerate _ e = e
 
 
 playerVelocity :: Double
-playerVelocity = 10 / DF.ticksPerSecond
+playerVelocity = 10 / (fromIntegral DF.ticksPerSecond)
 
 
 jumpAcceleration :: Double
-jumpAcceleration = 25 / DF.ticksPerSecond
+jumpAcceleration = 25 / (fromIntegral DF.ticksPerSecond)
 
 
 playerSize :: (Double, Double)
