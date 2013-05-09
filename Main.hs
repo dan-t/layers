@@ -31,7 +31,7 @@ import qualified GameData.Data as GD
 IMPORT_LENS_AS_LE
 
 
-updateLoop = EG.updateLoop skipTicks maxFrameSkip update
+updateLoop = EG.mkUpdateLoop ticksPerSecond maxFrameSkip update
 
 io = ST.liftIO
 
