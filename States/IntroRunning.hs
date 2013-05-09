@@ -6,7 +6,7 @@ import Control.Applicative ((<$>))
 import Data.Composition ((.:))
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as G
-import Gamgine.Gfx ((<<<*))
+import Gamgine.Gfx ((<<<))
 import qualified Gamgine.Font.GLF as GLF
 import qualified Gamgine.State.RenderState as RS
 import qualified Gamgine.State.State as ST
@@ -39,15 +39,15 @@ render RS.RenderState {RS.ressources = res, RS.frustumSize = (fx, fy)} gd = do
       G.withPushedMatrix $ do
          GLF.setCurrentFont $ RR.fontId RR.Crystal res
          GLF.Bounds (minx, miny) (maxx, maxy) <- GLF.getStringBounds introStr
-         GL.glTranslatef <<<* (fx / 2 - ((minx + maxx) * 2) , fy / 2, 0)
-         GL.glScalef <<<* (3.75,3,3)
+         GL.glTranslatef <<< G.xyz (fx / 2 - ((minx + maxx) * 2)) (fy / 2) 0
+         GL.glScalef <<< G.xyz 3.75 3 3
          GLF.drawSolidString introStr
 
       G.withPushedMatrix $ do
          GLF.setCurrentFont $ RR.fontId RR.Courier res
          GLF.Bounds (minx, miny) (maxx, maxy) <- GLF.getStringBounds helpStr
-         GL.glTranslatef <<<* (fx / 2 - ((minx + maxx) / 2) , fy * 0.1, 0)
-         GL.glScalef <<<* (1,1,1)
+         GL.glTranslatef <<< G.xyz (fx / 2 - ((minx + maxx) / 2)) (fy * 0.1) 0
+         GL.glScalef <<< G.xyz 1 1 1
          GLF.drawSolidString helpStr
 
    return gd

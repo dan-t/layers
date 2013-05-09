@@ -11,7 +11,7 @@ import qualified Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import qualified Gamgine.Gfx as Gfx
-import Gamgine.Gfx ((<<<*))
+import Gamgine.Gfx ((<<<))
 import qualified Gamgine.State.State as ST
 import qualified Gamgine.State.MouseInfo as MI
 import qualified Gamgine.State.InputInfo as II
@@ -63,7 +63,7 @@ mkDefiningAnimationState =
          ST.render = \rs gd -> do
             gd' <- GR.render rs gd
             GL.glLineWidth 2
-            GL.glColor3f <<<* (0,0,0)
+            GL.glColor3f <<< Gfx.rgb 0 0 0
             Gfx.draw GL.gl_LINE_STRIP (path da ++ [mousePos da])
             return $ (gd', mkState da),
 

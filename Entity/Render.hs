@@ -6,7 +6,7 @@ import Gamgine.Control ((?))
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Math.Box as B
 import Gamgine.Math.Vect as V
-import Gamgine.Gfx ((<<*), (<<<*), (<<<<*), (<<<))
+import Gamgine.Gfx ((<<), (<<<), (<<<<))
 import qualified Gamgine.State.RenderState as RS
 import qualified GameData.Entity as E
 import qualified GameData.Player as P
@@ -59,9 +59,9 @@ render E.ActiveLayerScope
        E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolateAnimationPos frac posOrAnim
-      GL.glColor3f <<<* (0.7,0.7,0.7) >> G.drawBox bound
+      GL.glColor3f <<< G.rgb 0.7 0.7 0.7 >> G.drawBox bound
       GL.glLineWidth 4
-      G.withPolyMode GL.gl_LINE $ GL.glColor3f <<<* (0.4,0.4,0.4) >> G.drawBox bound
+      G.withPolyMode GL.gl_LINE $ GL.glColor3f <<< G.rgb 0.4 0.4 0.4 >> G.drawBox bound
 
 render E.InactiveLayerScope
        RS.RenderState {RS.nextFrameFraction = frac}
@@ -69,15 +69,15 @@ render E.InactiveLayerScope
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolateAnimationPos frac posOrAnim
       G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $ do
-         GL.glColor4f <<<<* (0.0,0.0,0.1,0.2) >> G.drawBox bound
-         G.withPolyMode GL.gl_LINE $ GL.glColor4f <<<<* (0.0,0.0,0.3,0.2) >> G.drawBox bound
+         GL.glColor4f <<<< G.rgba 0.0 0.0 0.1 0.2 >> G.drawBox bound
+         G.withPolyMode GL.gl_LINE $ GL.glColor4f <<<< G.rgba 0.0 0.0 0.3 0.2 >> G.drawBox bound
 
 render _ _ _ = return ()
 
 
 renderBound :: E.Bound -> IO ()
 renderBound bound = do
-   GL.glColor3f <<<* (0,0,0)
+   GL.glColor3f <<< G.rgb 0 0 0
    GL.glLineWidth 1
    G.withPolyMode GL.gl_LINE $ G.drawBoxTree bound
 
@@ -85,15 +85,15 @@ renderBound bound = do
 renderWalk :: (Double,Double) -> Vect -> Double -> GL.GLuint -> IO ()
 renderWalk (sizeX, sizeY) translation angle texture =
    G.withPushedMatrix $ do
-      GL.glTranslatef <<<* (sizeX * 0.5, sizeY * 0.5, 0)
+      GL.glTranslatef <<< G.xyz (sizeX * 0.5) (sizeY * 0.5) 0
       GL.glTranslatef <<< translation
-      GL.glRotatef <<<<* (angle, 0, 0, -1)
+      GL.glRotatef <<<< G.xyzw angle 0 0 (-1)
       G.withTexture2d texture $
          G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
             G.withPrimitive GL.gl_QUADS $ do
                let coords   = G.quadTexCoords 1 1
                    vertices = G.quad (sizeX * (-0.5), sizeY * (-0.5)) (sizeX * 0.5, sizeY * 0.5)
-               GL.glColor3f <<<* (1,1,1)
+               GL.glColor3f <<< G.rgb 1 1 1
                forM_ (zip coords vertices) (\(c,v) -> do
-                  GL.glTexCoord2f <<* c
-                  GL.glVertex2f <<* v)
+                  GL.glTexCoord2f << c
+                  GL.glVertex2f << v)

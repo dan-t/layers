@@ -15,7 +15,7 @@ import qualified GameData.Entity as E
 import qualified Rendering.Renderer as RD
 import qualified Rendering.Ressources as RR
 import qualified Entity.Render as ER
-import Gamgine.Gfx ((<<<*), (<<*))
+import Gamgine.Gfx ((<<<), (<<))
 IMPORT_LENS_AS_LE
 
 
@@ -43,10 +43,10 @@ renderBackground (sizeX, sizeY) texId  = do
       G.withPrimitive GL.gl_QUADS $ do
          let coords   = G.quadTexCoords 100 100
              vertices = G.quad (0,0) (max 2000 sizeX, max 1000 sizeY)
-         GL.glColor3f <<<* (1,1,1)
+         GL.glColor3f <<< G.rgb 1 1 1
          forM_ (zip coords vertices) (\(c,v) -> do
-            GL.glTexCoord2f <<* c
-            GL.glVertex2f <<* v)
+            GL.glTexCoord2f << c
+            GL.glVertex2f << v)
 
 
 runRenderers :: RS.RenderState -> [RD.Renderer] -> IO [RD.Renderer]

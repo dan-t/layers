@@ -14,7 +14,8 @@ import qualified Gamgine.Engine as EG
 import qualified Gamgine.IORef as GR
 import qualified Ressources as RES
 import qualified Gamgine.State.RenderState as RS
-import Gamgine.Gfx as G
+import qualified Gamgine.Gfx as G
+import Gamgine.Gfx ((<<<))
 import qualified Gamgine.Font.GLF as GLF
 import Defaults as DF
 import qualified Utils as U
@@ -93,8 +94,8 @@ renderEndScreen = do
    io $ do
       GLF.setCurrentFont font
       GLF.Bounds (minx, miny) (maxx, maxy) <- GLF.getStringBounds endMsg
-      GL.glTranslatef <<<* (fx / 2 - ((minx + maxx) * 2) , fy / 2, 0)
-      GL.glScalef <<<* (3.75,3,3)
+      GL.glTranslatef <<< G.xyz (fx / 2 - ((minx + maxx) * 2)) (fy / 2) 0
+      GL.glScalef <<< G.xyz 3.75 3 3
       GLF.drawSolidString endMsg
    where
       endMsg = "END"
