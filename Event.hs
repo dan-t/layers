@@ -5,7 +5,6 @@ import qualified Data.List as L
 import qualified Data.Lens.Strict as LE
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
-import qualified Gamgine.IORef as GR
 import qualified GameData.Entity as E
 import qualified GameData.Level as LV
 

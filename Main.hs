@@ -11,7 +11,7 @@ import qualified Graphics.UI.GLFW as GLFW
 import qualified Graphics.Rendering.OpenGL.Raw as GL
 import Gamgine.Control ((?))
 import qualified Gamgine.Engine as EG
-import qualified Gamgine.IORef as GR
+import qualified Gamgine.Lens.IORef as GR
 import qualified Ressources as RES
 import qualified Gamgine.State.RenderState as RS
 import qualified Gamgine.Gfx as G
