@@ -72,6 +72,6 @@ Executable layers
                  Callback.MouseButton
                  Event
 
-  Build-Depends: base > 3 && < 5, mtl, pretty-show, cmdargs, data-lens, OpenGLRaw, GLFW-b, ListZipper, composition, Gamgine
+  Build-Depends: base > 3 && < 5, mtl, pretty-show, cmdargs, data-lens, OpenGLRaw, GLFW-b < 1.0.0, ListZipper, composition, Gamgine
   Include-dirs:  ../Gamgine
   CC-Options:   -Wno-unused-result
