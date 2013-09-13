@@ -1,7 +1,12 @@
-A prototypical 2d platform game.
+A prototypical 2d platform game
+-------------------------------
+
+![layers screenshot](layers.png)
 
 
-Make and Install:
+Make and Install
+----------------
+
    cabal install cabal-dev
 
    git clone https://github.com/dan-t/Gamgine
@@ -15,7 +20,9 @@ Make and Install:
     than 'Include-dirs' in 'layers.cabal' has to be modified)
 
 
-Common flags:
+Common flags
+------------
+
   -e --editmode             Start layers in edit mode
   -l --loadlevelsfrom=FILE  Load levels from file
                             (default='~/.cabal/share/layers-0.2/Ressources/Levels.hs')
@@ -24,14 +31,18 @@ Common flags:
   -v --version              Print version information
 
 
-Player Controls:
+Player Controls
+---------------
+
   left/right arrow key = moving left/right
   space/up arrow key   = jumping
   tab key              = switch layer
   q/escape key         = exit game
 
 
-Edit Mode:
+Edit Mode
+---------
+
   a key = add new level after the current one and switch to it
   A key = add new level before the current one and switch to it
   n key = goto next level
