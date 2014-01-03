@@ -19,6 +19,7 @@ source-repository head
   location: https://github.com/dan-t/layers
 
 Executable layers
+  hs-source-dirs: src
   Main-is:       Main.hs
   ghc-options:   -pgmPcpphs -optP--cpp
   extensions:    CPP
@@ -36,7 +37,6 @@ Executable layers
                  GameData.Boundary
                  GameData.Player
                  GameData.Platform
-                 LayersData
                  Defaults
                  Rendering.Ressources
                  Rendering.Renderer
