@@ -57,7 +57,7 @@ detailsText = [
 defaultSaveTo = "LayersData.hs"
 defaultLoadFrom = unsafePerformIO $ RES.getDataFileName "Ressources/Levels.hs"
 
-versionInfo = "layers version 0.2.2"
+versionInfo = "layers version 0.2.3"
 summaryInfo = ""
 
 getLayersArgs :: IO LayersArgs
