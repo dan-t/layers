@@ -1,77 +1,91 @@
-Name:          layers
-Version:       0.2.3
-License:       BSD3
-License-file:  LICENSE
-Author:        Daniel Trstenjak
-Maintainer:    daniel.trstenjak@gmail.com
-Build-Type:    Simple
-Category:      Game
-Cabal-Version: >=1.6
-Synopsis:      A prototypical 2d platform game.
-Description:   A prototypical 2d platform game.
-
-data-files:    Ressources/Images/*.png
-               Ressources/*.hs
-               Ressources/Fonts/*.glf
-
+name: layers
+version: 0.2.3
+cabal-version: >=1.6
+build-type: Simple
+license: BSD3
+license-file: LICENSE
+maintainer: daniel.trstenjak@gmail.com
+synopsis: A prototypical 2d platform game.
+description:
+    A prototypical 2d platform game.
+category: Game
+author: Daniel Trstenjak
+data-files:
+    Ressources/Images/*.png
+    Ressources/*.hs
+    Ressources/Fonts/*.glf
+ 
 source-repository head
-  type:     git
-  location: https://github.com/dan-t/layers
-
-Executable layers
-  hs-source-dirs: src
-  Main-is:       Main.hs
-  ghc-options:   -pgmPcpphs -optP--cpp
-  extensions:    CPP
-  cpp-options:   -DCABAL
-  other-modules: Paths_layers
-                 AppData
-                 Ressources
-                 GameData.Entity
-                 GameData.Enemy
-                 GameData.Level
-                 GameData.Layer
-                 GameData.Star
-                 GameData.Animation
-                 GameData.Data
-                 GameData.Boundary
-                 GameData.Player
-                 GameData.Platform
-                 Defaults
-                 Rendering.Ressources
-                 Rendering.Renderer
-                 Entity.Velocity
-                 Entity.Intersect
-                 Entity.Render
-                 Entity.Update
-                 Entity.Bound
-                 Entity.Position
-                 Entity.Id
-                 States.EditModeRunning
-                 States.MovingEntity
-                 States.DefiningAnimation
-                 States.IntroRunning
-                 States.CreatingPlatform
-                 States.GameRunning
-                 States.ResizingPlatform
-                 Utils
-                 Convert.ToGameData
-                 Convert.ToFileData
-                 Level.ResolveIntersection
-                 Level.Reload
-                 Level.Render
-                 Level.Update
-                 LayersArgs
-                 FileData.Data2
-                 FileData.Data1ToData2
-                 FileData.ApplyToEntity
-                 FileData.Data1
-                 Callback.Common
-                 Callback.MouseMove
-                 Callback.Key
-                 Callback.MouseButton
-                 Event
-
-  Build-Depends: base > 3 && < 5, mtl, pretty-show, cmdargs, data-lens, OpenGLRaw, GLFW-b < 1.0.0, ListZipper, composition, Gamgine
-  Include-dirs:  ../Gamgine
-  CC-Options:   -Wno-unused-result
+    type: git
+    location: https://github.com/dan-t/layers
+ 
+executable layers
+    build-depends:
+        base >3 && <5,
+        mtl -any,
+        pretty-show -any,
+        cmdargs -any,
+        data-lens -any,
+        OpenGLRaw -any,
+        GLFW-b <1.0.0,
+        ListZipper -any,
+        composition -any,
+        Gamgine -any
+    main-is: Main.hs
+    buildable: True
+    cpp-options: -DCABAL
+    cc-options: -Wno-unused-result
+    extensions: CPP
+    include-dirs: ../Gamgine
+    hs-source-dirs: src
+    other-modules:
+        Paths_layers
+        AppData
+        Ressources
+        GameData.Entity
+        GameData.Enemy
+        GameData.Level
+        GameData.Layer
+        GameData.Star
+        GameData.Animation
+        GameData.Data
+        GameData.Boundary
+        GameData.Player
+        GameData.Platform
+        Defaults
+        Rendering.Ressources
+        Rendering.Renderer
+        Entity.Velocity
+        Entity.Intersect
+        Entity.Render
+        Entity.Update
+        Entity.Bound
+        Entity.Position
+        Entity.Id
+        States.EditModeRunning
+        States.MovingEntity
+        States.DefiningAnimation
+        States.IntroRunning
+        States.CreatingPlatform
+        States.GameRunning
+        States.ResizingPlatform
+        Utils
+        Convert.ToGameData
+        Convert.ToFileData
+        Level.ResolveIntersection
+        Level.Reload
+        Level.Render
+        Level.Update
+        LayersArgs
+        FileData.Data2
+        FileData.Data1ToData2
+        FileData.ApplyToEntity
+        FileData.Data1
+        Callback.Common
+        Callback.MouseMove
+        Callback.Key
+        Callback.MouseButton
+        Event
+    ghc-options: -pgmPcpphs -optP--cpp
+ 
+ 
