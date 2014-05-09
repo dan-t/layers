@@ -9,9 +9,7 @@ synopsis: A prototypical 2d platform game.
 description:
     /A prototypical 2d platform game/
     .
-    <<http://github.com/dan-t/layers/blob/master/layers.png>>
-    .
-    <layers.png (Local Copy)>
+    <<http://raw.githubusercontent.com/dan-t/layers/master/layers.png>>
     .
     /Player Controls/
     .
