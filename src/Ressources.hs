@@ -2,7 +2,7 @@
 module Ressources where
 
 #ifdef CABAL
-import qualified Paths_layers as PL
+import qualified Paths_layers_game as PL
 #endif
 
 getDataFileName :: FilePath -> IO FilePath

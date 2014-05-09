@@ -1,4 +1,4 @@
-name: layers
+name: layers-game
 version: 0.3
 cabal-version: >=1.6
 build-type: Simple
@@ -85,7 +85,7 @@ executable layers
     include-dirs: src
     hs-source-dirs: src
     other-modules:
-        Paths_layers
+        Paths_layers_game
         AppData
         Ressources
         GameData.Entity
