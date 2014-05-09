@@ -1,6 +1,6 @@
 
 module Utils where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Graphics.UI.GLFW as GLFW
 import Control.Applicative ((<$>))
 import Gamgine.Math.Vect as V

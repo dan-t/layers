@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module States.CreatingPlatform where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.Composition ((.:))
 import Gamgine.Control ((?))

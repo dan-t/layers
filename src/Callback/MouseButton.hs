@@ -1,6 +1,6 @@
 
 module Callback.MouseButton where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Data.IORef as R
 import qualified Graphics.UI.GLFW as GLFW
 import Gamgine.Control ((?))

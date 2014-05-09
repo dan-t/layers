@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module States.DefiningAnimation where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Graphics.UI.GLFW as GLFW
 import Control.Applicative ((<$>))
 import Data.Composition ((.:))

@@ -1,6 +1,6 @@
 
 module Level.Render where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Data.Foldable (foldrM)
 import Control.Monad (forM_, mapM_)
 import qualified Graphics.Rendering.OpenGL.Raw as GL

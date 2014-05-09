@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module States.MovingEntity where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.Composition ((.:))
 import qualified Gamgine.Math.Vect as V

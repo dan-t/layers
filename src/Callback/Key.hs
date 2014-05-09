@@ -1,6 +1,6 @@
 
 module Callback.Key where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Arrow ((&&&))
 import Control.Monad (when)
 import Control.Applicative ((<$>))

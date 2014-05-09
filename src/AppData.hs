@@ -1,6 +1,6 @@
 
 module AppData where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Graphics.UI.GLFW as GLFW
 import qualified Data.IORef as R
 import qualified Data.List as L

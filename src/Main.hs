@@ -1,6 +1,6 @@
 
 module Main where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.IORef (newIORef, readIORef, modifyIORef)
 import qualified Data.List as L

@@ -1,6 +1,6 @@
 
 module GameData.Data where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Data.List as L
 import qualified Data.List.Zipper as LZ
 import Gamgine.Control (applyIf)

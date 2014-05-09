@@ -1,6 +1,6 @@
 
 module GameData.Level where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.Function (on)
 import qualified Data.List as L

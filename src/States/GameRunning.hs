@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module States.GameRunning where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.Foldable (foldrM)
 import Data.Composition ((.:))

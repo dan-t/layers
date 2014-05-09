@@ -1,6 +1,6 @@
 
 module Level.ResolveIntersection where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Data.List as L
 import qualified Gamgine.Math.BoxTree as BT
 import qualified Gamgine.Math.Box as B

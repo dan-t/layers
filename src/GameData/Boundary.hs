@@ -1,6 +1,6 @@
 
 module GameData.Boundary where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import qualified Data.List as L
 import qualified GameData.Entity as E
 import qualified Entity.Bound as EB

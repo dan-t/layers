@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module States.EditModeRunning where
-#include "Gamgine/Utils.cpp"
+#include "Utils.cpp"
 import Control.Applicative ((<$>))
 import qualified Graphics.UI.GLFW as GLFW
 import Data.Composition ((.:))

@@ -1,5 +1,5 @@
 name: layers
-version: 0.2.3
+version: 0.3
 cabal-version: >=1.6
 build-type: Simple
 license: BSD3
@@ -36,7 +36,7 @@ executable layers
     cpp-options: -DCABAL
     cc-options: -Wno-unused-result
     extensions: CPP
-    include-dirs: ../Gamgine
+    include-dirs: src
     hs-source-dirs: src
     other-modules:
         Paths_layers
