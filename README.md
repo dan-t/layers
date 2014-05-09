@@ -7,18 +7,7 @@ A prototypical 2d platform game
 Make and Install
 ----------------
 
-    cabal install cabal-dev
-
-    git clone https://github.com/dan-t/Gamgine
-    git clone https://github.com/dan-t/layers
-
-    cd layers
-    cabal-dev add-source ../Gamgine
-    cabal-dev install
-
-    (If the Gamgine directory isn't in the same directoy than the layers one,
-     than 'Include-dirs' in 'layers.cabal' has to be modified)
-
+    cabal install layers-game
 
 Common flags
 ------------
