@@ -14,7 +14,8 @@ data-files:
     Ressources/Images/*.png
     Ressources/*.hs
     Ressources/Fonts/*.glf
- 
+extra-source-files:
+    src/Utils.cpp
 source-repository head
     type: git
     location: https://github.com/dan-t/layers
