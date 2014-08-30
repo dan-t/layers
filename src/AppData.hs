@@ -30,6 +30,7 @@ import qualified States.IntroRunning as IR
 IMPORT_LENS_AS_LE
 
 data AppData = AppData {
+   window           :: GLFW.Window,
    windowSize       :: (Int, Int),
    frustumSize      :: (Double, Double),
    orthoScale       :: Double,
@@ -41,6 +42,7 @@ data AppData = AppData {
    stateTree        :: SZ.Zipper GD.Data
    }
 
+LENS(window)
 LENS(windowSize)
 LENS(frustumSize)
 LENS(orthoScale)
@@ -51,8 +53,9 @@ LENS(appMode)
 LENS(gameData)
 LENS(stateTree)
 
-newAppData :: GD.Data -> FilePath -> FilePath -> AppMode -> AppData
-newAppData gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
+newAppData :: GLFW.Window -> GD.Data -> FilePath -> FilePath -> AppMode -> AppData
+newAppData win gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
+   window           = win,
    windowSize       = (0,0),
    frustumSize      = (0,0),
    orthoScale       = DF.orthoScale,
@@ -65,24 +68,24 @@ newAppData gameData levelsLoadedFrom saveLevelsTo appMode = AppData {
       if appMode == EditMode
          then SS.root EM.mkEditModeRunningState
                  [Branch {state     = ME.mkMovingEntityState,
-                          enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Ctrl,
-                          leaveWhen = ByMouse GLFW.MouseButton0 Released,
+                          enterWhen = ByMouseWithMod GLFW.MouseButton'1 Pressed Ctrl,
+                          leaveWhen = ByMouse GLFW.MouseButton'1 Released,
                           adjacents = []},
                   Branch {state     = RP.mkResizingPlatformState,
-                          enterWhen = ByMouseWithMod GLFW.MouseButton0 Pressed Shift,
-                          leaveWhen = ByMouse GLFW.MouseButton0 Released,
+                          enterWhen = ByMouseWithMod GLFW.MouseButton'1 Pressed Shift,
+                          leaveWhen = ByMouse GLFW.MouseButton'1 Released,
                           adjacents = []},
                   Branch {state     = CP.mkCreatingPlatformState,
-                          enterWhen = ByMouse GLFW.MouseButton0 Pressed,
-                          leaveWhen = ByMouse GLFW.MouseButton0 Released,
+                          enterWhen = ByMouse GLFW.MouseButton'1 Pressed,
+                          leaveWhen = ByMouse GLFW.MouseButton'1 Released,
                           adjacents = []},
                   Branch {state     = DA.mkDefiningAnimationState,
-                          enterWhen = ByKey (GLFW.CharKey 'U') Pressed,
-                          leaveWhen = ByKey (GLFW.CharKey 'U') Pressed,
+                          enterWhen = ByKey (GLFW.Key'U) Pressed,
+                          leaveWhen = ByKey (GLFW.Key'U) Pressed,
                           adjacents = []}]
          else SS.root IR.mkIntroRunningState
                  [Branch {state     = GR.mkGameRunningState,
-                          enterWhen = ByKey (GLFW.CharKey ' ') Pressed,
+                          enterWhen = ByKey (GLFW.Key'Space) Pressed,
                           leaveWhen = NoTransition,
                           adjacents = []}]
    }

@@ -6,13 +6,10 @@ import qualified Utils as LU
 import qualified Graphics.UI.GLFW as GLFW
 import qualified AppData as AP
 
-type X                 = Int
-type Y                 = Int
-type MouseMoveCallback = (X -> Y -> IO ())
 
-newMouseMoveCallback :: AP.AppDataRef -> MouseMoveCallback
+newMouseMoveCallback :: AP.AppDataRef -> GLFW.CursorPosCallback
 newMouseMoveCallback appRef = callback
    where
-      callback x y = do
-         mp <- LU.windowToLevelCoords (x, y) <$> R.readIORef appRef
+      callback win x y = do
+         mp <- LU.windowToLevelCoords (floor x, floor y) <$> R.readIORef appRef
          R.modifyIORef appRef (AP.handleMouseMoved mp)

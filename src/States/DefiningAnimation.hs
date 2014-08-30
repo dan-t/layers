@@ -48,7 +48,7 @@ mkDefiningAnimationState =
                         gd' = E.eMap (\e -> id == EI.entityId e ? setPosition e (Left pos) $ e) gd
                         vel = getVelocity e
                         in Just (gd', mkState $ da {entityId = Just id, velocity = vel, mousePos = mp, path = [pos]})
-                   
+
                  _ -> Nothing,
 
          ST.leave = \gd ->
@@ -71,7 +71,7 @@ mkDefiningAnimationState =
 
          ST.mouseEvent = \MI.MouseInfo {MI.button = button, MI.status = status, MI.mousePos = mpos} gd ->
             case (button, status) of
-                 (GLFW.MouseButton0, II.Pressed) -> (gd, mkState $ da {mousePos = mpos, path = path da ++ [mpos]})
+                 (GLFW.MouseButton'1, II.Pressed) -> (gd, mkState $ da {mousePos = mpos, path = path da ++ [mpos]})
                  _                               -> (gd, mkState da),
 
          ST.mouseMoved = \mp gd -> (gd, mkState $ da {mousePos = mp})

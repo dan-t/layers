@@ -31,8 +31,6 @@ import qualified GameData.Data as GD
 IMPORT_LENS_AS_LE
 
 
-updateLoop = EG.mkUpdateLoop ticksPerSecond maxFrameSkip update
-
 io = ST.liftIO
 
 
@@ -44,25 +42,36 @@ main = do
        gameData = TGD.toGameData fileData
        editMode = LA.editMode args ? AP.EditMode $ AP.GameMode
 
-   appDataRef <- newIORef $ AP.newAppData gameData (LA.loadLevelsFrom args) (LA.saveLevelsTo args) editMode
+   GLFW.init
+   GLFW.windowHint $ GLFW.WindowHint'Resizable True
+   GLFW.swapInterval 1
+   Just win <- GLFW.createWindow winWidth winHeight "" Nothing Nothing
+   GLFW.makeContextCurrent (Just win)
+
    initGL
-   initGLFW appDataRef editMode
    GLF.init
+
+   appDataRef <- newIORef $ AP.newAppData win gameData (LA.loadLevelsFrom args) (LA.saveLevelsTo args) editMode
+   initCallbacks appDataRef editMode
    initRessources appDataRef
 
-   time <- GLFW.getTime
+   Just time <- GLFW.getTime
    AP.runAppST (gameLoop time) appDataRef
    return ()
 
 
 gameLoop :: Double -> AP.AppST ()
 gameLoop nextFrame = do
+   io GLFW.pollEvents
    (nextFrame', nextFrameFraction) <- updateLoop nextFrame
 
    clearGLState
    render nextFrameFraction
-   io GLFW.swapBuffers
+   win <- GR.gets AP.window
+   io $ GLFW.swapBuffers win
    gameLoop nextFrame'
+   where
+      updateLoop = EG.mkUpdateLoop ticksPerSecond maxFrameSkip update
 
 
 update :: AP.AppST ()
@@ -108,28 +117,23 @@ clearGLState = io $ do
    GL.glLoadIdentity
 
 
-initGLFW :: AP.AppDataRef -> AP.AppMode -> IO ()
-initGLFW appDataRef appMode = do
-   GLFW.initialize
-   GLFW.openWindow GLFW.defaultDisplayOptions {
-      GLFW.displayOptions_width             = winWidth,
-      GLFW.displayOptions_height            = winHeight,
-      GLFW.displayOptions_windowIsResizable = True
-      }
-
-   GLFW.setWindowBufferSwapInterval 1
-   GLFW.setWindowSizeCallback resize
-   GLFW.setWindowCloseCallback quit
-   GLFW.setKeyCallback $ KC.newKeyCallback appDataRef
-   GLFW.setMouseButtonCallback $ MC.newMouseButtonCallback appDataRef
-   GLFW.setMousePositionCallback $ MM.newMouseMoveCallback appDataRef
-   GLFW.setMouseWheelCallback $ if appMode == AP.EditMode then updateOrthoScale else \_ -> return ()
+initCallbacks :: AP.AppDataRef -> AP.AppMode -> IO ()
+initCallbacks appDataRef appMode = do
+   win <- getL AP.windowL
+   GLFW.setWindowSizeCallback win (Just resize)
+   GLFW.setWindowCloseCallback win (Just quit)
+   GLFW.setKeyCallback win (Just $ KC.newKeyCallback appDataRef)
+   GLFW.setMouseButtonCallback win (Just $ MC.newMouseButtonCallback appDataRef)
+   GLFW.setCursorPosCallback win (Just $ MM.newMouseMoveCallback appDataRef)
+   GLFW.setScrollCallback win (Just $ if appMode == AP.EditMode then updateOrthoScale else \_ _ _ -> return ())
    where
-      resize width height = do
+      resize _ width height = do
          setL AP.windowSizeL (width, height)
          modify U.updateBoundarySize
          updateFrustum
          updateCamera
+
+      quit win = GLFW.destroyWindow win >> GLFW.terminate >> exitSuccess
 
       updateFrustum = do
          modify (\app ->
@@ -147,8 +151,8 @@ initGLFW appDataRef appMode = do
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 
-      updateOrthoScale mouseWheelPos = do
-         setL AP.orthoScaleL (DF.orthoScale + fromIntegral mouseWheelPos)
+      updateOrthoScale _ _ yoffset  = do
+         setL AP.orthoScaleL (DF.orthoScale + yoffset)
          modify U.updateBoundarySize
          updateFrustum
          updateCamera
@@ -169,7 +173,3 @@ initRessources :: AP.AppDataRef -> IO ()
 initRessources appDataRef = do
    res <- RR.newRessources
    modifyIORef appDataRef $ \app -> app {AP.renderRessources = res}
-
-
-quit :: IO Bool
-quit = GLFW.closeWindow >> GLFW.terminate >> exitSuccess

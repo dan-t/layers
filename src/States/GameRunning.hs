@@ -50,32 +50,29 @@ render rs gd = do
 keyEvent :: KI.KeyInfo -> GD.Data -> GD.Data
 keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:.mpy:.mpz:.())} gd =
    case (key, status) of
-        (GLFW.KeyLeft, KI.Pressed) ->
+        (GLFW.Key'Left, KI.Pressed) ->
            E.eMap (PL.accelerate toTheLeft) gd
 
-        (GLFW.KeyLeft, KI.Released) ->
+        (GLFW.Key'Left, KI.Released) ->
            E.eMap (PL.accelerate toTheRight) gd
 
-        (GLFW.KeyRight, KI.Pressed) ->
+        (GLFW.Key'Right, KI.Pressed) ->
            E.eMap (PL.accelerate toTheRight) gd
 
-        (GLFW.KeyRight, KI.Released) ->
+        (GLFW.Key'Right, KI.Released) ->
            E.eMap (PL.accelerate toTheLeft) gd
 
-        (GLFW.KeyUp, KI.Pressed) ->
+        (GLFW.Key'Up, KI.Pressed) ->
            E.eMap PL.jump gd
 
-        (GLFW.KeySpace, KI.Pressed) ->
+        (GLFW.Key'Space, KI.Pressed) ->
            E.eMap PL.jump gd
 
-        (GLFW.CharKey ' ', KI.Pressed) ->
-           E.eMap PL.jump gd
-
-        (GLFW.KeyTab, KI.Pressed) ->
+        (GLFW.Key'Tab, KI.Pressed) ->
            LE.modL GD.currentLevelL LV.toNextLayer gd
 
         _ -> gd
-           
+
    where
       toTheLeft  = V.v3 (-PL.playerVelocity) 0 0
-      toTheRight = V.v3 PL.playerVelocity 0 0  
+      toTheRight = V.v3 PL.playerVelocity 0 0

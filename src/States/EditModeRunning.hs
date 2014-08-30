@@ -40,35 +40,35 @@ mkEditModeRunningState = ST.State {
 keyEvent :: KI.KeyInfo -> GD.Data -> GD.Data
 keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:.mpy:.mpz:.())} gd =
    case (key, status) of
-        (GLFW.CharKey 'P', KI.Pressed) ->
+        (GLFW.Key'P, KI.Pressed) ->
            let starId  = LV.freeEntityId $ LE.getL GD.currentLevelL gd
                starPos = V.v3 (mpx - (fst S.starSize * 0.5)) (mpy - (snd S.starSize * 0.5)) 0
                in LE.modL (LV.entitiesL . GD.currentLevelL) (S.newStar starId starPos :) gd
 
-        (GLFW.CharKey 'E', KI.Pressed) ->
+        (GLFW.Key'E, KI.Pressed) ->
            let eneId  = LV.freeEntityId $ LE.getL GD.currentLevelL gd
                enePos = V.v3 (mpx - (fst EN.enemySize * 0.5)) (mpy - (snd EN.enemySize * 0.5)) 0
                in LE.modL (LV.entitiesL . GD.currentLevelL) (EN.newEnemy eneId (Left enePos):) gd
 
-        (GLFW.CharKey 'R', KI.Pressed) ->
+        (GLFW.Key'R, KI.Pressed) ->
            case LV.findEntityAt mp $ LE.getL GD.currentLevelL gd of
                 Just e -> E.eFilter ((/= EI.entityId e) . EI.entityId) gd
                 _      -> gd
 
-        (GLFW.CharKey 'A', KI.Pressed) ->
+        (GLFW.Key'A, KI.Pressed) ->
            GD.addEmptyLevel (shiftPressed ? GD.BeforeCurrent $ GD.AfterCurrent) gd
 
-        (GLFW.CharKey 'M', KI.Pressed) ->
+        (GLFW.Key'M, KI.Pressed) ->
            GD.moveCurrentLevel (shiftPressed ? GD.Forward $ GD.Backward) gd
 
-        (GLFW.CharKey 'N', KI.Pressed)
+        (GLFW.Key'N, KI.Pressed)
            | shiftPressed -> GD.toPreviousLevel gd
            | otherwise    -> GD.toNextLevel gd
 
-        (GLFW.CharKey 'L', KI.Pressed) ->
+        (GLFW.Key'L, KI.Pressed) ->
            LE.modL GD.currentLevelL LR.reload gd
 
-        (GLFW.KeyDel, KI.Pressed) ->
+        (GLFW.Key'Delete, KI.Pressed) ->
            GD.removeCurrentLevel gd
 
         _ -> GR.keyEvent ki gd

@@ -10,14 +10,12 @@ import qualified Gamgine.State.InputInfo as II
 import qualified Callback.Common as CC
 IMPORT_LENS_AS_LE
 
-type Pressed             = Bool
-type MouseButtonCallback = (GLFW.MouseButton -> Pressed -> IO ())
 
-newMouseButtonCallback :: AP.AppDataRef -> MouseButtonCallback
+newMouseButtonCallback :: AP.AppDataRef -> GLFW.MouseButtonCallback
 newMouseButtonCallback appDataRef = callback
    where
-      callback button pressed = do
-         mpos <- CC.mousePosition appDataRef
-         mods <- II.pressedModifiers
-         let mouseInfo = MI.MouseInfo button (pressed ? II.Pressed $ II.Released) mpos mods
+      callback win button buttonState _ = do
+         mpos <- CC.mousePosition win appDataRef
+         mods <- II.pressedModifiers win
+         let mouseInfo = MI.MouseInfo button (buttonState == GLFW.MouseButtonState'Pressed ? II.Pressed $ II.Released) mpos mods
          R.modifyIORef appDataRef (AP.handleMouseEvent mouseInfo)

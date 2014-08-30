@@ -34,10 +34,10 @@ levelScrolling nextFrameFraction appData =
          interpolateFrame factor (E.playerPosition player) (E.playerVelocity player)
 
 
-mousePosInLevelCoords :: AP.AppData -> IO V.Vect
-mousePosInLevelCoords appData = do
-   xy <- GLFW.getMousePosition
-   return $ windowToLevelCoords xy appData
+mousePosInLevelCoords :: GLFW.Window -> AP.AppData -> IO V.Vect
+mousePosInLevelCoords win appData = do
+   (x, y) <- GLFW.getCursorPos win
+   return $ windowToLevelCoords (floor x, floor y) appData
 
 
 windowToLevelCoords :: (Int, Int) -> AP.AppData -> V.Vect
