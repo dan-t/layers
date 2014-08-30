@@ -152,7 +152,7 @@ initCallbacks appDataRef appMode = do
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 
       updateOrthoScale _ _ yoffset  = do
-         setL AP.orthoScaleL (DF.orthoScale + yoffset)
+         modL AP.orthoScaleL (+ yoffset)
          modify U.updateBoundarySize
          updateFrustum
          updateCamera
