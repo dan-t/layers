@@ -5,6 +5,11 @@ import System.Console.CmdArgs
 import System.IO.Unsafe (unsafePerformIO)
 import qualified Ressources as RES
 
+#ifdef CABAL
+import Data.Version (showVersion)
+import Paths_layers_game (version)
+#endif
+
 data LayersArgs = LayersArgs {
    editMode       :: Bool,
    loadLevelsFrom :: FilePath,
@@ -17,7 +22,7 @@ initLayersArgs = LayersArgs {
    saveLevelsTo   = defaultSaveTo   &= help ("Save levels to file (default='" ++ defaultSaveTo ++ "')") &= typFile
    }
    &= program "layers"
-   &= summary summaryInfo
+   &= summary ""
    &= help "A prototypical 2d platform game."
    &= helpArg [explicit, name "help", name "h"]
    &= versionArg [explicit, name "version", name "v", summary versionInfo ]
@@ -57,8 +62,13 @@ detailsText = [
 defaultSaveTo = "LayersData.hs"
 defaultLoadFrom = unsafePerformIO $ RES.getDataFileName "Ressources/Levels.hs"
 
-versionInfo = "layers version 0.2.3"
-summaryInfo = ""
+versionInfo :: String
+versionInfo =
+#ifdef CABAL
+   "layers version " ++ showVersion version
+#else
+   "layers version unknown (not built with cabal)"
+#endif
 
 getLayersArgs :: IO LayersArgs
 getLayersArgs = cmdArgs initLayersArgs
