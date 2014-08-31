@@ -74,4 +74,4 @@ keyEvent ki@KI.KeyInfo {KI.key = key, KI.status = status, KI.mousePos = mp@(mpx:
         _ -> GR.keyEvent ki gd
 
    where
-      shiftPressed = L.any (== KI.Shift) (KI.modifiers ki)
+      shiftPressed = GLFW.modifierKeysShift $ KI.modifiers ki

@@ -14,8 +14,7 @@ IMPORT_LENS_AS_LE
 newMouseButtonCallback :: AP.AppDataRef -> GLFW.MouseButtonCallback
 newMouseButtonCallback appDataRef = callback
    where
-      callback win button buttonState _ = do
+      callback win button buttonState mods = do
          mpos <- CC.mousePosition win appDataRef
-         mods <- II.pressedModifiers win
          let mouseInfo = MI.MouseInfo button (buttonState == GLFW.MouseButtonState'Pressed ? II.Pressed $ II.Released) mpos mods
          R.modifyIORef appDataRef (AP.handleMouseEvent mouseInfo)

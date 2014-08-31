@@ -30,9 +30,8 @@ newKeyCallback appDataRef = callback
             writeFile saveTo (show . TF.toFileData $ gdata)
             putStrLn $ "layers: Levels data written to file '" ++ saveTo ++ "'"
 
-      callback win key _ keyState _ = do
+      callback win key _ keyState mods = do
          mpos <- CC.mousePosition win appDataRef
-         mods <- II.pressedModifiers win
          case keyState of
               GLFW.KeyState'Pressed  -> do
                  let keyInfo = KI.KeyInfo key II.Pressed mpos mods
