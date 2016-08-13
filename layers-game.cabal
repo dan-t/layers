@@ -68,15 +68,15 @@ executable layers
     main-is: Main.hs
     build-depends:
         base >3 && <5,
-        mtl >=2.1.3.1,
-        pretty-show >=1.6.7,
-        cmdargs >=0.10.7,
-        data-lens >=2.10.4,
-        OpenGLRaw >=3.0.0.0,
-        GLFW-b >=1.0,
-        ListZipper >=1.2.0.2,
-        composition >=1.0.1.0,
-        Gamgine >=0.4
+        mtl >=2.1.3.1 && <2.3,
+        pretty-show >=1.6.7 && <1.7,
+        cmdargs >=0.10.7 && <0.11,
+        data-lens >=2.10.4 && <2.12,
+        OpenGLRaw >=3.0.0.0 && <3.3,
+        GLFW-b >=1.0 && <1.5,
+        ListZipper >=1.2.0.2 && <1.3,
+        composition >=1.0.1.0 && <1.1,
+        Gamgine >=0.4 && <0.6
     cpp-options: -DCABAL
     cc-options: -Wno-unused-result
     extensions: CPP
