@@ -1,7 +1,7 @@
 
 module Rendering.Renderer where
 import Control.Monad (forM_)
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import qualified Gamgine.Gfx as G
 import Gamgine.Gfx ((<<), (<<<<), (<<<))
 import qualified Gamgine.Coroutine as CO
@@ -44,8 +44,8 @@ fadeOutStar pos factor rstate = do
          let (minX, minY) = (px, py)
              (maxX, maxY) = (px + sx, py + sy)
          G.withTexture2d texId $
-            G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
-               G.withPrimitive GL.gl_QUADS $ do
+            G.withBlend GL.GL_SRC_ALPHA GL.GL_ONE_MINUS_SRC_ALPHA $
+               G.withPrimitive GL.GL_QUADS $ do
                   let coords   = G.quadTexCoords 1 1
                       vertices = G.quad (minX,minY) (maxX,maxY)
                   GL.glColor4f <<<< color
@@ -61,8 +61,8 @@ fadeOutEnemy pos (sizeX, sizeY) rstate = do
       GL.glTranslatef <<< G.xyz (sizeX * 0.5) (sizeY * 0.5) 0
       GL.glTranslatef <<< pos
       G.withTexture2d texId $
-         G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
-            G.withPrimitive GL.gl_QUADS $ do
+         G.withBlend GL.GL_SRC_ALPHA GL.GL_ONE_MINUS_SRC_ALPHA $
+            G.withPrimitive GL.GL_QUADS $ do
                let coords   = G.quadTexCoords 1 1
                    vertices = G.quad (sizeX * (-0.5), sizeY * (-0.5)) (sizeX * 0.5, sizeY * 0.5)
                GL.glColor3f <<< G.rgb 1 1 1

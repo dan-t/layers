@@ -8,7 +8,7 @@ import System.Exit (exitSuccess)
 import qualified Control.Monad.State as ST
 import Control.Monad (when, void)
 import qualified Graphics.UI.GLFW as GLFW
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import Gamgine.Control ((?))
 import qualified Gamgine.Engine as EG
 import qualified Gamgine.Lens.IORef as GR
@@ -112,8 +112,8 @@ renderEndScreen = do
 
 clearGLState :: AP.AppST ()
 clearGLState = io $ do
-   GL.glClear (fromIntegral GL.gl_COLOR_BUFFER_BIT)
-   GL.glMatrixMode GL.gl_MODELVIEW
+   GL.glClear (fromIntegral GL.GL_COLOR_BUFFER_BIT)
+   GL.glMatrixMode GL.GL_MODELVIEW
    GL.glLoadIdentity
 
 
@@ -147,7 +147,7 @@ initCallbacks appDataRef appMode = do
          (w, h) <- getL AP.windowSizeL
          (r, t) <- getL AP.frustumSizeL
 	 GL.glViewport 0 0 (fromIntegral w) (fromIntegral h)
-	 GL.glMatrixMode GL.gl_PROJECTION
+	 GL.glMatrixMode GL.GL_PROJECTION
 	 GL.glLoadIdentity
 	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 

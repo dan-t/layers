@@ -3,7 +3,7 @@
 module Rendering.Ressources where
 import Control.Applicative ((<$>))
 import Data.Maybe (fromJust)
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import qualified Gamgine.Font.GLF as GLF
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.State.RenderState as RS
@@ -39,7 +39,7 @@ newRessources = do
 
       mkTexture file = do
          tex <- R.getImageFilePath file
-         G.makeTexture2d tex GL.gl_REPEAT
+         G.makeTexture2d tex GL.GL_REPEAT
 
       mkFont file = do
          font <- R.getFontFilePath file

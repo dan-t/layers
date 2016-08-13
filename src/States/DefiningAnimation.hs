@@ -9,7 +9,7 @@ import Data.Maybe (fromJust)
 import qualified Data.List as L
 import qualified Gamgine.Math.Vect as V
 import Gamgine.Control ((?))
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import qualified Gamgine.Gfx as Gfx
 import Gamgine.Gfx ((<<<))
 import qualified Gamgine.State.State as ST
@@ -64,7 +64,7 @@ mkDefiningAnimationState =
             gd' <- GR.render rs gd
             GL.glLineWidth 2
             GL.glColor3f <<< Gfx.rgb 0 0 0
-            Gfx.draw GL.gl_LINE_STRIP (path da ++ [mousePos da])
+            Gfx.draw GL.GL_LINE_STRIP (path da ++ [mousePos da])
             return $ (gd', mkState da),
 
          ST.keyEvent = (, mkState da) .: flip const,

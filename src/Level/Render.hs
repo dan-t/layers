@@ -3,7 +3,7 @@ module Level.Render where
 #include "Utils.cpp"
 import Data.Foldable (foldrM)
 import Control.Monad (forM_, mapM_)
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import qualified Ressources as R
 import qualified Gamgine.Gfx as G
 import Gamgine.Math.Vect as V
@@ -40,7 +40,7 @@ render rstate level = do
 renderBackground :: (Double,Double) -> GL.GLuint -> IO ()
 renderBackground (sizeX, sizeY) texId  = do
    G.withTexture2d texId $
-      G.withPrimitive GL.gl_QUADS $ do
+      G.withPrimitive GL.GL_QUADS $ do
          let coords   = G.quadTexCoords 100 100
              vertices = G.quad (0,0) (max 2000 sizeX, max 1000 sizeY)
          GL.glColor3f <<< G.rgb 1 1 1

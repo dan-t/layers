@@ -4,7 +4,7 @@ module States.IntroRunning where
 #include "Utils.cpp"
 import Control.Applicative ((<$>))
 import Data.Composition ((.:))
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import qualified Gamgine.Gfx as G
 import Gamgine.Gfx ((<<<))
 import qualified Gamgine.Font.GLF as GLF
@@ -33,7 +33,7 @@ mkIntroRunningState = ST.State {
 render :: RS.RenderState -> a -> IO a
 render RS.RenderState {RS.ressources = res, RS.frustumSize = (fx, fy)} gd = do
    G.withPushedMatrix $ do
-      GL.glMatrixMode GL.gl_MODELVIEW
+      GL.glMatrixMode GL.GL_MODELVIEW
       GL.glLoadIdentity
 
       G.withPushedMatrix $ do

@@ -1,7 +1,7 @@
 
 module Entity.Render where
 import Control.Monad (when, forM_)
-import qualified Graphics.Rendering.OpenGL.Raw as GL
+import qualified Graphics.GL as GL
 import Gamgine.Control ((?))
 import qualified Gamgine.Gfx as G
 import qualified Gamgine.Math.Box as B
@@ -61,16 +61,16 @@ render E.ActiveLayerScope
       GL.glTranslatef <<< interpolateAnimationPos frac posOrAnim
       GL.glColor3f <<< G.rgb 0.7 0.7 0.7 >> G.drawBox bound
       GL.glLineWidth 4
-      G.withPolyMode GL.gl_LINE $ GL.glColor3f <<< G.rgb 0.4 0.4 0.4 >> G.drawBox bound
+      G.withPolyMode GL.GL_LINE $ GL.glColor3f <<< G.rgb 0.4 0.4 0.4 >> G.drawBox bound
 
 render E.InactiveLayerScope
        RS.RenderState {RS.nextFrameFraction = frac}
        E.Platform {E.platformPosition = posOrAnim, E.platformBound = bound} = do
    G.withPushedMatrix $ do
       GL.glTranslatef <<< interpolateAnimationPos frac posOrAnim
-      G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $ do
+      G.withBlend GL.GL_SRC_ALPHA GL.GL_ONE_MINUS_SRC_ALPHA $ do
          GL.glColor4f <<<< G.rgba 0.0 0.0 0.1 0.2 >> G.drawBox bound
-         G.withPolyMode GL.gl_LINE $ GL.glColor4f <<<< G.rgba 0.0 0.0 0.3 0.2 >> G.drawBox bound
+         G.withPolyMode GL.GL_LINE $ GL.glColor4f <<<< G.rgba 0.0 0.0 0.3 0.2 >> G.drawBox bound
 
 render _ _ _ = return ()
 
@@ -79,7 +79,7 @@ renderBound :: E.Bound -> IO ()
 renderBound bound = do
    GL.glColor3f <<< G.rgb 0 0 0
    GL.glLineWidth 1
-   G.withPolyMode GL.gl_LINE $ G.drawBoxTree bound
+   G.withPolyMode GL.GL_LINE $ G.drawBoxTree bound
 
 
 renderWalk :: (Double,Double) -> Vect -> Double -> GL.GLuint -> IO ()
@@ -89,8 +89,8 @@ renderWalk (sizeX, sizeY) translation angle texture =
       GL.glTranslatef <<< translation
       GL.glRotatef <<<< G.xyzw angle 0 0 (-1)
       G.withTexture2d texture $
-         G.withBlend GL.gl_SRC_ALPHA GL.gl_ONE_MINUS_SRC_ALPHA $
-            G.withPrimitive GL.gl_QUADS $ do
+         G.withBlend GL.GL_SRC_ALPHA GL.GL_ONE_MINUS_SRC_ALPHA $
+            G.withPrimitive GL.GL_QUADS $ do
                let coords   = G.quadTexCoords 1 1
                    vertices = G.quad (sizeX * (-0.5), sizeY * (-0.5)) (sizeX * 0.5, sizeY * 0.5)
                GL.glColor3f <<< G.rgb 1 1 1
