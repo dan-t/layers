@@ -1,0 +1,4 @@
+0.5.3
+-----
+* Raiser upper bounds of pretty-show, OpenGLRaw and GLFW-b
+* Tested with GHC 8.4.2
