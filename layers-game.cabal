@@ -1,6 +1,6 @@
 cabal-version: >=1.6
 name: layers-game
-version: 0.5.3
+version: 0.6.0
 license: BSD3
 license-file: LICENSE
 maintainer: daniel.trstenjak@gmail.com

@@ -1,3 +1,7 @@
+0.6.0
+-----
+* Fix compile errors for ghc >7.6
+
 0.5.3
 -----
 * Raiser upper bounds of pretty-show, OpenGLRaw and GLFW-b
