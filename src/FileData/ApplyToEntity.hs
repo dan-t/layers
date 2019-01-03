@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module FileData.ApplyToEntity where
 import FileData.Data2
@@ -10,10 +12,10 @@ instance Monoid b => ApplyToEntity Entity b where
    apply f entity = f entity
 
 instance Monoid b => ApplyToEntity Layer b where
-   apply f (Layer _ entities _) = applyAE f entities
+   apply f (Layer entities _) = applyAE f entities
 
 instance Monoid b => ApplyToEntity Level b where
-   apply f (Level _ entities layers) =
+   apply f (Level entities layers) =
       (applyAE f entities) `mappend` (applyAE f layers)
 
 instance Monoid b => ApplyToEntity Data b where

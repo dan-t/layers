@@ -1,5 +1,5 @@
 
-module Data1ToData2 where
+module FileData.Data1ToData2 where
 import qualified FileData.Data1 as D1
 import qualified FileData.Data2 as D2
 
@@ -10,7 +10,7 @@ convertFile d1Path d2Path = do
    writeFile d2Path d1
 
 convert :: D1.Data -> D2.Data
-convert data1 = 
+convert data1 =
    D2.Data D2.dataVersion (map convertLevel $ D1.levels data1)
 
 convertLevel :: D1.Level -> D2.Level
@@ -36,6 +36,6 @@ convertPlatform (D1.Platform id size pos) =
    D2.Platform id (convertPos pos) size
    where
       convertPos (Right (D1.Moving velo path biDir)) =
-         Right $ D2.Animation (D1.length velo) path biDir 
+         Right $ D2.Animation (D1.length velo) path biDir
 
       convertPos (Left pos) = Left pos

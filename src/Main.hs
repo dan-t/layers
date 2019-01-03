@@ -146,10 +146,10 @@ initCallbacks appDataRef appMode = do
       updateCamera = do
          (w, h) <- getL AP.windowSizeL
          (r, t) <- getL AP.frustumSizeL
-	 GL.glViewport 0 0 (fromIntegral w) (fromIntegral h)
-	 GL.glMatrixMode GL.GL_PROJECTION
-	 GL.glLoadIdentity
-	 GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
+         GL.glViewport 0 0 (fromIntegral w) (fromIntegral h)
+         GL.glMatrixMode GL.GL_PROJECTION
+         GL.glLoadIdentity
+         GL.glOrtho 0 (G.floatToFloat r) 0 (G.floatToFloat t) (-1) 1
 
       updateOrthoScale _ _ yoffset  = do
          modL AP.orthoScaleL (+ yoffset)
