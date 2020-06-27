@@ -1,11 +1,11 @@
-cabal-version: >=1.6
-name: layers-game
-version: 0.6.0
-license: BSD3
-license-file: LICENSE
-maintainer: daniel.trstenjak@gmail.com
-author: Daniel Trstenjak
-synopsis: A prototypical 2d platform game.
+cabal-version:      >=1.10
+name:               layers-game
+version:            0.7.0
+license:            BSD3
+license-file:       LICENSE
+maintainer:         daniel.trstenjak@gmail.com
+author:             Daniel Trstenjak
+synopsis:           A prototypical 2d platform game.
 description:
     /A prototypical 2d platform game/
     .
@@ -50,25 +50,27 @@ description:
     >left mouse button         = define new platform by holding the
     >                            button pressed and moving the mouse
     >mouse wheel               = change scale of orthographic projection
-category: Game
-build-type: Simple
+
+category:           Game
+build-type:         Simple
 data-files:
     Ressources/Images/*.png
     Ressources/*.hs
     Ressources/Fonts/*.glf
+
 extra-source-files:
     src/Utils.cpp
     layers.png
 
 source-repository head
-    type: git
+    type:     git
     location: https://github.com/dan-t/layers
 
 executable layers
-    main-is: Main.hs
-    cpp-options: -DCABAL
-    cc-options: -Wno-unused-result
-    hs-source-dirs: src
+    main-is:            Main.hs
+    cpp-options:        -DCABAL
+    cc-options:         -Wno-unused-result
+    hs-source-dirs:     src
     other-modules:
         Paths_layers_game
         AppData
@@ -117,17 +119,19 @@ executable layers
         Callback.Key
         Callback.MouseButton
         Event
-    extensions: CPP
-    include-dirs: src
-    ghc-options: -pgmPcpphs -optP--cpp
+
+    default-language:   Haskell2010
+    default-extensions: CPP
+    include-dirs:       src
+    ghc-options:        -pgmPcpphs -optP--cpp
     build-depends:
         base >3 && <5,
         mtl >=2.1.3.1 && <2.3,
-        pretty-show >=1.6.7 && <1.10,
+        pretty-show >=1.6.7 && <1.11,
         cmdargs >=0.10.7 && <0.11,
         data-lens >=2.10.4 && <2.12,
         OpenGLRaw >=3.0.0.0 && <3.4,
-        GLFW-b >=1.0 && <3.3,
+        GLFW-b >=1.0 && <3.4,
         ListZipper >=1.2.0.2 && <1.3,
         composition >=1.0.1.0 && <1.1,
-        Gamgine >=0.4 && <0.6
+        Gamgine >=0.4 && <0.7

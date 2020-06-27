@@ -1,3 +1,7 @@
+0.7.0
+-----
+* Support ghc 8.10.1
+
 0.6.0
 -----
 * Fix compile errors for ghc >7.6
