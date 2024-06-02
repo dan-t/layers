@@ -1,6 +1,6 @@
 cabal-version:      >=1.10
 name:               layers-game
-version:            0.7.0
+version:            0.8.0
 license:            BSD3
 license-file:       LICENSE
 maintainer:         daniel.trstenjak@gmail.com
@@ -126,12 +126,12 @@ executable layers
     ghc-options:        -pgmPcpphs -optP--cpp
     build-depends:
         base >3 && <5,
-        mtl >=2.1.3.1 && <2.3,
+        mtl >=2.1.3.1 && <2.4,
         pretty-show >=1.6.7 && <1.11,
         cmdargs >=0.10.7 && <0.11,
-        data-lens >=2.10.4 && <2.12,
+        data-lens-light >=0.1.2.4 && <0.2,
         OpenGLRaw >=3.0.0.0 && <3.4,
         GLFW-b >=1.0 && <3.4,
         ListZipper >=1.2.0.2 && <1.3,
         composition >=1.0.1.0 && <1.1,
-        Gamgine >=0.4 && <0.7
+        Gamgine >=0.4 && <0.8

@@ -2,7 +2,7 @@
 module Event where
 import Data.IORef (modifyIORef)
 import qualified Data.List as L
-import qualified Data.Lens.Strict as LE
+import qualified Data.Lens.Light as LE
 import qualified Gamgine.Math.Vect as V
 import qualified Gamgine.Math.Box as B
 import qualified GameData.Entity as E
